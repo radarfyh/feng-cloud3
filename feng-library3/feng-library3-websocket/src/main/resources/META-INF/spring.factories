@@ -1,0 +1,4 @@
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+  work.metanet.feng.common.websocket.config.WebSocketAutoConfiguration,\
+  work.metanet.feng.common.websocket.config.RedisMessageDistributorConfiguration,\
+  work.metanet.feng.common.websocket.config.LocalMessageDistributorConfiguration

@@ -1,0 +1,3 @@
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+    work.metanet.feng.common.swagger.config.SwaggerConfig,\
+    work.metanet.feng.common.swagger.config.WebConfig

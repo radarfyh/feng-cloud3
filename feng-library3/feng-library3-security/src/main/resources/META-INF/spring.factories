@@ -1,0 +1,15 @@
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+  work.metanet.feng.common.security.component.FengTokenEnhancer,\
+  work.metanet.feng.common.security.component.FengSecurityInnerAspect,\
+  work.metanet.feng.common.security.service.FengDefaultUserDetailsServiceImpl,\
+  work.metanet.feng.common.security.service.FengAppUserDetailsServiceImpl,\
+  work.metanet.feng.common.security.service.FengClientDetailsServiceImpl,\
+  work.metanet.feng.common.security.component.FengTokenStoreAutoConfiguration,\
+  work.metanet.feng.common.security.component.FengSecurityMessageSourceConfiguration,\
+  work.metanet.feng.common.security.component.FengTokenStoreCleanSchedule,\
+  work.metanet.feng.common.security.listener.AuthenticationFailureEventListener,\
+  work.metanet.feng.common.security.listener.AuthenticationSuccessEventListener,\
+  work.metanet.feng.common.security.listener.AuthenticationLogoutSuccessEventListener,\
+  work.metanet.feng.common.security.component.PermissionService,\
+  work.metanet.feng.common.security.component.PermitAllUrlResolver
+
