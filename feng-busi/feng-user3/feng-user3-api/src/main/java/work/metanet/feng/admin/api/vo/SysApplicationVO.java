@@ -9,6 +9,7 @@ import work.metanet.feng.admin.api.entity.SysApplication;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 /**
  * @ClassName SysApplicationVO
@@ -17,6 +18,7 @@ import lombok.Data;
  * @Date 2022/5/23 12:18
  **/
 @Data
+@EqualsAndHashCode(callSuper = false)
 @Schema(description = "应用VO")
 public class SysApplicationVO extends SysApplication {
 

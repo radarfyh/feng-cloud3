@@ -2,6 +2,7 @@ package work.metanet.feng.admin.api.dto;
 
 import work.metanet.feng.admin.api.entity.SysOauthClientDetails;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 /**
  * @author edison
@@ -10,6 +11,7 @@ import lombok.Data;
  * 终端管理传输对象
  */
 @Data
+@EqualsAndHashCode(callSuper = false)
 public class SysOauthClientDetailsDTO extends SysOauthClientDetails {
 
 	/**

@@ -5,12 +5,14 @@ import java.util.List;
 import java.util.Set;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 import work.metanet.feng.admin.api.entity.SysDepartment;
 import work.metanet.feng.admin.api.entity.SysRole;
 import work.metanet.feng.admin.api.entity.SysUser;
 
 @Data
+@EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
 public class AiUserInfo extends SysUser implements Serializable {
     private static final long serialVersionUID = 547891924677981054L;

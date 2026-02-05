@@ -6,7 +6,10 @@ import lombok.Data;
 
 import java.util.List;
 
+import lombok.EqualsAndHashCode;
+
 @Data
+@EqualsAndHashCode(callSuper = false)
 @Schema(description = "科室传输DTO")
 public class DepartmentAttributeDTO extends SysDepartment {
 

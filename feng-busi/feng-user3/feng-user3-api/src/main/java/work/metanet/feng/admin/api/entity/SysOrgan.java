@@ -172,7 +172,7 @@ public class SysOrgan extends Model<SysOrgan> {
     /**
      * 成立日期
      */
-    @TableField(updateStrategy = FieldStrategy.IGNORED)
+    @TableField(updateStrategy = FieldStrategy.NEVER)
     @Schema(description = "成立日期")
     private String establishDate;
     /**
@@ -213,14 +213,14 @@ public class SysOrgan extends Model<SysOrgan> {
     /**
      * 执业许可开始日期
      */
-    @TableField(updateStrategy = FieldStrategy.IGNORED)
+    @TableField(updateStrategy = FieldStrategy.NEVER)
     @Schema(description = "执业许可开始日期")
     @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd")
     private Date licenseStartDate;
     /**
      * 执业许可结束日期
      */
-    @TableField(updateStrategy = FieldStrategy.IGNORED)
+    @TableField(updateStrategy = FieldStrategy.NEVER)
     @Schema(description = "执业许可结束日期")
     @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd")
     private Date licenseEndDate;
@@ -244,19 +244,19 @@ public class SysOrgan extends Model<SysOrgan> {
     /**
      * 员工数
      */
-    @TableField(updateStrategy = FieldStrategy.IGNORED)
+    @TableField(updateStrategy = FieldStrategy.NEVER)
     @Schema(description = "员工数")
     private Integer staffQuantity;
     /**
      * 业务量
      */
-    @TableField(updateStrategy = FieldStrategy.IGNORED)
+    @TableField(updateStrategy = FieldStrategy.NEVER)
     @Schema(description = "业务量")
     private Integer dailyVisits;
     /**
      * 产品数
      */
-    @TableField(updateStrategy = FieldStrategy.IGNORED)
+    @TableField(updateStrategy = FieldStrategy.NEVER)
     @Schema(description = "产品数")
     private Integer productQuantity;
     /**

@@ -6,6 +6,8 @@ import lombok.Data;
 
 import java.util.List;
 
+import lombok.EqualsAndHashCode;
+
 /**
  * @ClassName：SysDepartmentVO
  * @author edison
@@ -13,6 +15,7 @@ import java.util.List;
  * @Description: SysDepartmentVO 功能模块
  */
 @Data
+@EqualsAndHashCode(callSuper = false)
 public class SysDepartmentVO extends SysDepartment {
 
     @Schema(description = "科室编码+名称")

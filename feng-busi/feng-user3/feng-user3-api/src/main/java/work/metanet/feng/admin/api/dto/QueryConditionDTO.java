@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Schema(description = "查询条件VO，命名错误")
+@Schema(description = "查询条件DTO")
 public class QueryConditionDTO {
     @Schema(description = "数据源Id", requiredMode = Schema.RequiredMode.REQUIRED)
     private String datasourceId;

@@ -35,20 +35,20 @@ public class SysMenu extends Model<SysMenu> {
     /**
      * 菜单名称
      */
-    @TableField(updateStrategy= FieldStrategy.IGNORED)
+    @TableField(updateStrategy= FieldStrategy.NEVER)
     @NotBlank(message = "菜单名称不能为空", groups = {ValidGroup.Save.class, ValidGroup.Update.class})
     @Schema(description = "菜单名称")
     private String menuName;
     /**
      * 按钮权限唯一标识
      */
-    @TableField(updateStrategy= FieldStrategy.IGNORED)
+    @TableField(updateStrategy= FieldStrategy.NEVER)
     @Schema(description = "按钮权限唯一标识")
     private String permission;
     /**
      * 前端路径
      */
-    @TableField(updateStrategy= FieldStrategy.IGNORED)
+    @TableField(updateStrategy= FieldStrategy.NEVER)
     @Schema(description = "前端路径")
     private String path;
     /**
@@ -59,7 +59,7 @@ public class SysMenu extends Model<SysMenu> {
     /**
      * 图标
      */
-    @TableField(updateStrategy= FieldStrategy.IGNORED)
+    @TableField(updateStrategy= FieldStrategy.NEVER)
     @Schema(description = "图标")
     private String icon;
     /**
@@ -70,7 +70,7 @@ public class SysMenu extends Model<SysMenu> {
     /**
      * 排序值
      */
-    @TableField(updateStrategy= FieldStrategy.IGNORED)
+    @TableField(updateStrategy= FieldStrategy.NEVER)
     @Schema(description = "排序值")
     private Integer sort;
     /**
@@ -81,7 +81,7 @@ public class SysMenu extends Model<SysMenu> {
     /**
      * 类型 0-菜单 1-按钮
      */
-    @TableField(updateStrategy= FieldStrategy.IGNORED)
+    @TableField(updateStrategy= FieldStrategy.NEVER)
     @Schema(description = "类型 0-菜单 1-按钮")
     private String type;
     /**

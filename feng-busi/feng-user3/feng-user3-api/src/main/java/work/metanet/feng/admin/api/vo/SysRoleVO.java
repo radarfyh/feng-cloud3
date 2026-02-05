@@ -9,6 +9,7 @@ import work.metanet.feng.admin.api.entity.SysRole;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 /**
  *@ClassName SysRoleVO
@@ -17,6 +18,7 @@ import lombok.Data;
  *@Date 2022/6/14 16:41
  **/
 @Data
+@EqualsAndHashCode(callSuper = false)
 @Schema(description = "角色VO对象")
 public class SysRoleVO extends SysRole {
 

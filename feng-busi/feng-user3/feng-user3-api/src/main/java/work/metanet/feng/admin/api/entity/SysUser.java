@@ -11,7 +11,7 @@ import work.metanet.feng.common.core.util.ValidGroup;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-
+import jakarta.validation.constraints.NotBlank;
 import java.time.LocalDateTime;
 
 /**

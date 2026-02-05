@@ -4,6 +4,7 @@ import work.metanet.feng.admin.api.entity.SysStaff;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 /**
  * 人员信息VO（视图对象）
@@ -15,6 +16,7 @@ import lombok.Data;
  * @date 2022/5/25
  */
 @Data
+@EqualsAndHashCode(callSuper = false)
 @Schema(description = "人员信息VO")
 public class SysStaffVO extends SysStaff {
 
