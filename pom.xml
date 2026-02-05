@@ -12,6 +12,8 @@
     <modules>
         <!-- 暂时先只激活 library，确保基础库编译通过 -->
         <module>feng-library3</module>
+        <module>feng-bom</module>
+
         <!-- 后续逐步开启 -->
         <!-- <module>feng-gateway2</module> -->
         <!-- <module>feng-auth</module> -->
@@ -41,15 +43,6 @@
     <!-- 依赖版本锁定 -->
     <dependencyManagement>
         <dependencies>
-            <!--bom 公共版本定义-->
-            <dependency>
-                <groupId>work.metanet</groupId>
-                <artifactId>feng-bom</artifactId>
-                <version>${project.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-
             <!-- 1. Spring Boot 4.0 BOM -->
             <dependency>
                 <groupId>org.springframework.boot</groupId>
@@ -106,10 +99,16 @@
             </dependency>
 
             <!-- 7. Apache HttpClient 4 (修复 RestTemplateConfiguration) -->
-            <dependency>
+            <!-- <dependency>
                 <groupId>org.apache.httpcomponents</groupId>
                 <artifactId>httpclient</artifactId>
                 <version>4.5.14</version>
+            </dependency> -->
+            <!-- === 新增 HttpClient 5 依赖 (适配 Spring Boot 3/4) === -->
+            <dependency>
+                <groupId>org.apache.httpcomponents.client5</groupId>
+                <artifactId>httpclient5</artifactId>
+                <version>5.3.1</version>
             </dependency>
 
             <!-- 8. Swagger 3 Annotations (修复 @Schema) -->
@@ -138,6 +137,131 @@
                 <groupId>org.bouncycastle</groupId>
                 <artifactId>bcprov-jdk18on</artifactId>
                 <version>1.77</version>
+            </dependency>
+
+
+            <!--bom 内部模块版本定义-->
+            <!-- core模块 -->
+            <dependency>
+                <groupId>work.metanet</groupId>
+                <artifactId>feng-library3-core</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <!-- mybatis 模块-->
+            <dependency>
+                <groupId>work.metanet</groupId>
+                <artifactId>feng-library3-mybatis</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <!-- feign 模块-->
+            <dependency>
+                <groupId>work.metanet</groupId>
+                <artifactId>feng-library3-feign</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <!-- agent 模块-->
+            <dependency>
+                <groupId>work.metanet</groupId>
+                <artifactId>feng-library3-agent</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <!-- datasource 模块-->
+            <dependency>
+                <groupId>work.metanet</groupId>
+                <artifactId>feng-library3-datasource</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <!-- gateway 模块-->
+            <dependency>
+                <groupId>work.metanet</groupId>
+                <artifactId>feng-library3-gateway</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <!-- gray 模块-->
+            <dependency>
+                <groupId>work.metanet</groupId>
+                <artifactId>feng-library3-gray</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <!-- idempotent 模块-->
+            <dependency>
+                <groupId>work.metanet</groupId>
+                <artifactId>feng-library3-idempotent</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <!-- log 模块-->
+            <dependency>
+                <groupId>work.metanet</groupId>
+                <artifactId>feng-library3-log</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <!-- security 模块-->
+            <dependency>
+                <groupId>work.metanet</groupId>
+                <artifactId>feng-library3-security</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <!-- swagger 模块-->
+            <dependency>
+                <groupId>work.metanet</groupId>
+                <artifactId>feng-library3-swagger</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <!-- oss 模块-->
+            <dependency>
+                <groupId>work.metanet</groupId>
+                <artifactId>feng-library3-oss</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <!-- sentinel 模块-->
+            <dependency>
+                <groupId>work.metanet</groupId>
+                <artifactId>feng-library3-sentinel</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <!-- websocket 模块-->
+            <dependency>
+                <groupId>work.metanet</groupId>
+                <artifactId>feng-library3-websocket</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <!-- user2-api 模块-->
+            <dependency>
+                <groupId>work.metanet</groupId>
+                <artifactId>feng-user2-api</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <!-- ================================================= -->
+            <!-- MQ 适配模块 (按需引用)                             -->
+            <!-- ================================================= -->
+            
+            <!-- RabbitMQ 实现 -->
+            <dependency>
+                <groupId>work.metanet</groupId>
+                <artifactId>feng-library3-rabbitmq</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <!-- Kafka 实现 -->
+            <dependency>
+                <groupId>work.metanet</groupId>
+                <artifactId>feng-library3-kafka</artifactId>
+                <version>${project.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

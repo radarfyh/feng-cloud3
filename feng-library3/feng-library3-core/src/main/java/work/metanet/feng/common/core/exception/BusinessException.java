@@ -3,6 +3,7 @@ package work.metanet.feng.common.core.exception;
 import work.metanet.feng.common.core.constant.CommonConstants;
 import work.metanet.feng.common.core.constant.enums.BusinessEnum;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 /**
@@ -13,6 +14,7 @@ import lombok.NoArgsConstructor;
  */
 @NoArgsConstructor
 @Data
+@EqualsAndHashCode(callSuper = false)
 public class BusinessException extends RuntimeException {
 
     private static final long serialVersionUID = 1L;
