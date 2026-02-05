@@ -21,7 +21,7 @@ import work.metanet.feng.admin.service.PrmCustomerService;
 
 import java.util.List;
 
-import javax.validation.Valid;
+import jakarta.validation.Valid;
 
 /**
  * 客户管理控制类

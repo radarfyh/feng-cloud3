@@ -108,7 +108,7 @@ public class FileStorageAutoConfiguration {
             builder.addLocalFileWrapperAdapter();
         }
         if (properties.getEnableHttpServletRequestFileWrapper()) {
-            if (FileStorageServiceBuilder.doesNotExistClass("javax.servlet.http.HttpServletRequest")
+            if (FileStorageServiceBuilder.doesNotExistClass("jakarta.servlet.http.HttpServletRequest")
                     && FileStorageServiceBuilder.doesNotExistClass("jakarta.servlet.http.HttpServletRequest")) {
                 log.warn(
                         "当前未检测到 Servlet 环境，无法加载 HttpServletRequest 的文件包装适配器，请将参数【dromara.x-file-storage.enable-http-servlet-request-file-wrapper】设置为 【false】来消除此警告");

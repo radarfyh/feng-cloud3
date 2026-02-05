@@ -4,44 +4,123 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <!-- 1. 继承父工程 feng-cloud3，获取基础构建配置 -->
-    <parent>
-        <groupId>work.metanet</groupId>
-        <artifactId>feng-cloud3</artifactId>
-        <version>1.0.0-SNAPSHOT</version>
-        <relativePath>../pom.xml</relativePath>
-    </parent>
+    <groupId>work.metanet</groupId>
+    <artifactId>feng-bom</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
 
-    <artifactId>feng-library3-bom</artifactId>
     <packaging>pom</packaging>
-    <name>feng-library3-bom</name>
-    <description>统一管理 feng-library3 内部各模块的版本依赖</description>
+    <name>feng-bom</name>
+    <description>统一管理 feng-cloud3 内部各模块的版本依赖</description>
 
-    <!-- 2. 定义内部模块的版本管理 -->
+    <!-- 定义内部模块的版本管理 -->
     <dependencyManagement>
         <dependencies>
             <!-- ================================================= -->
             <!-- feng-library3 内部模块定义                         -->
             <!-- ================================================= -->
             
-            <!-- 基础通用模块 (工具类、常量、Enums) - 不含 Spring 依赖 -->
+            <!-- core模块 -->
             <dependency>
                 <groupId>work.metanet</groupId>
-                <artifactId>feng-library3-common</artifactId>
+                <artifactId>feng-library3-core</artifactId>
                 <version>${project.version}</version>
             </dependency>
 
-            <!-- 核心框架模块 (Spring Boot 配置、Jackson Mixin、Security、MyBatisPlus配置) -->
+            <!-- mybatis 模块-->
             <dependency>
                 <groupId>work.metanet</groupId>
-                <artifactId>feng-library3-framework</artifactId>
+                <artifactId>feng-library3-mybatis</artifactId>
                 <version>${project.version}</version>
             </dependency>
 
-            <!-- API 接口模块 (如果拆分了 Feign Client 接口) -->
+            <!-- feign 模块-->
             <dependency>
                 <groupId>work.metanet</groupId>
-                <artifactId>feng-library3-api</artifactId>
+                <artifactId>feng-library3-feign</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <!-- agent 模块-->
+            <dependency>
+                <groupId>work.metanet</groupId>
+                <artifactId>feng-library3-agent</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <!-- datasource 模块-->
+            <dependency>
+                <groupId>work.metanet</groupId>
+                <artifactId>feng-library3-datasource</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <!-- gateway 模块-->
+            <dependency>
+                <groupId>work.metanet</groupId>
+                <artifactId>feng-library3-gateway</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <!-- gray 模块-->
+            <dependency>
+                <groupId>work.metanet</groupId>
+                <artifactId>feng-library3-gray</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <!-- idempotent 模块-->
+            <dependency>
+                <groupId>work.metanet</groupId>
+                <artifactId>feng-library3-idempotent</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <!-- log 模块-->
+            <dependency>
+                <groupId>work.metanet</groupId>
+                <artifactId>feng-library3-log</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <!-- security 模块-->
+            <dependency>
+                <groupId>work.metanet</groupId>
+                <artifactId>feng-library3-security</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <!-- swagger 模块-->
+            <dependency>
+                <groupId>work.metanet</groupId>
+                <artifactId>feng-library3-swagger</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <!-- oss 模块-->
+            <dependency>
+                <groupId>work.metanet</groupId>
+                <artifactId>feng-library3-oss</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <!-- sentinel 模块-->
+            <dependency>
+                <groupId>work.metanet</groupId>
+                <artifactId>feng-library3-sentinel</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <!-- websocket 模块-->
+            <dependency>
+                <groupId>work.metanet</groupId>
+                <artifactId>feng-library3-websocket</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <!-- user2-api 模块-->
+            <dependency>
+                <groupId>work.metanet</groupId>
+                <artifactId>feng-user2-api</artifactId>
                 <version>${project.version}</version>
             </dependency>
 

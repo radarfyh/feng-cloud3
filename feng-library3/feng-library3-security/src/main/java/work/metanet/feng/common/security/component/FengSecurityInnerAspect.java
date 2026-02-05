@@ -13,7 +13,7 @@ import org.aspectj.lang.annotation.Aspect;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.security.access.AccessDeniedException;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 /**
  * FengSecurityInnerAspect 是一个 AOP 切面，用于处理服务间接口不进行鉴权的逻辑。

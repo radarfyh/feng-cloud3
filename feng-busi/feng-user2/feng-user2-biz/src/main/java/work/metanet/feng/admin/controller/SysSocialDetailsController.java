@@ -17,7 +17,7 @@ import work.metanet.feng.common.core.util.ValidGroup;
 import work.metanet.feng.common.log.annotation.SysLog;
 import work.metanet.feng.admin.service.SysSocialDetailsService;
 
-import javax.validation.Valid;
+import jakarta.validation.Valid;
 import java.util.List;
 
 /**

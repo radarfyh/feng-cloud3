@@ -2,8 +2,8 @@ package work.metanet.feng.common.security.handler;
 
 import org.springframework.security.core.Authentication;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 /**
  * 自定义认证登出后置处理接口，处理用户退出后的业务逻辑。

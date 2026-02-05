@@ -41,6 +41,15 @@
     <!-- 依赖版本锁定 -->
     <dependencyManagement>
         <dependencies>
+            <!--bom 公共版本定义-->
+            <dependency>
+                <groupId>work.metanet</groupId>
+                <artifactId>feng-bom</artifactId>
+                <version>${project.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
             <!-- 1. Spring Boot 4.0 BOM -->
             <dependency>
                 <groupId>org.springframework.boot</groupId>
@@ -82,11 +91,53 @@
                 <version>${hutool.version}</version>
             </dependency>
             
-            <!-- 6. 内部模块依赖锁定 -->
+            <!-- 6. MyBatis Plus 注解包 (修复 IEnum, @TableName) -->
+            <!-- 注意：Core模块不需要引入 starter，只需要 annotation 或 extension -->
             <dependency>
-                <groupId>com.feng</groupId>
-                <artifactId>feng-library2-common</artifactId>
-                <version>${project.version}</version>
+                <groupId>com.baomidou</groupId>
+                <artifactId>mybatis-plus-annotation</artifactId>
+                <version>${mybatis-plus.version}</version> <!-- 必须显式指定，因为父工程管理的是 starter -->
+            </dependency>
+            <!-- 如果 IEnum 找不到，可能需要 core -->
+            <dependency>
+                <groupId>com.baomidou</groupId>
+                <artifactId>mybatis-plus-core</artifactId>
+                <version>${mybatis-plus.version}</version>
+            </dependency>
+
+            <!-- 7. Apache HttpClient 4 (修复 RestTemplateConfiguration) -->
+            <dependency>
+                <groupId>org.apache.httpcomponents</groupId>
+                <artifactId>httpclient</artifactId>
+                <version>4.5.14</version>
+            </dependency>
+
+            <!-- 8. Swagger 3 Annotations (修复 @Schema) -->
+            <dependency>
+                <groupId>io.swagger.core.v3</groupId>
+                <artifactId>swagger-annotations-jakarta</artifactId>
+                <version>2.2.20</version>
+            </dependency>
+
+            <!-- 9. Jasypt 加密 (修复 JasyptUtil) -->
+            <dependency>
+                <groupId>com.github.ulisesbocchio</groupId>
+                <artifactId>jasypt-spring-boot-starter</artifactId>
+                <version>3.0.5</version>
+            </dependency>
+
+            <!-- 10. LangChain4j (修复 PromptUtil) -->
+            <dependency>
+                <groupId>dev.langchain4j</groupId>
+                <artifactId>langchain4j</artifactId>
+                <version>0.29.1</version> <!-- 建议使用较新版本 -->
+            </dependency>
+            
+            <!-- 11. Bouncy Castle (Jasypt 可能需要的加密提供者) -->
+            <dependency>
+                <groupId>org.bouncycastle</groupId>
+                <artifactId>bcprov-jdk18on</artifactId>
+                <version>1.77</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

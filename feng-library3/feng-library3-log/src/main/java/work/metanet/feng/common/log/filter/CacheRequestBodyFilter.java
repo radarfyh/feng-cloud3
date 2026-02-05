@@ -1,8 +1,8 @@
 package work.metanet.feng.common.log.filter;
 
-import javax.servlet.*;
-import javax.servlet.annotation.WebFilter;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.*;
+import jakarta.servlet.annotation.WebFilter;
+import jakarta.servlet.http.HttpServletRequest;
 
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;

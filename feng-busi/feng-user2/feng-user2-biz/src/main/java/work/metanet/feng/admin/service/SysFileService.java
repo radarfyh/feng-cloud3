@@ -5,7 +5,7 @@ import work.metanet.feng.admin.api.entity.SysFile;
 import work.metanet.feng.common.core.util.R;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 /**

@@ -16,7 +16,7 @@ import cn.hutool.json.JSONUtil;
 
 import java.io.IOException;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 /**
  * 传递 RestTemplate 请求的租户ID拦截器<br>

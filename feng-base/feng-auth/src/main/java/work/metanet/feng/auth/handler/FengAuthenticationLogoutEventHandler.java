@@ -20,8 +20,8 @@ import org.springframework.web.util.ContentCachingResponseWrapper;
 
 import cn.hutool.json.JSONUtil;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 /**
  * 退出事件处理器

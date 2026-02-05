@@ -19,7 +19,7 @@ import work.metanet.feng.admin.service.PrmSocialRelationshipService;
 
 import java.util.List;
 
-import javax.validation.Valid;
+import jakarta.validation.Valid;
 
 /**
  * 联系人关系网络控制器

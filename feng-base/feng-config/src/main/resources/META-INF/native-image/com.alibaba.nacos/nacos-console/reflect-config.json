@@ -7114,34 +7114,34 @@
   "name":"java.util.stream.Stream"
 },
 {
-  "name":"javax.annotation.ManagedBean"
+  "name":"jakarta.annotation.ManagedBean"
 },
 {
-  "name":"javax.annotation.Nonnull",
+  "name":"jakarta.annotation.Nonnull",
   "queryAllDeclaredMethods":true
 },
 {
-  "name":"javax.annotation.Nullable",
+  "name":"jakarta.annotation.Nullable",
   "queryAllDeclaredMethods":true
 },
 {
-  "name":"javax.annotation.PostConstruct",
+  "name":"jakarta.annotation.PostConstruct",
   "queryAllDeclaredMethods":true
 },
 {
-  "name":"javax.annotation.PreDestroy",
+  "name":"jakarta.annotation.PreDestroy",
   "queryAllDeclaredMethods":true
 },
 {
-  "name":"javax.annotation.Resource",
+  "name":"jakarta.annotation.Resource",
   "queryAllDeclaredMethods":true
 },
 {
-  "name":"javax.annotation.meta.TypeQualifier",
+  "name":"jakarta.annotation.meta.TypeQualifier",
   "queryAllDeclaredMethods":true
 },
 {
-  "name":"javax.annotation.meta.TypeQualifierDefault",
+  "name":"jakarta.annotation.meta.TypeQualifierDefault",
   "queryAllDeclaredMethods":true
 },
 {

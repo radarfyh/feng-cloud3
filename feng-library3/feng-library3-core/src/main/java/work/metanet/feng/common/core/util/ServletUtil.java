@@ -4,8 +4,8 @@ import cn.hutool.json.JSONUtil;
 import lombok.SneakyThrows;
 import work.metanet.feng.common.core.constant.CommonConstants;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;

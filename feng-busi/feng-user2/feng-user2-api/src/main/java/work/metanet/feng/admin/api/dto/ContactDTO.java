@@ -8,8 +8,8 @@ import work.metanet.feng.common.core.constant.enums.Position;
 import work.metanet.feng.common.core.constant.enums.StringWhether;
 import work.metanet.feng.common.core.util.ValidGroup;
 
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import java.time.LocalDate;
 
 /**

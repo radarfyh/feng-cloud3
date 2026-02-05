@@ -6,7 +6,7 @@ import work.metanet.feng.common.core.constant.enums.ContactRelationshipType;
 import work.metanet.feng.common.core.constant.enums.StringWhether;
 import work.metanet.feng.common.core.util.ValidGroup;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 

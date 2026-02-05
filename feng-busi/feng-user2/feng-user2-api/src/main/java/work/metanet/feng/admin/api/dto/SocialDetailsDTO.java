@@ -6,8 +6,8 @@ import work.metanet.feng.common.core.constant.enums.SocialType;
 import work.metanet.feng.common.core.constant.enums.StringWhether;
 import work.metanet.feng.common.core.util.ValidGroup;
 
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 
 @Data
 @Schema(description = "社交账号数据传输对象")
