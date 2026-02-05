@@ -3,22 +3,22 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-
+    <parent>
+        <groupId>work.metanet</groupId>
+        <artifactId>feng-cloud3</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
+    </parent>
     <groupId>work.metanet</groupId>
     <artifactId>feng-bom</artifactId>
     <version>1.0.0-SNAPSHOT</version>
 
     <packaging>pom</packaging>
     <name>feng-bom</name>
-    <description>统一管理 feng-cloud3 内部各模块的版本依赖</description>
+    <description>对外发布的版本清单</description>
 
-    <!-- 定义内部模块的版本管理 -->
+    <!-- 这里列出所有的内部模块，供外部使用 -->
     <dependencyManagement>
         <dependencies>
-            <!-- ================================================= -->
-            <!-- feng-library3 内部模块定义                         -->
-            <!-- ================================================= -->
-            
             <!-- core模块 -->
             <dependency>
                 <groupId>work.metanet</groupId>
