@@ -18,7 +18,7 @@
     <modules>
         <module>feng-library3-core</module>
         <module>feng-library3-mybatis</module>
-        <!-- <module>feng-library3-security</module> -->
+        <module>feng-library3-security</module>
         <!-- <module>feng-library3-data</module> -->
         <!-- <module>feng-library3-agent</module>
         <module>feng-library3-feign</module>

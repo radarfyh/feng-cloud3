@@ -20,7 +20,7 @@
         <!--工具类核心包-->
         <dependency>
             <groupId>work.metanet</groupId>
-            <artifactId>feng-library2-core</artifactId>
+            <artifactId>feng-library3-core</artifactId>
         </dependency>
         <!--Lombok-->
         <dependency>
@@ -63,7 +63,7 @@
         <!--user2 fegin 调用相关工具类-->
         <dependency>
             <groupId>work.metanet</groupId>
-            <artifactId>feng-user2-api</artifactId>
+            <artifactId>feng-user3-api</artifactId>
             <exclusions>
                 <exclusion>
                     <groupId>org.springframework.cloud</groupId>

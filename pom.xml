@@ -33,7 +33,7 @@
 
         <!-- 中间件与工具 -->
         <mybatis-plus.version>3.5.16</mybatis-plus.version> 
-        <hutool.version>5.8.35</hutool.version>
+        <hutool.version>5.8.43</hutool.version>
         <mysql.version>9.1.0</mysql.version> <!-- MySQL 9.x 驱动 -->
         <lombok.version>1.18.36</lombok.version>
 
@@ -84,6 +84,11 @@
             <dependency>
                 <groupId>cn.hutool</groupId>
                 <artifactId>hutool-all</artifactId>
+                <version>${hutool.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>cn.hutool</groupId>
+                <artifactId>hutool-http</artifactId>
                 <version>${hutool.version}</version>
             </dependency>
             
@@ -288,7 +293,7 @@
             <!-- user2-api 模块-->
             <dependency>
                 <groupId>work.metanet</groupId>
-                <artifactId>feng-user2-api</artifactId>
+                <artifactId>feng-user3-api</artifactId>
                 <version>${project.version}</version>
             </dependency>
 
