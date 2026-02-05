@@ -1,66 +1,47 @@
 package work.metanet.feng.common.core.factory;
 
-import org.springframework.beans.factory.config.YamlPropertiesFactoryBean;
-import org.springframework.core.env.PropertiesPropertySource;
+import org.springframework.boot.env.YamlPropertySourceLoader;
 import org.springframework.core.env.PropertySource;
 import org.springframework.core.io.support.EncodedResource;
 import org.springframework.core.io.support.PropertySourceFactory;
-import org.springframework.lang.Nullable;
-
-import java.io.FileNotFoundException;
+import org.jspecify.annotations.Nullable;
 import java.io.IOException;
-import java.util.Properties;
+import java.util.Collections;
+import java.util.List;
 
 /**
- * 读取自定义 YAML 文件并将其转换为 Spring PropertySource 的工厂类
+ * Yml配置加载工厂
  * <p>
- * 该类用于将自定义的 YAML 配置文件加载为 Spring 的 PropertySource，
- * 使得 YAML 文件中的配置可以与其他配置源一样被 Spring 管理和使用。
- * </p>
+ * 解决 Spring 的 @PropertySource 注解默认不支持 yaml 文件的问题
+ * 已适配 Spring Boot 3/4，消除过时 API 警告
+ *
+ * @author feng
  */
 public class YamlPropertySourceFactory implements PropertySourceFactory {
 
-    /**
-     * 创建并返回一个 PropertySource，使用 YAML 文件中的属性。
-     * 
-     * @param name     属性源的名称
-     * @param resource 资源（YAML 文件）
-     * @return 一个 PropertySource 对象，包含 YAML 文件的属性
-     * @throws IOException 如果读取 YAML 文件时发生错误
-     */
     @Override
     public PropertySource<?> createPropertySource(@Nullable String name, EncodedResource resource) throws IOException {
-        // 从 YAML 文件加载属性
-        Properties propertiesFromYaml = loadYamlIntoProperties(resource);
-        
-        // 使用文件名或传入的 name 作为属性源的名称
-        String sourceName = (name != null) ? name : resource.getResource().getFilename();
-        
-        // 返回 PropertiesPropertySource 对象
-        return new PropertiesPropertySource(sourceName, propertiesFromYaml);
-    }
+        // 1. 确定资源名称：如果注解没写 name，就用文件名
+        String sourceName = name != null ? name : resource.getResource().getFilename();
 
-    /**
-     * 将 YAML 文件中的内容加载为 Properties 对象。
-     * 
-     * @param resource 资源（YAML 文件）
-     * @return 包含 YAML 文件中内容的 Properties 对象
-     * @throws FileNotFoundException 如果文件未找到
-     * @throws IOException 如果其他 I/O 错误发生
-     */
-    private Properties loadYamlIntoProperties(EncodedResource resource) throws IOException {
-        try {
-            YamlPropertiesFactoryBean factory = new YamlPropertiesFactoryBean();
-            factory.setResources(resource.getResource());
-            factory.afterPropertiesSet();
-            return factory.getObject();
-        } catch (IllegalStateException e) {
-            // 捕获并处理 IllegalStateException，检查是否是 FileNotFoundException
-            Throwable cause = e.getCause();
-            if (cause instanceof FileNotFoundException) {
-                throw (FileNotFoundException) cause;
+        // 2. 检查资源是否存在
+        if (sourceName != null && resource.getResource().exists()) {
+            // 3. 使用 Spring Boot 原生加载器 (核心优化点)
+            YamlPropertySourceLoader loader = new YamlPropertySourceLoader();
+            
+            // load 方法返回的是 List，因为 YAML 规范支持单文件中包含多文档 (--- 分隔)
+            List<PropertySource<?>> sources = loader.load(sourceName, resource.getResource());
+            
+            if (sources != null && !sources.isEmpty()) {
+                // 通常 @PropertySource 只需要加载第一个文档块
+                return sources.get(0);
             }
-            throw e; // 重新抛出其他异常
         }
+
+        // 4. 容错处理：如果文件不存在或为空，返回一个空的 PropertySource，避免启动报错
+        return new org.springframework.core.env.MapPropertySource(
+                sourceName != null ? sourceName : "empty", 
+                Collections.emptyMap()
+        );
     }
 }

@@ -25,7 +25,7 @@ public class AgeUtils {
      * @return 计算得到的年龄，如果身份证号码无效则返回 0
      */
     public static int getAgeByPsptNo(String psptNo) {
-        if (StringUtils.isEmpty(psptNo) || psptNo.length() < 14) {
+        if (!StringUtils.hasLength(psptNo) || psptNo.length() < 14) {
             return 0;  // 身份证号为空或格式错误时，返回0
         }
 
@@ -60,7 +60,7 @@ public class AgeUtils {
      * @return 计算得到的年龄，如果日期格式不正确则返回 0
      */
     public static int getAgeByBirthday(String birthday) {
-        if (StringUtils.isEmpty(birthday)) {
+        if (!StringUtils.hasLength(birthday)) {
             return 0;  // 生日为空时，返回0
         }
         DateTimeFormatter format = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");

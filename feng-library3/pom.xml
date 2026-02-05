@@ -17,7 +17,8 @@
     
     <modules>
         <module>feng-library3-core</module>
-        <module>feng-library3-agent</module>
+        <module>feng-library3-mybatis</module>
+        <!-- <module>feng-library3-agent</module>
         <module>feng-library3-feign</module>
         <module>feng-library3-data</module>
         <module>feng-library3-datasource</module>
@@ -29,8 +30,7 @@
         <module>feng-library3-swagger</module>
         <module>feng-library3-idempotent</module>
         <module>feng-library3-oss</module>
-        <module>feng-library3-mybatis</module>
-        <module>feng-library3-websocket</module>
+        <module>feng-library3-websocket</module> -->
     </modules>
 
 </project>
