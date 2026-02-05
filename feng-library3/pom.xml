@@ -16,7 +16,6 @@
     <description>公共聚合模块</description>
     
     <modules>
-        <module>feng-library3-bom</module>
         <module>feng-library3-core</module>
         <module>feng-library3-agent</module>
         <module>feng-library3-feign</module>
