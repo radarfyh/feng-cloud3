@@ -1,0 +1,18 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>work.metanet</groupId>
+        <artifactId>feng-busi</artifactId>
+        <version>1.0.0</version>
+    </parent>
+    <artifactId>feng-ai</artifactId>
+    <name>feng-ai</name>
+    <description>AI智能体服务</description>
+    <packaging>pom</packaging>
+
+    <!--ai agent系统模块-->
+    <modules>
+        <module>feng-ai-api</module>
+        <module>feng-ai-biz</module>
+    </modules>
+</project>

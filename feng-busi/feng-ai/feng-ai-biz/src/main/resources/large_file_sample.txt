@@ -1,0 +1,93 @@
+一、Java概述
+Java是一种高级编程语言，由Sun Microsystems（现为Oracle公司所有）于1995年发布。它具有"一次编写，到处运行"的特性，这得益于Java虚拟机(JVM)的跨平台能力。Java广泛应用于企业级应用开发、移动应用(Android)、大数据处理、云计算等领域。
+Java的主要特点包括：
+面向对象：支持封装、继承、多态等特性,
+平台无关性：通过字节码和JVM实现跨平台,
+健壮性：强类型检查、自动内存管理(垃圾回收),
+安全性：沙箱安全模型、字节码验证,
+多线程支持：内置线程机制。
+二、Java开发环境
+Java开发需要安装JDK(Java Development Kit)，它包含：
+JRE(Java Runtime Environment)：运行Java程序所需环境，
+编译器(javac)：将.java文件编译为.class字节码文件，
+工具集：如javadoc(文档生成)、jdb(调试器)等。
+开发流程：
+编写.java源代码文件，
+使用javac编译为.class字节码文件，
+使用java命令运行程序。
+三、Java基础语法
+1. 基本结构
+一个简单的Java程序结构如下：
+public class HelloWorld {  // 类声明
+    public static void main(String[] args) {  // 主方法
+        System.out.println("Hello, World!");  // 输出语句
+    }
+}
+以上代码是最简单的可以执行的代码。
+2. 数据类型
+Java有两大类数据类型：
+基本数据类型：
+整数类型：byte(8位)、short(16位)、int(32位)、long(64位)，
+浮点类型：float(32位)、double(64位)，
+字符类型：char(16位Unicode)，
+布尔类型：boolean(true/false)，
+引用数据类型：
+类(class)，
+接口(interface)，
+数组(array)。
+3. 变量与常量
+变量声明语法：
+数据类型 变量名 = 初始值;
+常量使用final关键字：
+final double PI = 3.14159;
+以上就是变量和常量常用语法。
+4. 运算符
+Java支持多种运算符：
+算术运算符：+ - * / % ++ --，
+关系运算符：== != > < >= <=，
+逻辑运算符：&& || !，
+位运算符：& | ^ ~ << >> >>>，
+赋值运算符：= += -= *= /= %=，
+条件运算符(三元运算符)：? :
+总共六种。
+5. 控制结构
+条件语句：
+if (条件) {
+    // 代码块
+} else if (条件) {
+    // 代码块
+} else {
+    // 代码块
+}
+以上是条件语句的语法。
+switch语句：
+switch (表达式) {
+    case 值1:
+        // 代码块
+        break;
+    case 值2:
+        // 代码块
+        break;
+    default:
+        // 代码块
+}
+以上是分支语句的语法。
+
+循环结构：
+// for循环
+for (初始化; 条件; 更新) {
+    // 代码块
+}
+以上是循环语句的语法。
+
+// while循环
+while (条件) {
+    // 代码块
+}
+以上是while循环语句的语法。
+
+// do-while循环
+do {
+    // 代码块
+} while (条件);
+以上是do-while循环语句的语法。

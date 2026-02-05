@@ -1,0 +1,4 @@
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+  work.metanet.feng.common.file.FileAutoConfiguration, \
+  work.metanet.feng.common.file.oss.config.FileStorageAutoConfiguration, \
+  work.metanet.feng.common.file.oss.config.SpringFileStorageProperties

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="work.metanet.feng.admin.mapper.SysAffiliationOrganMapper">
+
+    <!-- 结果集 -->
+    <resultMap type="work.metanet.feng.admin.api.entity.SysAffiliationOrgan" id="SysAffiliationOrganMap">
+        <result property="affiliationId" column="affiliation_id"/>
+        <result property="organId" column="organ_id"/>
+        <result property="isLeader" column="is_leader"/>
+    </resultMap>
+
+    <!-- 基本字段 -->
+    <sql id="Base_Column_List">
+        affiliation_id
+        , organ_id, is_leader    </sql>
+    <select id="getOrganListByAffiliationId" resultType="work.metanet.feng.admin.api.entity.SysOrgan">
+        SELECT b.*
+        FROM sys_affiliation_organ AS a,
+             sys_organ AS b
+        WHERE a.organ_id = b.id
+          AND b.del_flag = '0'
+          AND a.affiliation_id = #{affiliationId}
+    </select>
+</mapper>

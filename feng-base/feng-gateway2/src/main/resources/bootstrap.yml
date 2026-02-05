@@ -1,0 +1,9 @@
+server:
+  port: 2000
+  max-http-header-size: 16KB
+  
+spring:
+  application:
+    name: @artifactId@
+  profiles:
+    active: dev

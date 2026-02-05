@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="work.metanet.feng.admin.mapper.PrmCustomerMapper">
+    <!-- 简单结果映射 -->
+    <resultMap id="SimpleResultMap" type="work.metanet.feng.admin.api.vo.CustomerSimpleVO">
+        <id column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="level_code" property="levelCode"   jdbcType="VARCHAR"/>
+    </resultMap>
+    <!-- 基础结果映射 -->
+    <resultMap id="BaseResultMap" type="work.metanet.feng.admin.api.entity.PrmCustomer">
+        <id column="id" property="id"/>
+        <result column="organ_id" property="organId"/>
+        <result column="name" property="name"/>
+        <result column="relationship_type" property="relationshipType"   jdbcType="VARCHAR"/>
+        <result column="source_code" property="sourceCode" jdbcType="VARCHAR"/>
+        <result column="parent_id" property="parentId"/>
+        <result column="mobile" property="mobile"/>
+        <result column="level_code" property="levelCode"   jdbcType="VARCHAR"/>
+        <result column="follow_time" property="followTime"/>
+        <result column="follow_result" property="followResult"/>
+        <result column="organ_code" property="organCode"/>
+        <result column="create_by" property="createBy"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_by" property="updateBy"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="del_flag" property="delFlag"/>
+    </resultMap>
+
+    <!-- 分页查询结果映射 -->
+    <resultMap id="CustomerVOResultMap" type="work.metanet.feng.admin.api.vo.PrmCustomerVO">
+        <id column="id" property="id"/>
+        <result column="organ_id" property="organId"/>
+        <result column="name" property="name"/>
+        <result column="relationship_type" property="relationshipType"   jdbcType="VARCHAR"/>
+        <result column="source_code" property="sourceCode"   jdbcType="VARCHAR"/>
+        <result column="parent_id" property="parentId"/>
+        <result column="mobile" property="mobile"/>
+        <result column="level_code" property="levelCode"   jdbcType="VARCHAR"/>
+        <result column="follow_time" property="followTime"/>
+        <!-- 关联上级客户 -->
+        <association property="parentCustomer" column="parent_id"
+                     select="selectParentCustomer"/>
+        <!-- 关联联系人（需确保PrmContactMapper有对应方法） -->
+        <collection property="contacts" column="id"
+                    select="work.metanet.feng.admin.mapper.PrmContactMapper.listByCustomerId"/>
+    </resultMap>
+
+    <!-- 上级客户查询 -->
+    <select id="selectParentCustomer" resultMap="SimpleResultMap">
+        SELECT id, name, level_code FROM prm_customer WHERE id = #{parent_id} AND del_flag = '0'
+    </select>
+
+    <!-- 分页查询客户 -->
+    <select id="selectCustomerPage" resultMap="CustomerVOResultMap">
+        SELECT 
+            id, organ_id, name, relationship_type, source_code, parent_id, mobile, level_code, follow_time
+        FROM prm_customer
+        <where>
+            del_flag = '0'
+            <if test="customer.name != null and customer.name != ''">
+                AND name LIKE CONCAT('%', #{customer.name}, '%')
+            </if>
+            <if test="customer.levelCode != null and customer.levelCode != ''">
+                AND level_code = #{customer.levelCode}
+            </if>
+            <if test="customer.relationshipType != null and customer.relationshipType != ''">
+                AND relationship_type = #{customer.relationshipType}
+            </if>
+        </where>
+        ORDER BY update_time DESC
+    </select>
+
+    <!-- 根据名称模糊查询 -->
+    <select id="selectByNameLike" resultMap="BaseResultMap">
+        SELECT * FROM prm_customer
+        WHERE del_flag = '0' AND name LIKE CONCAT('%', #{name}, '%')
+        LIMIT 100
+    </select>
+
+    <!-- 获取客户关系网络（增强版） -->
+    <select id="selectWithRelations" resultMap="CustomerVOResultMap">
+        SELECT 
+            c.*
+        FROM prm_customer c
+        LEFT JOIN prm_customer p ON c.parent_id = p.id AND p.del_flag = '0'
+        WHERE c.id = #{customerId} AND c.del_flag = '0'
+    </select>
+</mapper>

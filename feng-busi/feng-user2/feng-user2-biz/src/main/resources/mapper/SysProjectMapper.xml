@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="work.metanet.feng.admin.mapper.SysProjectMapper">
+    <!-- 结果集 -->
+    <resultMap type="work.metanet.feng.admin.api.entity.SysProject" id="SysProjectMap">
+        <result property="id" column="id"/>
+        <result property="projectName" column="project_name"/>
+        <result property="projectCode" column="project_code"/>
+        <result property="projectDesc" column="project_desc"/>
+        <result property="organCode" column="organ_code"/>
+        <result property="deptId" column="dept_id"/>
+        <result property="projectManagerStaffNo" column="project_manager_staff_no"/>
+        <result property="projectManagerName" column="project_manager_name"/>
+        <result property="startDate" column="start_date"/>
+        <result property="endDate" column="end_date"/>
+        <result property="statusCode" column="status_code"/>
+        <result property="statusName" column="status_name"/>
+        <result property="budget" column="budget"/>
+        <result property="actualCost" column="actual_cost"/>
+        <result property="progress" column="progress"/>
+        <result property="priorityCode" column="priority_code"/>
+        <result property="priorityName" column="priority_name"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="delFlag" column="del_flag"/>
+    </resultMap>
+
+    <!-- 基本字段 -->
+    <sql id="Base_Column_List">id, project_name, project_code, project_desc, organ_code, dept_id, project_manager_staff_no, project_manager_name, start_date, end_date, status_code, status_name, budget, actual_cost, progress, priority_code, priority_name, create_by, create_time, update_by, update_time, del_flag</sql>
+
+    <!-- 分页查询项目 -->
+    <select id="getProjectVosPage" resultType="work.metanet.feng.admin.api.vo.SysProjectVO">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM
+        sys_project
+        WHERE
+        del_flag = '0'
+        <if test="sysProject.organCode != null and sysProject.organCode != ''">
+            AND organ_code = #{sysProject.organCode}
+        </if>
+        <if test="sysProject.deptId != null">
+            AND dept_id = #{sysProject.deptId}
+        </if>
+        <if test="sysProject.projectCode != null and sysProject.projectCode != ''">
+            AND project_code = #{sysProject.projectCode}
+        </if>
+        <if test="sysProject.projectName != null and sysProject.projectName != ''">
+            <bind name="projectNameLike" value="'%'+sysProject.projectName+'%'"/>
+            AND project_name LIKE #{projectNameLike}
+        </if>
+        <if test="sysProject.statusCode != null and sysProject.statusCode != ''">
+            AND status_code = #{sysProject.statusCode}
+        </if>
+        <if test="sysProject.priorityCode != null and sysProject.priorityCode != ''">
+            AND priority_code = #{sysProject.priorityCode}
+        </if>
+        ORDER BY
+        create_time DESC
+    </select>
+</mapper>

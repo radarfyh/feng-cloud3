@@ -1,0 +1,1 @@
+java -jar target\feng-ai-biz.jar -Xmx128m -Xms64m

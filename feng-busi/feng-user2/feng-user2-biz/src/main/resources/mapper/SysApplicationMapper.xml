@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="work.metanet.feng.admin.mapper.SysApplicationMapper">
+    <!-- 结果集 -->
+    <resultMap type="work.metanet.feng.admin.api.entity.SysApplication" id="SysApplicationMap">
+        <result property="id" column="id"/>
+        <result property="appName" column="app_name"/>
+        <result property="applicationCode" column="application_code"/>
+        <result property="appEnName" column="app_en_name"/>
+        <result property="appAbbr" column="app_abbr"/>
+        <result property="status" column="status"/>
+        <result property="manufacturerId" column="manufacturer_id"/>
+        <result property="appDesc" column="app_desc"/>
+        <result property="isFengPortal" column="is_feng_portal"/>
+        <result property="fengType" column="feng_type"/>
+        <result property="clientType" column="client_type"/>
+        <result property="securityCode" column="security_code"/>
+        <result property="oauthCode" column="oauth_code"/>
+        <result property="integrationUri" column="integration_uri"/>
+        <result property="parameterAttribute" column="parameter_attribute"/>
+        <result property="appIcon" column="app_icon"/>
+        <result property="isMicro" column="is_micro"/>
+        <result property="microPrefix" column="micro_prefix"/>
+        <result property="microEntry" column="micro_entry"/>
+        <result property="appId" column="app_id"/>
+        <result property="appSecret" column="app_secret"/>
+        <result property="sysIsShow" column="sys_is_show"/>
+        <result property="displayForm" column="display_form"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="delFlag" column="del_flag"/>
+    </resultMap>
+
+    <!-- 基本字段 -->
+    <sql id="Base_Column_List">id, app_name, application_code, app_en_name, app_abbr, status, 
+    manufacturer_id, app_desc, is_feng_portal, feng_type, client_type, security_code, oauth_code, 
+    integration_uri, parameter_attribute, app_icon, is_micro, micro_prefix, micro_entry, 
+    app_id, app_secret, sys_is_show, display_form, create_by, create_time, update_by, update_time, del_flag</sql>
+
+    <select id="getAppListByUserId" resultType="work.metanet.feng.admin.api.vo.SysApplicationVO">
+        SELECT sa.*,
+               sur.user_id,
+               sur.role_id
+        FROM sys_application AS sa
+                 LEFT JOIN sys_menu AS sm ON sa.application_code = sm.application_code
+                 LEFT JOIN sys_role_menu AS srm ON sm.id = srm.menu_id
+                 LEFT JOIN sys_user_role AS sur ON srm.role_id = sur.role_id
+        WHERE sa.del_flag = '0'
+          AND sm.del_flag = '0'
+          AND sur.user_id = #{userId}
+        GROUP BY sur.user_id,
+                 sa.id,
+                 sur.role_id
+    </select>
+
+
+    <select id="getAppListByRoleId" resultType="work.metanet.feng.admin.api.vo.SysApplicationVO">
+        SELECT sa.*,
+               srm.role_id
+        FROM sys_application AS sa
+                 LEFT JOIN sys_menu AS sm ON sa.application_code = sm.application_code
+                 LEFT JOIN sys_role_menu AS srm ON sm.id = srm.menu_id
+        WHERE sa.del_flag = '0'
+          AND sm.del_flag = '0'
+          AND srm.role_id = #{roleId}
+        GROUP BY sa.id
+    </select>
+    <select id="getApplicationListByUserId" resultType="work.metanet.feng.admin.api.entity.SysApplication">
+        SELECT a.*
+        FROM sys_application a, sys_menu m, sys_role_menu rm, sys_user_role r
+        WHERE a.application_code = m.application_code
+            AND m.id = rm.menu_id
+            AND rm.role_id = r.role_id
+            AND a.is_feng_portal = '1'
+            AND r.user_id = #{userId}
+    </select>
+    <select id="getApplicationByUserPage" resultType="work.metanet.feng.admin.api.entity.SysApplication">
+        SELECT c.*
+        FROM sys_user_role AS a,
+        role_application AS b,
+        sys_application AS c
+        WHERE a.role_id = b.role_id
+        AND b.application_id = c.id
+        AND a.user_id = #{userId}
+        <if test="sysApplication.appName != null and sysApplication.appName != ''">
+            AND c.app_name LIKE #{sysApplication.appName}
+        </if>
+        <if test="sysApplication.applicationCode != null and sysApplication.applicationCode != ''">
+            AND c.application_code = #{sysApplication.applicationCode}
+        </if>
+        GROUP BY c.id
+        ORDER BY
+        c.create_time DESC
+    </select>
+</mapper>

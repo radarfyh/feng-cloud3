@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="work.metanet.feng.admin.mapper.SysManufacturerMapper">
+    <!-- 结果集 -->
+    <resultMap type="work.metanet.feng.admin.api.entity.SysManufacturer" id="SysManufacturerMap">
+        <result property="id" column="id"/>
+        <result property="tenantId" column="tenant_id" />
+        <result property="manufacturerName" column="manufacturer_name"/>
+        <result property="manufacturerCode" column="manufacturer_code"/>
+        <result property="artisanName" column="artisan_name"/>
+        <result property="artisanPhone" column="artisan_phone"/>
+        <result property="serviceName" column="service_name"/>
+        <result property="servicePhone" column="service_phone"/>
+        <result property="manufacturerDesc" column="manufacturer_desc"/>
+        <result property="organCode" column="organ_code"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="delFlag" column="del_flag"/>
+    </resultMap>
+    
+    <!-- 基本字段 -->
+    <sql id="Base_Column_List">id, manufacturer_name, manufacturer_code, artisan_name, artisan_phone, service_name, service_phone, manufacturer_desc, organ_code, create_by, create_time, update_by, update_time, del_flag</sql>
+</mapper>

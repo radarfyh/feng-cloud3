@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
+		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+    <parent>
+        <artifactId>feng-library2</artifactId>
+        <groupId>work.metanet</groupId>
+        <version>1.0.0</version>
+    </parent>
+
+	<artifactId>feng-library2-data</artifactId>
+	<packaging>jar</packaging>
+
+	<description>数据操作相关</description>
+
+	<dependencies>
+		<!--工具类核心包-->
+		<dependency>
+			<groupId>work.metanet</groupId>
+			<artifactId>feng-library2-core</artifactId>
+		</dependency>
+		<!--mybatis plus-->
+		<!--<dependency>
+			<groupId>com.baomidou</groupId>
+			<artifactId>mybatis-plus-extension</artifactId>
+		</dependency>-->
+        <!--mybatis-plus3.5.9之后需要这个-->
+        <!--<dependency>
+            <groupId>com.baomidou</groupId>
+            <artifactId>mybatis-plus-jsqlparser-4.9</artifactId>
+        </dependency>-->
+		<!-- druid 连接池 -->
+		<dependency>
+			<groupId>com.alibaba</groupId>
+			<artifactId>druid</artifactId>
+			<optional>true</optional>
+		</dependency>
+		<!--安全依赖获取上下文信息-->
+		<dependency>
+			<groupId>work.metanet</groupId>
+			<artifactId>feng-library2-security</artifactId>
+			<optional>true</optional>
+		</dependency>
+        <!--mybatis plus-->
+        <dependency>
+            <groupId>work.metanet</groupId>
+            <artifactId>feng-library2-mybatis</artifactId>
+            <optional>true</optional>
+        </dependency>
+		<!--缓存依赖-->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-redis</artifactId>
+			<exclusions>
+                <exclusion>
+                    <groupId>io.lettuce</groupId>
+                    <artifactId>lettuce-core</artifactId>
+                </exclusion>
+            </exclusions>
+		</dependency>
+		<!-- 解决问题：No qualifying bean of type 'org.springframework.data.redis.listener.RedisMessageListenerContainer' available: expected at least 1 bean which qualifies as autowire candidate. Dependency annotations: {}-->
+		<!--<dependency>
+	        <groupId>redis.clients</groupId>
+	        <artifactId>jedis</artifactId>
+	    </dependency>-->
+        <!--使用redisson代替jedis-->
+        <dependency>
+            <groupId>org.redisson</groupId>
+            <artifactId>redisson-spring-boot-starter</artifactId>
+        </dependency>
+        <!--改为spring boot 2.7.18后要单独引入commons-pool2-->
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-pool2</artifactId>
+        </dependency>	    
+        <!--Lombok-->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>cn.hutool</groupId>
+            <artifactId>hutool-all</artifactId>
+        </dependency>
+    </dependencies>
+</project>

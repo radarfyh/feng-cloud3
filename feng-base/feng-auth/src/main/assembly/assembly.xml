@@ -1,0 +1,58 @@
+<assembly>
+    <id>assembly</id>
+    <formats>
+        <format>tar.gz</format>
+    </formats>
+    <includeBaseDirectory>true</includeBaseDirectory>
+    <fileSets>
+        <fileSet>
+        	<!--  启动信息 -->
+            <directory>src/main/bin</directory>
+            <includes>
+                <include>*.sh</include>
+                <include>*.bat</include>
+            </includes>
+            <outputDirectory>bin</outputDirectory>
+            <fileMode>0755</fileMode>
+        </fileSet>
+        <fileSet>
+            <!--  配置信息 -->
+            <directory>src/main/conf</directory>
+            <includes>
+                <include>*.txt</include>
+            </includes>
+            <outputDirectory>conf</outputDirectory>
+        </fileSet>
+        <fileSet>
+            <directory>src/main/sql</directory>
+            <includes>
+                <include>*.sql</include>
+            </includes>
+            <outputDirectory>sql</outputDirectory>
+        </fileSet>
+        <fileSet>
+            <directory>target/classes/</directory>
+            <includes>
+                <include>*.properties</include>
+                <include>*.xml</include>
+                <include>*.txt</include>
+                <include>*.yml</include>
+            </includes>
+            <outputDirectory>conf</outputDirectory>
+        </fileSet>
+    </fileSets>
+    <files>
+        <file>
+            <source>target/${project.artifactId}.jar</source>
+            <outputDirectory>.</outputDirectory>
+        </file>
+    </files>
+    <dependencySets>
+    	<!-- 打包到lib目录下 -->
+        <dependencySet>
+            <unpack>false</unpack>
+            <scope>runtime</scope>
+            <outputDirectory>/lib</outputDirectory>
+        </dependencySet>
+    </dependencySets>
+</assembly>

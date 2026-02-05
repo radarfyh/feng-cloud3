@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="work.metanet.feng.admin.mapper.SysRouteConfMapper">
+    <!-- 结果集 -->
+    <resultMap type="work.metanet.feng.admin.api.entity.SysRouteConf" id="SysRouteConfMap">
+        <result property="id" column="id"/>
+        <result property="routeName" column="route_name"/>
+        <result property="routeId" column="route_id"/>
+        <result property="predicates" column="predicates"/>
+        <result property="filters" column="filters"/>
+        <result property="uri" column="uri"/>
+        <result property="sortOrder" column="sort_order"/>
+        <result property="metaData" column="meta_data"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="delFlag" column="del_flag"/>
+    </resultMap>
+    
+    <!-- 基本字段 -->
+    <sql id="Base_Column_List">id, route_name, route_id, predicates, filters, uri, sortOrder, meta_data, create_time, update_time, del_flag</sql>
+</mapper>

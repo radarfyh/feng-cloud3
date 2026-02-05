@@ -1,0 +1,152 @@
+#spring:
+#  main: 
+#    allow-bean-definition-overriding: true
+#    web-application-type: reactive
+#  mvc:
+#    async:
+#      request-timeout: 0
+#  datasource:
+#    dynamic:
+#      primary: postgres
+#      strict: false
+#      datasource:
+#        mysql:
+#          driver-class-name: com.mysql.cj.jdbc.Driver
+#          username: root
+#          password: radar
+#          url: jdbc:mysql://127.0.0.1:3306/feng-ai?characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=false&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=GMT%2B8&allowMultiQueries=true&allowPublicKeyRetrieval=true
+#        postgres:
+#          driver-class-name: org.postgresql.Driver
+#          username: postgres
+#          password: radar
+#          url: jdbc:postgresql://localhost:5432/feng-ai?currentSchema=public
+#       
+#      druid:
+#        initialSize: 5
+#        minIdle: 10
+#        maxActive: 20
+#        maxWait: 60000
+#        connectTimeout: 30000
+#        socketTimeout: 60000
+#        timeBetweenEvictionRunsMillis: 60000
+#        minEvictableIdleTimeMillis: 300000
+#        maxEvictableIdleTimeMillis: 900000
+#        validationQuery: SELECT 1
+#        testWhileIdle: true
+#        testOnBorrow: false
+#        testOnReturn: false
+#        webStatFilter:
+#          enabled: true
+#        stat-view-servlet:
+#          enabled: true
+#          allow: 127.0.0.1
+#          url-pattern: /druid/*
+#          login-username: admin
+#          login-password: 123456
+#        filter:
+#          stat:
+#            enabled: true
+#            log-slow-sql: true
+#            slow-sql-millis: 10000
+#            merge-sql: false
+#          wall:
+#            config:
+#              multi-statement-allow: true
+#  mail:
+#    host: 
+#    username: 
+#    password: 
+#    properties.mail.smtp.auth: true
+#    properties.mail.smtp.starttls.enable: true
+#    default-encoding: utf-8
+#file:
+#  bucketName: feng-bucket
+#  oss:
+#    enable: true
+#    path-style-access: false
+#    endpoint: http://127.0.0.1:9000
+#    access-key: mkJsh3HRSjZtqT3aTgHS
+#    secret-key: 3o0L8uBPUsBHh2aUX4v6rzHnmJbkDOqYYbVKW22t
+#
+#logging:
+#  level:
+#    dev:
+#        langchain4j: INFO
+#        ai4j:
+#          openai4j: INFO
+#    work.metanet.feng.ai: INFO
+#    work.metanet.feng.common: INFO
+#    com.baomidou.dynamic.datasource: INFO
+#    com.alibaba.druid: INFO
+#    org.springframework: INFO
+#    root: INFO
+#debug: true
+#feng:
+#  proxy:
+#    enabled: true 
+#    http:
+#      host: 127.0.0.1
+#      port: 4780
+#    https:
+#      host: 127.0.0.1
+#      port: 4780
+#  organ:
+#    column: organ_code
+#    tables:
+#      - sys_department
+#
+#  websocket:
+#    lifespan: 90
+#wx:
+#  miniapp:
+#    appid: 123
+#    secret: 123
+#
+#langchat:
+#  oss:
+#    default-platform: local
+#    qiniu-kodo:
+#      - platform: qiniu 
+#        enable-storage: true  
+#        access-key: <ak>
+#        secret-key: <sk>
+#        bucket-name:
+#        domain: 
+#        base-path: langchat/ 
+#    local-plus:
+#      - platform: local 
+#        enable-storage: true 
+#        enable-access: true 
+#        domain: http://127.0.0.1:8100/ 
+#        base-path: langchat/ 
+#        path-patterns: /static/** 
+#        storage-path: ./static/ 
+#server: 
+#  tomcat:
+#    max-threads: 200
+#
+#security:
+#  oauth2:
+#    resource:
+#      loadBalanced: true
+#      token-info-uri: http://127.0.0.1:2000/auth/oauth/check_token
+#    client:
+#      client-id: feng
+#      client-secret: ENC(L+lRDakqudgl0u7UDdHiiRQ3Gkl1+pyf)
+#      scope: server
+#      ignore-urls:
+#        - /error
+#        - /druid/**
+#        - /actuator/**
+#        - /favicon.ico
+#        - /v2/api-docs
+#        - /v3/api-docs
+#        - /v2/api-docs/**
+#        - /v3/api-docs/**
+#        - /doc.html
+#        - /webjars/**
+#        - /swagger-ui/**
+#        - /swagger-ui.html
+#        - /webjars/**
+#        - /swagger-resources/**
+#        - /site/**

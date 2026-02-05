@@ -1,0 +1,3 @@
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+    work.metanet.feng.common.mybatis.FengMybatisProperties,\
+    work.metanet.feng.common.mybatis.FengPageConfiguration

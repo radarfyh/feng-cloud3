@@ -1,0 +1,270 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>feng-ai</artifactId>
+        <groupId>work.metanet</groupId>
+        <version>1.0.0</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>feng-ai-biz</artifactId>
+
+    <dependencies>
+         <!--工具类核心包-->
+        <dependency>
+            <groupId>work.metanet</groupId>
+            <artifactId>feng-library2-core</artifactId>
+        </dependency>
+        <!--Lombok-->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <!--user2 api、model 模块-->
+        <dependency>
+            <groupId>work.metanet</groupId>
+            <artifactId>feng-user2-api</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.springframework.cloud</groupId>
+                    <artifactId>spring-cloud-gateway-server</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <!--日志处理-->
+        <dependency>
+            <groupId>work.metanet</groupId>
+            <artifactId>feng-library2-log</artifactId>
+        </dependency>
+        <!--swagger-->
+        <dependency>
+            <groupId>work.metanet</groupId>
+            <artifactId>feng-library2-swagger</artifactId>
+        </dependency>
+        <!--注册中心客户端-->
+        <dependency>
+            <groupId>com.alibaba.cloud</groupId>
+            <artifactId>spring-cloud-starter-alibaba-nacos-discovery</artifactId>
+            <!--解决jar冲突-->
+            <exclusions>
+                <exclusion>
+                    <artifactId>commons-io</artifactId>
+                    <groupId>commons-io</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>guava</artifactId>
+                    <groupId>com.google.guava</groupId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <!--配置中心客户端-->
+        <dependency>
+            <groupId>com.alibaba.cloud</groupId>
+            <artifactId>spring-cloud-starter-alibaba-nacos-config</artifactId>
+        </dependency>
+        <!--spring security 、oauth、jwt依赖-->
+        <dependency>
+            <groupId>work.metanet</groupId>
+            <artifactId>feng-library2-security</artifactId>
+        </dependency>
+        <!--支持动态路由配置 -->
+        <!--<dependency>
+            <groupId>work.metanet</groupId>
+            <artifactId>feng-library2-gateway</artifactId>
+        </dependency>-->
+        <!--sentinel 依赖-->
+        <dependency>
+            <groupId>work.metanet</groupId>
+            <artifactId>feng-library2-sentinel</artifactId>
+        </dependency>
+<!--        <dependency>
+            <groupId>work.metanet</groupId>
+            <artifactId>feng-library2-websocket</artifactId>
+        </dependency>-->
+        <!--路由控制-->
+        <dependency>
+            <groupId>work.metanet</groupId>
+            <artifactId>feng-library2-gray</artifactId>
+        </dependency>
+        <!--mybatis-->
+        <dependency>
+            <groupId>com.baomidou</groupId>
+            <artifactId>mybatis-plus-boot-starter</artifactId>
+        </dependency>
+        <!--多数据源-->
+        <dependency>
+            <groupId>work.metanet</groupId>
+            <artifactId>feng-library2-datasource</artifactId>
+        </dependency>
+        <!--选配: mysql 数据库驱动 -->
+        <dependency>
+            <groupId>com.mysql</groupId>
+            <artifactId>mysql-connector-j</artifactId>
+        </dependency>
+        <!--选配: 金仓 数据库驱动 -->
+        <dependency>
+            <groupId>cn.com.kingbase</groupId>
+            <artifactId>kingbase8</artifactId>
+        </dependency>
+        <!--选配: postgresql 数据库驱动 -->
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.elasticsearch.plugin</groupId>
+            <artifactId>x-pack-sql-jdbc</artifactId>
+        </dependency>
+        <!--web 模块-->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+        <!--幂等校验-->
+        <dependency>
+            <groupId>work.metanet</groupId>
+            <artifactId>feng-library2-idempotent</artifactId>
+        </dependency>
+        <!--redis分布式锁 移除redisson 3.2.0防止和幂等版本冲突-->
+        <dependency>
+            <groupId>cn.keking</groupId>
+            <artifactId>spring-boot-klock-starter</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.redisson</groupId>
+                    <artifactId>redisson</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <!--文件系统-->
+        <dependency>
+            <groupId>work.metanet</groupId>
+            <artifactId>feng-library2-oss</artifactId>
+        </dependency>
+
+        <!--thumbnailator图片处理-->
+        <dependency>
+            <groupId>net.coobird</groupId>
+            <artifactId>thumbnailator</artifactId>
+        </dependency>
+        <!-- Jackson-->
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-annotations</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.dataformat</groupId>
+            <artifactId>jackson-dataformat-xml</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.datatype</groupId>
+            <artifactId>jackson-datatype-jsr310</artifactId>
+        </dependency>
+        
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-test</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.projectreactor</groupId>
+            <artifactId>reactor-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+            <!-- 排除JUnit 4以防冲突 -->
+            <exclusions>
+                <exclusion>
+                    <groupId>junit</groupId>
+                    <artifactId>junit</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+        	<groupId>work.metanet</groupId>
+        	<artifactId>feng-ai-api</artifactId>
+        </dependency>
+        <dependency>
+        	<groupId>work.metanet</groupId>
+        	<artifactId>feng-library2-agent</artifactId>
+        	<version>1.0.0</version>
+        </dependency>
+        <!-- druid 连接池 -->
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>druid-spring-boot-starter</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <!--feng-library2-data要和druid-spring-boot-starter配合使用-->
+        <dependency>
+            <groupId>work.metanet</groupId>
+            <artifactId>feng-library2-data</artifactId>
+        </dependency>
+        <!--从 Java 9 开始，JAXB 不再是 JDK 的一部分，需要手动添加依赖-->
+        <dependency>
+            <groupId>javax.xml.bind</groupId>
+            <artifactId>jaxb-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.glassfish.jaxb</groupId>
+            <artifactId>jaxb-runtime</artifactId>
+        </dependency>
+        
+        <!--<dependency>
+            <groupId>cn.hutool</groupId>
+            <artifactId>hutool-all</artifactId>
+            <version>5.8.3</version> 
+        </dependency>-->
+        
+        <dependency>
+            <groupId>redis.clients</groupId>
+            <artifactId>jedis</artifactId>
+        </dependency>
+        
+        <!--JAXB 从 Java 11 开始不再默认包含在 JDK 中-->
+        <dependency>
+            <groupId>jakarta.xml.bind</groupId>
+            <artifactId>jakarta.xml.bind-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.sun.xml.bind</groupId>
+            <artifactId>jaxb-impl</artifactId>
+            <version>4.0.5</version>
+            <scope>runtime</scope>
+        </dependency>
+        <!-- 编码检测库 -->
+        <dependency>
+            <groupId>com.github.albfernandez</groupId>
+            <artifactId>juniversalchardet</artifactId>
+            <version>2.4.0</version>
+        </dependency>
+
+    </dependencies>
+    <build>
+        <plugins>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+			</plugin>
+        </plugins>
+    </build>
+</project>

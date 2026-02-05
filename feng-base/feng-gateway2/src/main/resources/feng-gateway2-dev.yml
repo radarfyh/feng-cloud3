@@ -1,0 +1,128 @@
+#gateway:
+#  encode-key: 'storm-winds-rain'
+#
+#ribbon:
+#  rule:
+#    gray-enabled: true
+#
+#aj:
+#  captcha:
+#    water-mark: feng
+#    click-offset: 30
+#    font-size: 25
+#    font-type: WenQuanZhengHei.ttf
+#ht:
+#  captcha:
+#    type: circle
+#    height: 10
+#    width: 40
+#    interfereCount: 3
+#    textAlpha: 0.3
+#    expireSeconds: 300    
+#    code:
+#      type: random
+#      length: 6
+#    font:
+#      name: Arial
+#      size: 24
+#      weight: 2
+#logging:
+#  level:
+#    work.metanet.feng.gateway: INFO
+#    work.metanet.feng.common: INFO
+#debug: false
+#
+#knife4j:
+#  enable: true
+#  gateway:
+#    enabled: true
+#    strategy: discover
+#    discover:
+#      enabled: true
+#      version: openapi3
+#      excluded-services:
+#        - feng-gateway2
+#        - feng-auth
+#    tags-sorter: order
+#    operations-sorter: order
+#spring:
+#  web:
+#    resource:
+#      static-resources: classpath:/static/site/
+#  cloud:
+#    discovery:
+#      reactive:
+#        enabled: true
+#    loadbalancer:
+#      retry:
+#        enabled: true
+#    gateway:
+#      routes:
+#        - id: feng-user2-biz
+#          uri: lb://feng-user2-biz
+#          order: 1
+#          predicates:
+#            - Path=/admin/**
+#          filters:
+#            - name: RequestRateLimiter
+#              args:
+#                key-resolver: "#{@remoteAddrKeyResolver}"
+#                redis-rate-limiter:
+#                  burstCapacity: 1000
+#                  replenishRate: 1000
+#
+#        - id: feng-auth
+#          uri: lb://feng-auth
+#          order: 2
+#          predicates:
+#            - Path=/auth/**
+#          filters:
+#            - ValidateCodeGatewayFilter
+#            - PasswordDecoderFilter
+#
+#        - id: feng-msg-biz
+#          uri: lb://feng-msg-biz
+#          order: 99
+#          predicates:
+#            - Path=/msg/**
+#
+#        - id: feng-log2-biz
+#          uri: lb://feng-log2-biz
+#          order: 100
+#          predicates:
+#            - Path=/log/**
+#
+#        - id: feng-ai-biz
+#          uri: lb://feng-ai-biz
+#          order: 100
+#          predicates:
+#            - Path=/aigc/**        
+#      discovery:
+#        locator:
+#          enabled: true
+#          lower-case-service-id: true
+#
+#security:
+#  oauth2:
+#    resource:
+#      loadBalanced: true
+#      token-info-uri: http://127.0.0.1:2000/auth/oauth/check_token
+#    client:
+#      client-id: feng
+#      client-secret: ENC(L+lRDakqudgl0u7UDdHiiRQ3Gkl1+pyf)
+#      scope: server
+#      ignore-urls:
+#        - /error
+#        - /druid/**
+#        - /actuator/**
+#        - /favicon.ico
+#        - /v2/api-docs
+#        - /v3/api-docs
+#        - /v2/api-docs/**
+#        - /v3/api-docs/**
+#        - /doc.html
+#        - /webjars/**
+#        - /swagger-ui/**
+#        - /swagger-ui.html
+#        - /swagger-resources/**
+#        - /site/**

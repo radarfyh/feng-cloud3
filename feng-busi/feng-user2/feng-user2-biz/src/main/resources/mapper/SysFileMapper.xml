@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="work.metanet.feng.admin.mapper.SysFileMapper">
+    <!-- 结果集 -->
+    <resultMap type="work.metanet.feng.admin.api.entity.SysFile" id="SysFileMap">
+        <result property="id" column="id"/>
+        <result property="fileName" column="file_name"/>
+        <result property="bucketName" column="bucket_name"/>
+        <result property="original" column="original"/>
+        <result property="type" column="type"/>
+        <result property="fileSize" column="file_size"/>
+        <result property="organCode" column="organ_code"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="delFlag" column="del_flag"/>
+    </resultMap>
+    
+    <!-- 基本字段 -->
+    <sql id="Base_Column_List">id, file_name, bucket_name, original, type, file_size, organ_code, create_by, create_time, update_by, update_time, del_flag</sql>
+</mapper>

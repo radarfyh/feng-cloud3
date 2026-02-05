@@ -1,0 +1,8 @@
+server:
+  port: 2005
+
+spring:
+  application:
+    name: feng-ai-biz
+  profiles:
+    active: dev

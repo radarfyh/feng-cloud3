@@ -1,0 +1,21 @@
+jasypt:
+  encryptor:
+    password: ${JEP}  
+    algorithm: PBEWithMD5AndDES
+    iv-generator-classname: org.jasypt.iv.NoIvGenerator
+spring:
+  cloud:
+    nacos:
+      discovery:
+        server-addr: ${NACOS_ADDR:"127.0.0.1:2848"}
+        namespace: ${spring.profiles.active}
+        username: nacos
+        password: ENC(WsQg6dqzB//jx/Q1uhNDM8tBclhZFEvu)
+      config:
+        server-addr: ${spring.cloud.nacos.discovery.server-addr}
+        namespace: ${spring.cloud.nacos.discovery.namespace}
+        username: ${spring.cloud.nacos.discovery.username}
+        password: ${spring.cloud.nacos.discovery.password}
+        file-extension: yml
+        shared-configs:
+          - data-id: application-${spring.profiles.active}.${spring.cloud.nacos.config.file-extension}

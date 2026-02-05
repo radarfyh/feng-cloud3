@@ -1,0 +1,16 @@
+#spring:
+#  cloud:
+#    nacos:
+#      discovery:
+#        server-addr: nacos-${spring.profiles.active}:8848
+#        namespace: ${spring.profiles.active}
+#        username: nacos
+#        password: nacos
+#      config:
+#        server-addr: ${spring.cloud.nacos.discovery.server-addr}
+#        namespace: ${spring.cloud.nacos.discovery.namespace}
+#        username: ${spring.cloud.nacos.discovery.username}
+#        password: ${spring.cloud.nacos.discovery.password}
+#        file-extension: yml
+#        shared-configs:
+#          - data-id: application-${spring.profiles.active}.${spring.cloud.nacos.config.file-extension}
