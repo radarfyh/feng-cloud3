@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <!-- 1. 继承父工程 feng-cloud3，获取基础构建配置 -->
+    <parent>
+        <groupId>work.metanet</groupId>
+        <artifactId>feng-cloud3</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
+        <relativePath>../../pom.xml</relativePath>
+    </parent>
+
+    <artifactId>feng-library3-bom</artifactId>
+    <packaging>pom</packaging>
+    <name>feng-library3-bom</name>
+    <description>统一管理 feng-library3 内部各模块的版本依赖</description>
+
+    <!-- 2. 定义内部模块的版本管理 -->
+    <dependencyManagement>
+        <dependencies>
+            <!-- ================================================= -->
+            <!-- feng-library3 内部模块定义                         -->
+            <!-- ================================================= -->
+            
+            <!-- 基础通用模块 (工具类、常量、Enums) - 不含 Spring 依赖 -->
+            <dependency>
+                <groupId>work.metanet</groupId>
+                <artifactId>feng-library3-common</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <!-- 核心框架模块 (Spring Boot 配置、Jackson Mixin、Security、MyBatisPlus配置) -->
+            <dependency>
+                <groupId>work.metanet</groupId>
+                <artifactId>feng-library3-framework</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <!-- API 接口模块 (如果拆分了 Feign Client 接口) -->
+            <dependency>
+                <groupId>work.metanet</groupId>
+                <artifactId>feng-library3-api</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <!-- ================================================= -->
+            <!-- MQ 适配模块 (按需引用)                             -->
+            <!-- ================================================= -->
+            
+            <!-- RabbitMQ 实现 -->
+            <dependency>
+                <groupId>work.metanet</groupId>
+                <artifactId>feng-library3-rabbitmq</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <!-- Kafka 实现 -->
+            <dependency>
+                <groupId>work.metanet</groupId>
+                <artifactId>feng-library3-kafka</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+        </dependencies>
+    </dependencyManagement>
+
+</project>
