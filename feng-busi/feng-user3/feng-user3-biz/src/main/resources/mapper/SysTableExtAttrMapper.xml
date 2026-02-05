@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="work.metanet.feng.admin.mapper.SysTableExtAttrMapper">
+    <!-- 结果集 -->
+    <resultMap type="work.metanet.feng.admin.api.entity.SysTableExtAttr" id="SysTableExtAttrMap">
+        <result property="id" column="id"/>
+        <result property="tableName" column="table_name"/>
+        <result property="recordId" column="record_id"/>
+        <result property="extKey" column="ext_key"/>
+        <result property="extName" column="ext_name"/>
+        <result property="extType" column="ext_type"/>
+        <result property="dictUrl" column="dict_url"/>
+        <result property="dictData" column="dict_data"/>
+        <result property="dictValue" column="dict_value"/>
+        <result property="dictLabel" column="dict_label"/>
+        <result property="fillInType" column="fill_in_type"/>
+        <result property="organCode" column="organ_code"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="delFlag" column="del_flag"/>
+    </resultMap>
+    
+    <!-- 基本字段 -->
+    <sql id="Base_Column_List">id, table_name, record_id, ext_key, ext_name, ext_type, dict_url, dict_data, dict_value, dict_label, fill_in_type, organ_code, create_by, create_time, update_by, update_time, del_flag</sql>
+</mapper>

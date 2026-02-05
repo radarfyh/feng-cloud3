@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="work.metanet.feng.admin.mapper.SysOrganMapper">
+    <!-- 结果集 -->
+    <resultMap type="work.metanet.feng.admin.api.entity.SysOrgan" id="SysOrganMap">
+        <result property="id" column="id"/>
+        <result property="tenantId" column="tenant_id" />
+        <result property="organName" column="organ_name"/>
+        <result property="organCode" column="organ_code"/>
+        <result property="organType" column="organ_type"/>
+        <result property="organAliasName" column="organ_alias_name"/>
+        <result property="parentId" column="parent_id"/>
+        <result property="sort" column="sort"/>
+        <result property="organLevel" column="organ_level"/>
+        <result property="organGrade" column="organ_grade"/>
+        <result property="organCategoryCode" column="organ_category_code"/>
+        <result property="organCategoryName" column="organ_category_name"/>
+        <result property="economicTypeCode" column="economic_type_code"/>
+        <result property="economicTypeName" column="economic_type_name"/>
+        <result property="manageClassCode" column="manage_class_code"/>
+        <result property="manageClassName" column="manage_class_name"/>
+        <result property="address" column="address"/>
+        <result property="addrProvince" column="addr_province"/>
+        <result property="addrCity" column="addr_city"/>
+        <result property="addrCounty" column="addr_county"/>
+        <result property="addrTown" column="addr_town"/>
+        <result property="addrVillage" column="addr_village"/>
+        <result property="addrHouseNo" column="addr_house_no"/>
+        <result property="administrativeDivision" column="administrative_division"/>
+        <result property="zipCode" column="zip_code"/>
+        <result property="telephone" column="telephone"/>
+        <result property="email" column="email"/>
+        <result property="website" column="website"/>
+        <result property="establishDate" column="establish_date"/>
+        <result property="organIntroduction" column="organ_introduction"/>
+        <result property="trafficRoute" column="traffic_route"/>
+        <result property="approvalAuthority" column="approval_authority"/>
+        <result property="registerNo" column="register_no"/>
+        <result property="legalPerson" column="legal_person"/>
+        <result property="principalName" column="principal_name"/>
+        <result property="principalTelecom" column="principal_telecom"/>
+        <result property="licenseStartDate" column="license_start_date"/>
+        <result property="licenseEndDate" column="license_end_date"/>
+        <result property="subjectServices" column="subject_services"/>
+        <result property="majorSubjectServices" column="major_subject_services"/>
+        <result property="isSupervisory" column="is_supervisory"/>
+        <result property="supervisoryPropertyCode" column="supervisory_property_code"/>
+        <result property="supervisoryPropertyName" column="supervisory_property_name"/>
+        <result property="supervisorySubordinationCode" column="supervisory_subordination_code"/>
+        <result property="supervisorySubordinationName" column="supervisory_subordination_name"/>
+        <result property="administrativeLevelCode" column="administrative_level_code"/>
+        <result property="administrativeLevelName" column="administrative_level_name"/>
+        <result property="supervisoryDeptCode" column="supervisory_dept_code"/>
+        <result property="supervisoryDeptName" column="supervisory_dept_name"/>
+        <result property="branchingQuantity" column="branching_quantity"/>
+        <result property="isNationalAutonomy" column="is_national_autonomy"/>
+        <result property="branchOrgLevelCode" column="branch_org_level_code"/>
+        <result property="branchOrgLevelName" column="branch_org_level_name"/>
+        <result property="staffQuantity" column="staff_quantity"/>
+        <result property="dailyVisits" column="daily_visits"/>
+        <result property="productQuantity" column="product_quantity"/>
+        <result property="status" column="status"/>
+        <result property="organPictures" column="organ_pictures"/>
+        <result property="licensePictures" column="license_pictures"/>
+        <result property="defaultPassword" column="default_password"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="delFlag" column="del_flag"/>
+    </resultMap>
+
+    <!-- 基本字段 -->
+    <sql id="Base_Column_List">id, tenant_id, organ_name, organ_code, organ_type, organ_alias_name, parent_id, sort, organ_level, organ_grade, organ_category_code, organ_category_name, economic_type_code, economic_type_name, manage_class_code, manage_class_name, address, addr_province, addr_city, addr_county, addr_town, addr_village, addr_house_no, administrative_division, zip_code, telephone, email, website, establish_date, organ_introduction, traffic_route, approval_authority, register_no, legal_person, principal_name, principal_telecom, license_start_date, license_end_date, subject_services, major_subject_services, is_supervisory, supervisory_property_code, supervisory_property_name, supervisory_subordination_code, supervisory_subordination_name, administrative_level_code, administrative_level_name, supervisory_dept_code, supervisory_dept_name, branching_quantity, is_national_autonomy, branch_org_level_code, branch_org_level_name, staff_quantity, daily_visits, product_quantity, status, organ_pictures, license_pictures, default_password, create_by, create_time, update_by, update_time, del_flag</sql>
+
+
+    <select id="getOrganListByUser" resultType="work.metanet.feng.admin.api.entity.SysOrgan">
+        SELECT
+            so.*
+        FROM
+            sys_organ AS so
+            LEFT JOIN sys_role AS sr ON so.organ_code = sr.organ_code
+            AND so.del_flag = '0'
+            LEFT JOIN sys_user_role AS su ON sr.id = su.role_id
+            AND sr.del_flag = '0'
+        WHERE
+            su.user_id = #{userId}
+        GROUP BY
+            so.id
+    </select>
+</mapper>

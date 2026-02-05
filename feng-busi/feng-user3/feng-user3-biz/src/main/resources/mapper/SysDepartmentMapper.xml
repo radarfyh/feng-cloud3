@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="work.metanet.feng.admin.mapper.SysDepartmentMapper">
+    <!-- 结果集 -->
+    <resultMap type="work.metanet.feng.admin.api.entity.SysDepartment" id="SysDepartmentMap">
+        <result property="id" column="id"/>
+        <result property="deptCode" column="dept_code"/>
+        <result property="deptName" column="dept_name"/>
+        <result property="parentId" column="parent_id"/>
+        <result property="parentCode" column="parent_code"/>
+        <result property="sort" column="sort"/>
+        <result property="organCode" column="organ_code"/>
+        <result property="subjectCode" column="subject_code"/>
+        <result property="subjectName" column="subject_name"/>
+        <result property="deptCategoryCode" column="dept_category_code"/>
+        <result property="deptCategoryName" column="dept_category_name"/>
+        <result property="businessSubjection" column="business_subjection"/>
+        <result property="deptLocation" column="dept_location"/>
+        <result property="deptIntroduction" column="dept_introduction"/>
+        <result property="branchCode" column="branch_code"/>
+        <result property="branchName" column="branch_name"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="delFlag" column="del_flag"/>
+    </resultMap>
+
+    <!-- 基本字段 -->
+    <sql id="Base_Column_List">id, dept_code, dept_name, parent_id, parent_code, sort, organ_code, subject_code, subject_name, dept_category_code, dept_category_name, business_subjection, dept_location, dept_introduction, branch_code, branch_name, create_by, create_time, update_by, update_time, del_flag</sql>
+</mapper>

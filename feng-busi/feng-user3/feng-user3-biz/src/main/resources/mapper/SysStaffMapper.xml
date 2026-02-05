@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="work.metanet.feng.admin.mapper.SysStaffMapper">
+    <!-- 结果集 -->
+    <resultMap type="work.metanet.feng.admin.api.entity.SysStaff" id="SysStaffMap">
+        <result property="id" column="id"/>
+        <result property="organCode" column="organ_code"/>
+        <result property="deptId" column="dept_id"/>
+        <result property="staffNo" column="staff_no"/>
+        <result property="staffName" column="staff_name"/>
+        <result property="nationalityCode" column="nationality_code"/>
+        <result property="nationalityName" column="nationality_name"/>
+        <result property="nationCode" column="nation_code"/>
+        <result property="nationName" column="nation_name"/>
+        <result property="identificationNo" column="identification_no"/>
+        <result property="genderCode" column="gender_code"  />
+        <result property="birthdate" column="birthdate"/>
+        <result property="telephone" column="telephone"/>
+        <result property="maritalStatusCode" column="marital_status_code"/>
+        <result property="maritalStatusName" column="marital_status_name"/>
+        <result property="nativePlace" column="native_place"/>
+        <result property="politicsStatusCode" column="politics_status_code"/>
+        <result property="politicsStatusName" column="politics_status_name"/>
+        <result property="addrProvince" column="addr_province"/>
+        <result property="addrCity" column="addr_city"/>
+        <result property="addrCounty" column="addr_county"/>
+        <result property="addrTown" column="addr_town"/>
+        <result property="addrVillage" column="addr_village"/>
+        <result property="addrHouseNo" column="addr_house_no"/>
+        <result property="address" column="address"/>
+        <result property="zipCode" column="zip_code"/>
+        <result property="educationLevelCode" column="education_level_code"/>
+        <result property="educationLevelName" column="education_level_name"/>
+        <result property="degreeCode" column="degree_code"/>
+        <result property="degreeName" column="degree_name"/>
+        <result property="subjectCode" column="subject_code"/>
+        <result property="subjectName" column="subject_name"/>
+        <result property="graduateSchoolName" column="graduate_school_name"/>
+        <result property="workBeginDate" column="work_begin_date"/>
+        <result property="jobCategory" column="job_category"  />
+        <result property="technicalQualificationsCode" column="technical_qualifications_code"/>
+        <result property="technicalQualificationsName" column="technical_qualifications_name"/>
+        <result property="managementPositionCode" column="management_position_code"/>
+        <result property="managementPositionName" column="management_position_name"/>
+        <result property="titleCode" column="title_code"/>
+        <result property="titleName" column="title_name"/>
+        <result property="isOrganizational" column="is_organizational"/>
+        <result property="position" column="position"  />
+        <result property="activeStatusCode" column="active_status_code"/>
+        <result property="activeStatusName" column="active_status_name"/>
+        <result property="qualificationCertificateNo" column="qualification_certificate_no"/>
+        <result property="practisingCertificateNo" column="practising_certificate_no"/>
+        <result property="expertiseField" column="expertise_field"/>
+        <result property="detailedIntroduction" column="detailed_introduction"/>
+        <result property="isGeneralStaff" column="is_general_staff"/>
+        <result property="photograph" column="photograph"/>
+        <result property="electronicSignature" column="electronic_signature"/>
+        <result property="qualificationCertificatePictures" column="qualification_certificate_pictures"/>
+        <result property="practisingCertificatePictures" column="practising_certificate_pictures"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="delFlag" column="del_flag"/>
+    </resultMap>
+
+    <!-- 基本字段 -->
+    <sql id="Base_Column_List">id
+	    , organ_code, dept_id, staff_no, staff_name, nationality_code, nationality_name, nation_code, nation_name, identification_no
+	    , gender_code, birthdate, telephone, marital_status_code, marital_status_name, native_place, politics_status_code, politics_status_name
+	    , addr_province, addr_city, addr_county, addr_town, addr_village, addr_house_no, address, zip_code, education_level_code, education_level_name
+	    , degree_code, degree_name, subject_code, subject_name, graduate_school_name, work_begin_date, job_category, technical_qualifications_code
+	    , technical_qualifications_name, management_position_code
+	    , management_position_name, title_code, title_name
+	    , is_organizational, position, active_status_code, active_status_name, qualification_certificate_no
+	    , practising_certificate_no, expertise_field, detailed_introduction, is_general_staff, photograph, electronic_signature, qualification_certificate_pictures
+	    , practising_certificate_pictures, create_by, create_time, update_by, update_time, del_flag
+    </sql>
+
+    <select id="getStaffVosPage" resultType="work.metanet.feng.admin.api.vo.SysStaffVO">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM
+        sys_staff
+        WHERE
+        del_flag = '0'
+        <if test="sysStaff.organCode != null and sysStaff.organCode != ''">
+            AND organ_code = #{sysStaff.organCode}
+        </if>
+        <if test="sysStaff.deptId != null">
+            AND dept_id = #{sysStaff.deptId}
+        </if>
+        <if test="sysStaff.staffNo != null and sysStaff.staffNo != ''">
+            AND staff_no = #{sysStaff.staffNo
+        </if>
+        <if test="sysStaff.staffName != null and sysStaff.staffName != ''">
+            <bind name="staffNameLike" value="'%'+sysStaff.staffName+'%'"/>
+            AND staff_name LIKE #{staffNameLike}
+        </if>
+        <if test="sysStaff.identificationNo != null and sysStaff.identificationNo != ''">
+            AND identification_no = #{sysStaff.identificationNo}
+        </if>
+        <if test="sysStaff.telephone != null and sysStaff.telephone != ''">
+            AND telephone = #{sysStaff.telephone}
+        </if>
+        ORDER BY
+        create_time DESC
+    </select>
+
+</mapper>

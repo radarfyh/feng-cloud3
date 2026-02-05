@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="work.metanet.feng.admin.mapper.PrmFollowRecordMapper">
+
+    <resultMap id="BaseResultMap" type="work.metanet.feng.admin.api.entity.PrmFollowRecord">
+        <id column="id" property="id" jdbcType="INTEGER"/>
+        <result column="relationship_id" property="relationshipId" jdbcType="INTEGER"/>
+        <result column="customer_id" property="customerId" jdbcType="INTEGER"/>
+        <result column="contact_id" property="contactId" jdbcType="INTEGER"/>
+        <result column="follow_type" property="followType"  jdbcType="VARCHAR"/>
+        <result column="content" property="content" jdbcType="VARCHAR"/>
+        <result column="result" property="result" jdbcType="VARCHAR"/>
+        <result column="follow_time" property="followTime" jdbcType="TIMESTAMP"/>
+        <result column="next_follow_time" property="nextFollowTime" jdbcType="TIMESTAMP"/>
+        <result column="staff_id" property="staffId" jdbcType="INTEGER"/>
+        <result column="staff_name" property="staffName" jdbcType="VARCHAR"/>
+        <result column="organ_code" property="organCode" jdbcType="VARCHAR"/>
+        <result column="create_by" property="createBy" jdbcType="VARCHAR"/>
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
+        <result column="update_by" property="updateBy" jdbcType="VARCHAR"/>
+        <result column="update_time" property="updateTime" jdbcType="TIMESTAMP"/>
+        <result column="del_flag" property="delFlag" jdbcType="CHAR"/>
+    </resultMap>
+
+    <resultMap id="VOResultMap" type="work.metanet.feng.admin.api.vo.FollowRecordVO">
+        <id column="id" property="id"/>
+        <result column="relationship_id" property="relationshipId"/>
+        <result column="customer_id" property="customerId"/>
+        <result column="contact_id" property="contactId"/>
+        <result column="follow_type" property="followType"   jdbcType="VARCHAR"/>
+        <result column="content" property="content"/>
+        <result column="result" property="result"/>
+        <result column="follow_time" property="followTime"/>
+        <result column="next_follow_time" property="nextFollowTime"/>
+        <result column="staff_id" property="staffId"/>
+        <result column="staff_name" property="staffName"/>
+        <result column="create_time" property="createTime"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, relationship_id, customer_id, contact_id, follow_type, 
+        content, result, follow_time, next_follow_time, staff_id, staff_name,
+        organ_code, create_by, create_time, update_by, update_time, del_flag
+    </sql>
+
+    <sql id="VO_Column_List">
+        id, relationship_id, customer_id, contact_id, follow_type, 
+        content, result, follow_time, next_follow_time, staff_id, staff_name, create_time
+    </sql>
+
+    <select id="pageFollowRecord" resultMap="VOResultMap">
+        SELECT <include refid="VO_Column_List"/>
+        FROM prm_follow_record
+        <where>
+            del_flag = '0'
+            <if test="vo.relationshipId != null">
+                AND relationship_id = #{vo.relationshipId}
+            </if>
+            <if test="vo.customerId != null">
+                AND customer_id = #{vo.customerId}
+            </if>
+            <if test="vo.contactId != null">
+                AND contact_id = #{vo.contactId}
+            </if>
+            <if test="vo.followType != null">
+                AND follow_type = #{vo.followType}
+            </if>
+            <if test="vo.staffId != null">
+                AND staff_id = #{vo.staffId}
+            </if>
+            <if test="vo.startTime != null">
+                AND create_time >= #{vo.startTime}
+            </if>
+            <if test="vo.endTime != null">
+                AND create_time &lt;= #{vo.endTime}
+            </if>
+        </where>
+        ORDER BY create_time DESC
+    </select>
+
+    <select id="countByCustomerId" resultType="int">
+        SELECT COUNT(*) FROM prm_follow_record 
+        WHERE customer_id = #{customerId} AND del_flag = '0'
+    </select>
+
+    <select id="getLastFollowTimeByCustomer" resultType="java.util.Date">
+        SELECT MAX(follow_time) FROM prm_follow_record 
+        WHERE customer_id = #{customerId} AND del_flag = '0'
+    </select>
+</mapper>

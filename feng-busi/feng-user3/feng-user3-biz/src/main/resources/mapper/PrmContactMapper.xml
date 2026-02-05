@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="work.metanet.feng.admin.mapper.PrmContactMapper">
+
+    <!-- 基础结果映射 -->
+    <resultMap id="BaseResultMap" type="work.metanet.feng.admin.api.entity.PrmContact">
+        <id column="id" property="id" jdbcType="INTEGER"/>
+        <result column="staff_id" property="staffId" jdbcType="INTEGER"/>
+        <result column="customer_id" property="customerId" jdbcType="INTEGER"/>
+        <result column="relationship_type" property="relationshipType" jdbcType="VARCHAR"/>
+        <result column="name" property="name" jdbcType="VARCHAR"/>
+        <result column="gender" property="gender" jdbcType="VARCHAR"/>
+        <result column="birthday" property="birthday" jdbcType="DATE"/>
+        <result column="mobile" property="mobile" jdbcType="VARCHAR"/>
+        <result column="phone" property="phone" jdbcType="VARCHAR"/>
+        <result column="email" property="email" jdbcType="VARCHAR"/>
+        <result column="position" property="position" jdbcType="VARCHAR"/>
+        <result column="is_decision_maker" property="isDecisionMaker"  jdbcType="CHAR"/>
+        <result column="is_primary" property="isPrimary"  jdbcType="CHAR"/>
+        <result column="superior_id" property="superiorId" jdbcType="INTEGER"/>
+        <result column="province" property="province" jdbcType="VARCHAR"/>
+        <result column="city" property="city" jdbcType="VARCHAR"/>
+        <result column="district" property="district" jdbcType="VARCHAR"/>
+        <result column="address" property="address" jdbcType="VARCHAR"/>
+        <result column="contact_time" property="contactTime" jdbcType="TIMESTAMP"/>
+        <result column="visit_time" property="visitTime" jdbcType="TIMESTAMP"/>
+        <result column="latest_status" property="latestStatus" jdbcType="VARCHAR"/>
+        <result column="intimacy_score" property="intimacyScore" jdbcType="DECIMAL"/>
+        <result column="contact_frequency" property="contactFrequency" jdbcType="INTEGER"/>
+        <result column="organ_code" property="organCode" jdbcType="VARCHAR"/>
+        <result column="create_by" property="createBy" jdbcType="VARCHAR"/>
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
+        <result column="update_by" property="updateBy" jdbcType="VARCHAR"/>
+        <result column="update_time" property="updateTime" jdbcType="TIMESTAMP"/>
+        <result column="del_flag" property="delFlag" jdbcType="CHAR"/>
+    </resultMap>
+
+    <!-- 详情结果映射（包含上级信息） -->
+    <resultMap id="DetailResultMap" type="work.metanet.feng.admin.api.vo.ContactDetailVO" extends="SimpleResultMap">
+        <id column="id" property="id" jdbcType="INTEGER"/>
+        <result column="staff_id" property="staffId" jdbcType="INTEGER"/>
+        <result column="relationship_type" property="relationshipType" jdbcType="VARCHAR"/>        
+        <result column="gender" property="gender" jdbcType="VARCHAR"/>
+        <result column="birthday" property="birthday" jdbcType="DATE"/>
+        <result column="phone" property="phone" jdbcType="VARCHAR"/>        
+        <result column="is_decision_maker" property="isDecisionMaker"  jdbcType="CHAR"/>                
+        <result column="superior_id" property="superiorId" jdbcType="INTEGER"/>
+        <result column="province" property="province" jdbcType="VARCHAR"/>
+        <result column="city" property="city" jdbcType="VARCHAR"/>
+        <result column="district" property="district" jdbcType="VARCHAR"/>
+        <result column="address" property="address" jdbcType="VARCHAR"/>                
+        <result column="visit_time" property="visitTime" jdbcType="TIMESTAMP"/>
+        <result column="latest_status" property="latestStatus" jdbcType="VARCHAR"/>        
+        <result column="contact_frequency" property="contactFrequency" jdbcType="INTEGER"/>
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>        
+        <result column="update_time" property="updateTime" jdbcType="TIMESTAMP"/>                                
+        <association property="superior" column="superior_id" 
+                     select="selectSimpleContact"/>
+    </resultMap>
+
+    <!-- 简略结果映射 -->
+    <resultMap id="SimpleResultMap" type="work.metanet.feng.admin.api.vo.ContactSimpleVO">
+        <id column="id" property="id"/>
+        <result column="customer_id" property="customerId" jdbcType="INTEGER"/>
+        <result column="name" property="name"/>
+        <result column="position" property="position"/>
+        <result column="is_primary" property="isPrimary" jdbcType="CHAR"/>
+        <result column="mobile" property="mobile" jdbcType="VARCHAR"/>
+        <result column="email" property="email" jdbcType="VARCHAR"/>
+        <result column="contact_time" property="contactTime" jdbcType="TIMESTAMP"/>
+        <result column="intimacy_score" property="intimacyScore" jdbcType="DECIMAL"/>
+    </resultMap>
+
+    <!-- 基础字段列表 -->
+    <sql id="Base_Column_List">
+        id, staff_id, customer_id, relationship_type, name, gender, birthday,
+        mobile, phone, email, position, is_decision_maker, is_primary, superior_id,
+        province, city, district, address, contact_time, visit_time, latest_status,
+        intimacy_score, contact_frequency, organ_code, create_by, create_time,
+        update_by, update_time, del_flag
+    </sql>
+
+    <!-- 分页查询联系人 -->
+    <select id="selectContactPage" resultMap="DetailResultMap">
+        SELECT 
+        <include refid="Base_Column_List"/>
+        FROM prm_contact
+        <where>
+            del_flag = '0'
+            <if test="query.customerId != null">
+                AND customer_id = #{query.customerId}
+            </if>
+            <if test="query.name != null and query.name != ''">
+                AND name LIKE CONCAT('%', #{query.name}, '%')
+            </if>
+            <if test="query.isPrimary != null">
+                AND is_primary = #{query.isPrimary}
+            </if>
+        </where>
+        ORDER BY update_time DESC
+    </select>
+
+    <!-- 根据客户ID查询联系人列表 -->
+    <select id="selectByCustomerId" resultMap="SimpleResultMap">
+        SELECT id, customer_id, name, position, is_primary, mobile, email, contact_time, intimacy_score
+        FROM prm_contact
+        WHERE customer_id = #{customerId} AND del_flag = '0'
+        ORDER BY is_primary DESC, update_time DESC
+    </select>
+
+    <!-- 获取联系人详情 -->
+    <select id="selectContactDetail" resultMap="DetailResultMap">
+        SELECT 
+        <include refid="Base_Column_List"/>
+        FROM prm_contact
+        WHERE id = #{contactId} AND del_flag = '0'
+    </select>
+
+    <!-- 查询上级联系人简略信息 -->
+    <select id="selectSimpleContact" resultMap="SimpleResultMap">
+        SELECT id, name, position, is_primary
+        FROM prm_contact
+        WHERE id = #{superior_id} AND del_flag = '0'
+    </select>
+    
+    <!-- 查询客户联系人简略信息 -->
+    <select id="listByCustomerId" resultMap="SimpleResultMap">
+        SELECT id, name, position, is_primary
+        FROM prm_contact
+        WHERE customer_id = #{customer_id} AND del_flag = '0'
+    </select>
+</mapper>
