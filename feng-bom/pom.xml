@@ -9,7 +9,7 @@
         <groupId>work.metanet</groupId>
         <artifactId>feng-cloud3</artifactId>
         <version>1.0.0-SNAPSHOT</version>
-        <relativePath>../../pom.xml</relativePath>
+        <relativePath>../pom.xml</relativePath>
     </parent>
 
     <artifactId>feng-library3-bom</artifactId>
