@@ -6,44 +6,20 @@
 
     <parent>
         <groupId>work.metanet</groupId>
-        <artifactId>feng-cloud2</artifactId>
-        <version>1.0.0</version>
+        <artifactId>feng-cloud3</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>feng-busi</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <description>业务聚合模块</description>
     
     <modules>
-        <module>feng-ai</module>
-        <module>feng-msg</module>
-        <module>feng-user2</module>
+        <!-- <module>feng-ai</module> -->
+        <!-- <module>feng-msg</module> -->
+        <module>feng-user3</module>
 
     </modules>
-    <build>
-        <plugins>
-            <!--代码格式插件，默认使用spring 规则-->
-<!--            <plugin>
-                <groupId>io.spring.javaformat</groupId>
-                <artifactId>spring-javaformat-maven-plugin</artifactId>
-            </plugin>-->
-            <!--代码编译指定版本插件-->
-<!--            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <configuration>
-                    <target>${maven.compiler.target}</target>
-                    <source>${maven.compiler.source}</source>
-                    <encoding>${project.build.sourceEncoding}</encoding>
-                    <skip>true</skip>
-                </configuration>
-            </plugin>-->
-            <!--打包关联最新 git commit 信息插件-->
-<!--            <plugin>
-                <groupId>pl.project13.maven</groupId>
-                <artifactId>git-commit-id-plugin</artifactId>
-            </plugin>-->
-        </plugins>
-    </build>
 </project>
