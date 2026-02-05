@@ -80,59 +80,6 @@ CREATE TABLE `sys_tenant_config` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='租户配置表';
 
 
-DROP TABLE IF EXISTS `sys_project`;
-CREATE TABLE `sys_project`  (
-  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '项目ID',
-  `tenant_id` int(11) NOT NULL DEFAULT 100 COMMENT '租户ID，用于所有非全局表',
-  `tenant_user_id` int(11) DEFAULT NULL COMMENT '租户内部用户ID，用于用户敏感表',
-  `project_name` varchar(255)  NOT NULL COMMENT '项目名称',
-  `project_code` varchar(64)  NOT NULL COMMENT '项目编码',
-  `project_desc` text  NULL COMMENT '项目描述',
-  `organ_code` varchar(64)  DEFAULT NULL COMMENT '所属机构编码',
-  `dept_id` int(11) DEFAULT NULL COMMENT '所属部门ID',
-  `project_manager_staff_no` varchar(200)  DEFAULT NULL COMMENT '项目经理工号',
-  `project_manager_name` varchar(200)  DEFAULT NULL COMMENT '项目经理姓名',
-  `start_date` date DEFAULT NULL COMMENT '项目开始日期',
-  `end_date` date DEFAULT NULL COMMENT '项目结束日期',
-  `status_code` varchar(64)  DEFAULT NULL COMMENT '项目状态代码',
-  `status_name` varchar(64)  DEFAULT NULL COMMENT '项目状态名称',
-  `budget` decimal(15, 2) DEFAULT NULL COMMENT '项目预算',
-  `actual_cost` decimal(15, 2) DEFAULT NULL COMMENT '实际成本',
-  `progress` decimal(5, 2) DEFAULT NULL COMMENT '项目进度（百分比）',
-  `priority_code` varchar(64)  DEFAULT NULL COMMENT '项目优先级代码',
-  `priority_name` varchar(64)  DEFAULT NULL COMMENT '项目优先级名称',
-  `status` char(1)  NULL DEFAULT '0' COMMENT '状态:0-启用 1-禁用',
-  `create_by` varchar(64)  DEFAULT NULL COMMENT '创建者',
-  `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-  `update_by` varchar(64)  DEFAULT NULL COMMENT '更新者',
-  `update_time` datetime DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
-  `del_flag` char(1)  NULL DEFAULT '0' COMMENT '逻辑删 0-正常 1-删除',
-  PRIMARY KEY (`id`) ,
-  UNIQUE INDEX `idx_project_code`(`tenant_id`, `project_code`)  COMMENT '项目编码唯一索引',
-  INDEX `idx_project_organ_code`(`organ_code`)  COMMENT '机构编码索引',
-  INDEX `idx_project_dept_id`(`dept_id`)  COMMENT '部门ID索引'
-) ENGINE = InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT = '项目表' ROW_FORMAT = DYNAMIC;
-
-INSERT INTO `sys_project` VALUES (1, 100, NULL, 'ERP研发项目', 'ERP', '自研企业资源计划管理系统', 'DJ', 1, '1001', 'amy', '2023-01-01', '2023-12-31', 'P', '进行中', 100000.00, 50000.00, 50.00, 'H', '高', '0', 'admin', '2025-03-24 22:33:04', 'admin', NULL, '0');
-
-DROP TABLE IF EXISTS `sys_project_staff`;
-CREATE TABLE `sys_project_staff`  (
-  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '主键' PRIMARY KEY,
-  `tenant_id` int(11) NOT NULL DEFAULT 100 COMMENT '租户ID，用于所有非全局表',
-  `tenant_user_id` int(11) DEFAULT NULL COMMENT '租户内部用户ID，用于用户敏感表',
-  `project_id` int(11) DEFAULT NULL COMMENT '项目id',
-  `role_id` int(11) DEFAULT NULL COMMENT '角色id',
-  `staff_id` int(11) DEFAULT NULL COMMENT '员工id',
-  `staff_no` varchar(255)  DEFAULT NULL COMMENT '员工工号',
-  `notes` varchar(255)  DEFAULT NULL COMMENT '备注',
-  `create_by` varchar(64)  DEFAULT NULL COMMENT '创建者',
-  `create_time` datetime NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-  `update_by` varchar(64)  DEFAULT NULL COMMENT '更新者',
-  `update_time` datetime DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '修改时间',
-  `del_flag` char(1)  NULL DEFAULT '0' COMMENT '逻辑删 0-正常 1-删除',
-  UNIQUE KEY `uk_project_staff_id` (`tenant_id`, `project_id`, `staff_id`) 
-) ENGINE = InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT = '项目成员表' ROW_FORMAT = DYNAMIC;
-
 DROP TABLE IF EXISTS `sys_role_application`;
 CREATE TABLE `sys_role_application`  (
   `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '主键' PRIMARY KEY,
@@ -147,41 +94,6 @@ CREATE TABLE `sys_role_application`  (
   `del_flag` char(1)  NULL DEFAULT '0' COMMENT '逻辑删 0-正常 1-删除',
   UNIQUE KEY `uk_role_app_id` (`tenant_id`, `role_id`, `application_id`) 
 ) ENGINE = InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT = '角色应用关联表' ROW_FORMAT = DYNAMIC;
-
-DROP TABLE IF EXISTS `sys_affiliation`;
-CREATE TABLE `sys_affiliation`  (
-  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '联盟ID',
-  `tenant_id` int(11) NOT NULL DEFAULT 100 COMMENT '租户ID，用于所有非全局表',
-  `tenant_user_id` int(11) DEFAULT NULL COMMENT '租户内部用户ID，用于用户敏感表',
-  `affiliation_name` varchar(255)  DEFAULT NULL COMMENT '联盟名称',
-  `affiliation_code` varchar(255)  DEFAULT NULL COMMENT '联盟编码',
-  `affiliation_introduction` text  NULL COMMENT '联盟简介',
-  `principal_name` varchar(255)  DEFAULT NULL COMMENT '负责人姓名',
-  `principal_telephone` varchar(255)  DEFAULT NULL COMMENT '负责人电话',
-  `status` char(1)  NULL DEFAULT '0' COMMENT '状态:0-启用 1-禁用',
-  `create_by` varchar(64)  DEFAULT NULL COMMENT '创建者',
-  `create_time` datetime NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-  `update_by` varchar(64)  DEFAULT NULL COMMENT '更新者',
-  `update_time` datetime DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '修改时间',
-  `del_flag` char(1)  NULL DEFAULT '0' COMMENT '逻辑删 0-正常 1-删除',
-  PRIMARY KEY (`id`) 
-) ENGINE = InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT = '联盟表' ROW_FORMAT = DYNAMIC;
-
-DROP TABLE IF EXISTS `sys_affiliation_organ`;
-CREATE TABLE `sys_affiliation_organ`  (
-  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '主键' PRIMARY KEY,
-  `tenant_id` int(11) NOT NULL DEFAULT 100 COMMENT '租户ID，用于所有非全局表',
-  `tenant_user_id` int(11) DEFAULT NULL COMMENT '租户内部用户ID，用于用户敏感表',
-  `affiliation_id` int(11) DEFAULT NULL COMMENT '联盟id',
-  `organ_id` int(11) DEFAULT NULL COMMENT '机构id',
-  `is_leader` char(1)  DEFAULT NULL COMMENT '是否为主联盟机构',
-  `create_by` varchar(64)  DEFAULT NULL COMMENT '创建者',
-  `create_time` datetime NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-  `update_by` varchar(64)  DEFAULT NULL COMMENT '更新者',
-  `update_time` datetime DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '修改时间',
-  `del_flag` char(1)  NULL DEFAULT '0' COMMENT '逻辑删 0-正常 1-删除',
-  UNIQUE KEY `uk_affil_organ_id` (`tenant_id`, `affiliation_id`, `organ_id`) 
-) ENGINE = InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT = '联盟机构关联表' ROW_FORMAT = DYNAMIC;
 
 DROP TABLE IF EXISTS `sys_application`;
 CREATE TABLE `sys_application`  (
@@ -239,166 +151,6 @@ CREATE TABLE `sys_config`  (
   `del_flag` char(1)  NULL DEFAULT '0' COMMENT '逻辑删 0-正常 1-删除',
   PRIMARY KEY (`id`) 
 ) ENGINE = InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT = '系统配置表' ROW_FORMAT = DYNAMIC;
-
-DROP TABLE IF EXISTS `sys_datasource`;
-CREATE TABLE `sys_datasource`  (
-  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'id',
-  `tenant_id` int(11) NOT NULL DEFAULT 100 COMMENT '租户ID，用于所有非全局表',
-  `tenant_user_id` int(11) DEFAULT NULL COMMENT '租户内部用户ID，用于用户敏感表',
-  `name` varchar(255)  DEFAULT NULL COMMENT '连接名',
-  `db_type` varchar(100)  DEFAULT NULL COMMENT '数据库类型',
-  `conf_type` char(1)  NULL DEFAULT '1' COMMENT '配置类型 （0 主机形式 | 1 url形式）',
-  `host` varchar(128)  DEFAULT NULL COMMENT '主机host地址',
-  `port` int(11) DEFAULT NULL COMMENT '主机端口号',
-  `url` varchar(500)  DEFAULT NULL COMMENT '拼接后的数据源地址',
-  `db_name` varchar(100)  DEFAULT NULL COMMENT '数据库名称',
-  `username` varchar(100)  DEFAULT NULL COMMENT '用户名',
-  `password` varchar(100)  DEFAULT NULL COMMENT '密码',
-  `application_code` varchar(255)  DEFAULT NULL COMMENT '应用编码',
-  `var_parameter` json NULL COMMENT '变量入参',
-  `organ_code` varchar(64)  DEFAULT NULL COMMENT '所属机构编码',
-  `create_by` varchar(64)  DEFAULT NULL COMMENT '创建者',
-  `create_time` datetime NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-  `update_by` varchar(64)  DEFAULT NULL COMMENT '更新者',
-  `update_time` datetime DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '修改时间',
-  `del_flag` char(1)  NULL DEFAULT '0' COMMENT '逻辑删 0-正常 1-删除',
-  PRIMARY KEY (`id`) 
-) ENGINE = InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT = '数据源表' ROW_FORMAT = DYNAMIC;
-
-INSERT INTO `sys_datasource` VALUES (1, 100, NULL, '消息采集', 'mysql', '0', '127.0.0.1', 3306, 'jdbc:mysql://127.0.0.1:3306/feng_msg_biz?characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=false&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&allowMultiQueries=true&allowPublicKeyRetrieval=true&', 'feng_msg_biz', 'root', '3c6x1snDJy3XhtEnY4CiiA==', 'ERP', '[]', 'default', 'admin', '2025-06-05 09:36:03', NULL, NULL, '0');
-
-DROP TABLE IF EXISTS `sys_table`;
-CREATE TABLE `sys_table` (
-  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'ID',
-  `tenant_id` int(11) NOT NULL DEFAULT 100 COMMENT '租户ID，用于所有非全局表',
-  `tenant_user_id` int(11) DEFAULT NULL COMMENT '租户内部用户ID，用于用户敏感表',
-  `datasource_id` int(11) DEFAULT NULL COMMENT '数据源ID',
-  `table_name` varchar(100) NOT NULL COMMENT '表英文名',
-  `table_name_chinese` varchar(100) DEFAULT NULL COMMENT '表中文名',
-  `table_comment` varchar(500) DEFAULT NULL COMMENT '表备注',
-  `business_segment` varchar(100) DEFAULT NULL COMMENT '系统',
-  `business_domain` varchar(100) DEFAULT NULL COMMENT '系统下领域',
-  `label` json DEFAULT NULL COMMENT '标签：JSON字符串',
-  `create_by` varchar(64) DEFAULT NULL COMMENT '创建者',
-  `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-  `update_by` varchar(64) DEFAULT NULL COMMENT '更新者',
-  `update_time` datetime DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
-  `del_flag` char(1) DEFAULT '0' COMMENT '删除标记(0-正常 1-删除)',
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `uk_table_name` (`tenant_id`, `table_name`),
-  KEY `idx_datasource_id` (`datasource_id`),
-  KEY `idx_business` (`business_segment`, `business_domain`),
-  CONSTRAINT `fk_table_datasource_id` FOREIGN KEY (`datasource_id`) REFERENCES `sys_datasource`(`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='数据表';
-
-DROP TABLE IF EXISTS `sys_table_field`;
-CREATE TABLE `sys_table_field` (
-  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'ID',
-  `tenant_id` int(11) NOT NULL DEFAULT 100 COMMENT '租户ID，用于所有非全局表',
-  `tenant_user_id` int(11) DEFAULT NULL COMMENT '租户内部用户ID，用于用户敏感表',
-  `table_id` int(11) NOT NULL COMMENT '表ID',
-  `field_comment` varchar(500) DEFAULT NULL COMMENT '字段说明',
-  `field_name` varchar(100) NOT NULL COMMENT '字段名',
-  `field_name_chinese` varchar(100) DEFAULT NULL COMMENT '字段中文名',
-  `busi_term` varchar(100) DEFAULT NULL COMMENT '业务关键名词',
-  `field_type` varchar(50) NOT NULL COMMENT '字段类型',
-  `field_size` int(11) DEFAULT 0 COMMENT '字段长度',
-  `field_sequence` int(11) DEFAULT NULL COMMENT '列位置',
-  `field_required` char(1) DEFAULT '0' COMMENT '必填(0-否 1-是)',
-  `field_grade` varchar(50) DEFAULT NULL COMMENT '所属分级',
-  `mapping_type` varchar(20) DEFAULT 'local' COMMENT '映射类型(local-本地 other-其他)',
-  `range_mapping` varchar(500) DEFAULT NULL COMMENT '映射',
-  `field_key` varchar(20) DEFAULT NULL COMMENT '键值(1-primary 2-foreign 3-unique)',
-  `field_index` varchar(50) DEFAULT NULL COMMENT '索引',
-  `is_query` char(1) DEFAULT '0' COMMENT '是否可查询(0-否 1-是)',
-  `associated` char(1) NOT NULL DEFAULT '0' COMMENT '是否表关联字段(0-否 1-是)',
-  `identifier` varchar(100) DEFAULT NULL COMMENT '标识符',
-  `create_by` varchar(64) DEFAULT NULL COMMENT '创建者',
-  `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-  `update_by` varchar(64) DEFAULT NULL COMMENT '更新者',
-  `update_time` datetime DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
-  `del_flag` char(1) DEFAULT '0' COMMENT '删除标记(0-正常 1-删除)',
-  PRIMARY KEY (`id`),
-  KEY `idx_field_name` (`field_name`),
-  KEY `idx_field_key` (`field_key`),
-  KEY `idx_field_index` (`field_index`),
-  UNIQUE KEY `uk_table_field` (`tenant_id`, `table_id`, `field_name`),
-  CONSTRAINT `fk_field_table_id` FOREIGN KEY (`table_id`) REFERENCES `sys_table`(`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='数据表字段';
-
-DROP TABLE IF EXISTS `sys_meta_element`;
-CREATE TABLE `sys_meta_element` (
-  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'ID',
-  `tenant_id` int(11) NOT NULL DEFAULT 100 COMMENT '租户ID，用于所有非全局表',
-  `tenant_user_id` int(11) DEFAULT NULL COMMENT '租户内部用户ID，用于用户敏感表',
-  `category` varchar(100) DEFAULT NULL COMMENT '分类',
-  `identifier` varchar(100) NOT NULL COMMENT '标识符',
-  `name` varchar(100) NOT NULL COMMENT '名称',
-  `define` text DEFAULT NULL COMMENT '定义',
-  `data_type` varchar(50) DEFAULT NULL COMMENT '数据类型',
-  `represent_format` varchar(100) DEFAULT NULL COMMENT '表示格式',
-  `allowable_value` text DEFAULT NULL COMMENT '允许值',
-  `version_no` varchar(50) DEFAULT NULL COMMENT '版本号',
-  `update_count` int(11) DEFAULT 0 COMMENT '更新次数',
-  `category_id` varchar(36) DEFAULT NULL COMMENT '分类ID',
-  `data_length` varchar(50) DEFAULT NULL COMMENT '数据长度',
-  `unit` varchar(20) DEFAULT NULL COMMENT '单位',
-  `status` varchar(20) DEFAULT NULL COMMENT '状态',
-  `uncriterion` varchar(10) DEFAULT NULL COMMENT '是否标准',
-  `remark` text DEFAULT NULL COMMENT '备注',
-  `data_code_in` varchar(100) DEFAULT NULL COMMENT '内部标识',
-  `create_by` varchar(64) DEFAULT NULL COMMENT '创建者',
-  `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-  `update_by` varchar(64) DEFAULT NULL COMMENT '更新者',
-  `update_time` datetime DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
-  `del_flag` char(1) DEFAULT '0' COMMENT '删除标记(0-正常 1-删除)',
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `uk_identifier` (`tenant_id`, `identifier`),
-  KEY `idx_category` (`category`),
-  KEY `idx_category_id` (`category_id`),
-  KEY `idx_name` (`name`),
-  KEY `idx_data_code_in` (`data_code_in`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='元素表';
-
-DROP TABLE IF EXISTS `sys_meta_data`;
-CREATE TABLE `sys_meta_data` (
-  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'ID',
-  `tenant_id` int(11) NOT NULL DEFAULT 100 COMMENT '租户ID，用于所有非全局表',
-  `tenant_user_id` int(11) DEFAULT NULL COMMENT '租户内部用户ID，用于用户敏感表',
-  `parent_id` int(11) NOT NULL COMMENT '父ID',
-  `category` varchar(100) DEFAULT NULL COMMENT '分类',
-  `identifier` varchar(100) NOT NULL COMMENT '标识符',
-  `name` varchar(100) NOT NULL COMMENT '名称',
-  `create_by` varchar(64) DEFAULT NULL COMMENT '创建者',
-  `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-  `update_by` varchar(64) DEFAULT NULL COMMENT '更新者',
-  `update_time` datetime DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
-  `del_flag` char(1) DEFAULT '0' COMMENT '删除标记(0-正常 1-删除)',
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `uk_identifier` (`tenant_id`, `identifier`),
-  KEY `idx_category` (`category`),
-  KEY `idx_name` (`name`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='元数据表';
-
-DROP TABLE IF EXISTS `sys_meta_data_element_relation`;
-CREATE TABLE `sys_meta_data_element_relation` (
-  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'ID',
-  `tenant_id` int(11) NOT NULL DEFAULT 100 COMMENT '租户ID，用于所有非全局表',
-  `tenant_user_id` int(11) DEFAULT NULL COMMENT '租户内部用户ID，用于用户敏感表',
-  `meta_data_id` int(11) NOT NULL COMMENT '元数据ID',
-  `element_id` int(11) NOT NULL COMMENT '元素ID',
-  `primary_key` char(1) DEFAULT '1' COMMENT '是否主键(0-是 1-否)',
-  `must` char(1) DEFAULT '1' COMMENT '是否必须(0-是 1-否)',
-  `create_by` varchar(64) DEFAULT NULL COMMENT '创建者',
-  `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-  `update_by` varchar(64) DEFAULT NULL COMMENT '更新者',
-  `update_time` datetime DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
-  `del_flag` char(1) DEFAULT '0' COMMENT '删除标记(0-正常 1-删除)',
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `uk_meta_data_element_id` (`tenant_id`, `meta_data_id`, `element_id`),
-  CONSTRAINT `fk_meta_data_id` FOREIGN KEY (`meta_data_id`) REFERENCES `sys_meta_data`(`id`),
-  CONSTRAINT `fk_meta_element_id` FOREIGN KEY (`element_id`) REFERENCES `sys_meta_element`(`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='元数据元素关系表';
 
 DROP TABLE IF EXISTS `sys_department`;
 CREATE TABLE `sys_department`  (
@@ -2977,57 +2729,7 @@ INSERT INTO `sys_role_menu`(`tenant_id`, `role_id`, `menu_id`) VALUES (101, 13, 
 INSERT INTO `sys_role_menu`(`tenant_id`, `role_id`, `menu_id`) VALUES (101, 13, 1203);
 INSERT INTO `sys_role_menu`(`tenant_id`, `role_id`, `menu_id`) VALUES (101, 13, 1204);
 
-DROP TABLE IF EXISTS `sys_route_conf`;
-CREATE TABLE `sys_route_conf`  (
-  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '主键',
-  `tenant_id` int(11) NOT NULL DEFAULT 100 COMMENT '租户ID，用于所有非全局表',
-  `tenant_user_id` int(11) DEFAULT NULL COMMENT '租户内部用户ID，用于用户敏感表',
-  `route_name` varchar(30)  DEFAULT NULL COMMENT '路由名称',
-  `route_id` varchar(30)  DEFAULT NULL COMMENT '路由id',
-  `predicates` json NULL COMMENT '断言',
-  `filters` json NULL COMMENT '过滤器，用于微服务接口限流过滤等作用',
-  `uri` varchar(50)  DEFAULT NULL COMMENT '路由url',
-  `sort_order` int(11) NULL DEFAULT 30 COMMENT '排序',
-  `meta_data` varchar(255)  DEFAULT NULL COMMENT '路由元信息',
-  `create_by` varchar(64)  DEFAULT NULL COMMENT '创建者',
-  `create_time` datetime NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-  `update_by` varchar(64)  DEFAULT NULL COMMENT '更新者',
-  `update_time` datetime DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '修改时间',
-  `del_flag` char(1)  NULL DEFAULT '0' COMMENT '逻辑删 0-正常 1-删除',
-  PRIMARY KEY (`id`) 
-) ENGINE = InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT = '路由配置表' ROW_FORMAT = DYNAMIC;
-
 -- 员工和用户
-
-DROP TABLE IF EXISTS `sys_social_details`;
-CREATE TABLE `sys_social_details`  (
-  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '社交详情ID',
-  `tenant_id` int(11) NOT NULL DEFAULT 100 COMMENT '租户ID，用于所有非全局表',
-  `tenant_user_id` int(11) DEFAULT NULL COMMENT '租户内部用户ID，用于用户敏感表',
-  `staff_id` int(11) DEFAULT NULL COMMENT '员工ID，关联员工表，若为空表示是客户账号',
-  `customer_id` int(11) DEFAULT NULL COMMENT '客户ID，关联客户表，若为空表示是联系人个人账号',
-  `contact_id` int(11) DEFAULT NULL COMMENT '联系人ID，关联联系人表，若为空表示是公共账号',
-  `owner_type` varchar(16)  NOT NULL COMMENT '关联类型，关联数据字典owner_type，例如staff, customer, contact',
-  `type` varchar(16)  NOT NULL COMMENT '关系类型代码，关联数据字典social_type，例如微信、领英',
-  `social_account` varchar(64)  NOT NULL COMMENT '社交账号',
-  `nickname` varchar(64)  DEFAULT NULL COMMENT '账号昵称',
-  `avatar` varchar(128)  DEFAULT NULL COMMENT '账号头像URL',
-  `remark` varchar(512)  DEFAULT NULL COMMENT '备注',
-  `app_id` varchar(64)  DEFAULT NULL COMMENT '社交账号对应的平台应用ID',
-  `app_secret` varchar(64)  DEFAULT NULL COMMENT '社交账号对应的平台密钥',
-  `redirect_url` varchar(128)  DEFAULT NULL COMMENT '跳转到社交平台的链接',
-  `is_primary` char(1)  NULL DEFAULT '0' COMMENT '是否主账号 1是，0否',
-  `organ_code` varchar(64)  DEFAULT NULL COMMENT '所属机构编码',
-  `create_by` varchar(64)  DEFAULT NULL COMMENT '创建者',
-  `create_time` datetime NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-  `update_by` varchar(64)  DEFAULT NULL COMMENT '更新者',
-  `update_time` datetime DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '修改时间',
-  `del_flag` char(1)  NULL DEFAULT '0' COMMENT '逻辑删 0-正常 1-删除',
-  PRIMARY KEY (`id`) 
-) ENGINE = InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT = '社交账号表' ROW_FORMAT = DYNAMIC;
-
-INSERT INTO `sys_social_details`(`tenant_id`, `staff_id`,`customer_id`,`contact_id`,`owner_type`,`type`,`social_account`,`nickname`,`is_primary`) VALUES (100, NULL, 1, NULL, 'customer', 'wechat', 'radar_wind', '风雨', '1');
-INSERT INTO `sys_social_details`(`tenant_id`, `staff_id`,`customer_id`,`contact_id`,`owner_type`,`type`,`social_account`,`nickname`,`is_primary`) VALUES (101, NULL, 1, NULL, 'customer', 'wechat', 'radar_wind', '风雨', '1');
 
 DROP TABLE IF EXISTS `sys_staff`;
 CREATE TABLE `sys_staff`  (
@@ -3123,23 +2825,6 @@ INSERT INTO `sys_staff_dept`(`staff_id`, `department_id`) VALUES (1, 1);
 INSERT INTO `sys_staff_dept`(`staff_id`, `department_id`) VALUES (2, 1);
 INSERT INTO `sys_staff_dept`(`staff_id`, `department_id`) VALUES (3, 1);
 
-DROP TABLE IF EXISTS `sys_team`;
-CREATE TABLE `sys_team`  (
-  `id` int(11) NOT NULL COMMENT 'id',
-  `tenant_id` int(11) NOT NULL DEFAULT 100 COMMENT '租户ID，用于所有非全局表',
-  `tenant_user_id` int(11) DEFAULT NULL COMMENT '租户内部用户ID，用于用户敏感表',
-  `affiliation_id` int(11) DEFAULT NULL COMMENT '联盟id',
-  `team_name` varchar(255)  DEFAULT NULL COMMENT '小组名称',
-  `team_code` varchar(255)  DEFAULT NULL COMMENT '小组编码',
-  `status` char(1)  NULL DEFAULT '0' COMMENT '状态:0-启用 1-禁用',
-  `create_by` varchar(64)  DEFAULT NULL COMMENT '创建者',
-  `create_time` datetime NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-  `update_by` varchar(64)  DEFAULT NULL COMMENT '更新者',
-  `update_time` datetime DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '修改时间',
-  `del_flag` char(1)  NULL DEFAULT '0' COMMENT '逻辑删 0-正常 1-删除',
-  PRIMARY KEY (`id`) 
-) ENGINE = InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT = '小组' ROW_FORMAT = DYNAMIC;
-
 DROP TABLE IF EXISTS `sys_user`;
 CREATE TABLE `sys_user`  (
   `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '主键ID',
@@ -3198,29 +2883,6 @@ CREATE TABLE `sys_user_department`  (
   UNIQUE KEY `uk_user_dept_id` (`tenant_id`, `user_id`, `dept_id`) 
 ) ENGINE = InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT = '用户部门表,用于一个用户有多个部门的情况' ROW_FORMAT = DYNAMIC;
 
-DROP TABLE IF EXISTS `sys_table_ext_attr`;
-CREATE TABLE `sys_table_ext_attr`  (
-  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '扩展配置id',
-  `tenant_id` int(11) NOT NULL DEFAULT 100 COMMENT '租户ID，用于所有非全局表',
-  `tenant_user_id` int(11) DEFAULT NULL COMMENT '租户内部用户ID，用于用户敏感表',
-  `table_name` varchar(64)  NOT NULL COMMENT '所属实体名称，写表名',
-  `record_id` int(11) NOT NULL COMMENT '扩展配置所属实体的记录ID',
-  `ext_key` varchar(255)  DEFAULT NULL COMMENT '属性标识',
-  `ext_name` varchar(255)  DEFAULT NULL COMMENT '属性名称',
-  `ext_type` varchar(255)  DEFAULT NULL COMMENT '属性取值类型',
-  `dict_url` varchar(255)  DEFAULT NULL COMMENT '字典取值URL',
-  `dict_data` text  NULL COMMENT '本地字典 json数组',
-  `dict_value` varchar(255)  DEFAULT NULL COMMENT '字典value属性',
-  `dict_label` varchar(255)  DEFAULT NULL COMMENT '字典label属性',
-  `fill_in_type` char(1)  DEFAULT NULL COMMENT '界面填写样式',
-  `organ_code` varchar(64)  DEFAULT NULL COMMENT '所属机构编码',
-  `create_by` varchar(64)  DEFAULT NULL COMMENT '创建者',
-  `create_time` datetime NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-  `update_by` varchar(64)  DEFAULT NULL COMMENT '更新者',
-  `update_time` datetime DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '修改时间',
-  `del_flag` char(1)  NULL DEFAULT '0' COMMENT '逻辑删 0-正常 1-删除',
-  PRIMARY KEY (`id`) 
-) ENGINE = InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT = '扩展属性配置，可用于机构、客户、联系人、员工表等' ROW_FORMAT = DYNAMIC;
 
 DROP TABLE IF EXISTS `sys_user_role`;
 CREATE TABLE `sys_user_role`  (
@@ -3244,209 +2906,100 @@ INSERT INTO `sys_user_role`(`tenant_id`, `user_id`, `role_id`) VALUES (101, 4, 1
 INSERT INTO `sys_user_role`(`tenant_id`, `user_id`, `role_id`) VALUES (101, 5, 13);
 INSERT INTO `sys_user_role`(`tenant_id`, `user_id`, `role_id`) VALUES (101, 6, 14);
 
-DROP TABLE IF EXISTS `sys_team_staff`;
-CREATE TABLE `sys_team_staff`  (
-  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '主键' PRIMARY KEY,
-  `tenant_id` int(11) NOT NULL DEFAULT 100 COMMENT '租户ID，用于所有非全局表',
-  `tenant_user_id` int(11) DEFAULT NULL COMMENT '租户内部用户ID，用于用户敏感表',
-  `team_id` int(11) DEFAULT NULL COMMENT '小组id',
-  `staff_id` int(11) DEFAULT NULL COMMENT '人员id',
-  `create_by` varchar(64)  DEFAULT NULL COMMENT '创建者',
-  `create_time` datetime NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-  `update_by` varchar(64)  DEFAULT NULL COMMENT '更新者',
-  `update_time` datetime DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '修改时间',
-  `del_flag` char(1)  NULL DEFAULT '0' COMMENT '逻辑删 0-正常 1-删除',
-  UNIQUE KEY `uk_team_staff_id` (`tenant_id`, `team_id`, `staff_id`) 
-) ENGINE = InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT = '小组人员关联表，暂未使用' ROW_FORMAT = DYNAMIC;
 
--- CRM
-
-DROP TABLE IF EXISTS `prm_customer`;
-DROP TABLE IF EXISTS `prm_customer_relation`;
-DROP TABLE IF EXISTS `prm_contact`;
-DROP TABLE IF EXISTS `prm_social_relationship`;
-DROP TABLE IF EXISTS `prm_follow_record`;
-
-CREATE TABLE `prm_customer` (
-  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '客户ID',
-  `tenant_id` int(11) NOT NULL DEFAULT 100 COMMENT '租户ID，用于所有非全局表',
-  `tenant_user_id` int(11) DEFAULT NULL COMMENT '租户内部用户ID，用于用户敏感表',
-  `organ_id` int(11) COMMENT '机构ID，为空表示该客户不存在于机构表',
-  `name` varchar(100) NOT NULL COMMENT '临时客户名称或者可能不准确的名称或者没有机构记录时使用的机构名称，以待后补到机构表，一般指单位名称，个人或者个体户只有联系人，没有客户信息',
-  `relationship_type` VARCHAR(20) DEFAULT NULL COMMENT '客户和用户的关系类型代码，关联数据字典customer_relation_type，例如客户/代理商/供应商',
-  `source_code` varchar(20) DEFAULT NULL COMMENT '客户来源编码，关联数据字典customer_source',
-  `parent_id` int(11) DEFAULT NULL COMMENT '上级客户ID，同单位上级',
-  `mobile` varchar(20) DEFAULT NULL COMMENT '客户手机号码，机构表没有手机号码字段',
-  `level_code` varchar(20) DEFAULT NULL COMMENT '客户级别编码，关联数据字典customer_level，例如ABCD类客户，可在数据字典中修改分类标准',
-  `follow_time` datetime DEFAULT NULL COMMENT '最后跟踪时间',
-  `follow_result` varchar(200) DEFAULT NULL COMMENT '跟踪结果',
-  `organ_code` varchar(64)  DEFAULT NULL COMMENT '所属机构编码',
-  `create_by` varchar(64)  NULL DEFAULT 'admin' COMMENT '创建者',
-  `create_time` datetime NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-  `update_by` varchar(64)  NULL DEFAULT 'admin' COMMENT '更新者',
-  `update_time` datetime DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '修改时间',
-  `del_flag` char(1)  NULL DEFAULT '0' COMMENT '逻辑删 0-正常 1-删除',
+-- 民族代码表
+DROP TABLE IF EXISTS `dict_ethnic_group`;
+CREATE TABLE `dict_ethnic_group` (
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '主键id自增',
+  `name` varchar(256) NOT NULL COMMENT '民族名称',
+  `code` char(2) NOT NULL COMMENT '民族代码',
+  `remark` varchar(1024) DEFAULT '-' COMMENT '备注说明',
+  `create_by` varchar(64) DEFAULT NULL COMMENT '创建者',
+  `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `update_by` varchar(64) DEFAULT NULL COMMENT '更新者',
+  `update_time` datetime DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  `del_flag` char(1) DEFAULT '0' COMMENT '逻辑删除标记(0:正常,1:删除)',
   PRIMARY KEY (`id`),
-  CONSTRAINT fk_customer_parent_id FOREIGN KEY (parent_id) REFERENCES prm_customer(id),
-  KEY `idx_source` (`source_code`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='客户表(PRM增强)';
+  UNIQUE KEY `idx_ethnic_group_code` (`code`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='民族代码表(GB/T 3304-1991)';
 
-INSERT INTO `prm_customer`(`tenant_id`, `id`,`organ_id`,`name`,`relationship_type`,`source_code`,`mobile`,`level_code` ) VALUES (100, 1, 2, '华为技术', 'CUSTOMER', 'WEBSITE', '13356411900', 'A');
-INSERT INTO `prm_customer`(`tenant_id`, `id`,`organ_id`,`name`,`relationship_type`,`source_code`,`mobile`,`level_code` ) VALUES (100, 2, 1, '大疆创新', 'CUSTOMER', 'DOUYIN', '13356478900', 'B');
-INSERT INTO `prm_customer`(`tenant_id`, `id`,`organ_id`,`name`,`relationship_type`,`source_code`,`mobile`,`level_code` ) VALUES (100, 3, 3, '中兴通讯', 'CUSTOMER', 'OFFLINE', '13122334455', 'C');
-INSERT INTO `prm_customer`(`tenant_id`, `id`,`organ_id`,`name`,`relationship_type`,`source_code`,`mobile`,`level_code` ) VALUES (100, 4, 4, '中国电信', 'CUSTOMER', 'AD', '13983377889', 'D');
-INSERT INTO `prm_customer`(`tenant_id`, `id`,`organ_id`,`name`,`relationship_type`,`source_code`,`mobile`,`level_code` ) VALUES (100, 5, 9, '大唐电信', 'CUSTOMER', 'AD', '13983377889', 'D');
-INSERT INTO `prm_customer`(`tenant_id`, `id`,`organ_id`,`name`,`relationship_type`,`source_code`,`mobile`,`level_code` ) VALUES (100, 6, 10, '宇树科技', 'CUSTOMER', 'AD', '13983377569', 'D');
+INSERT INTO `dict_ethnic_group` VALUES (1, '1 - 汉族	', '1', '-', 'admin', '2025-11-18 15:24:11', NULL, '2025-11-18 15:24:48', '0');
+INSERT INTO `dict_ethnic_group` VALUES (2, '2 - 蒙古族	', '2', '-', 'admin', '2025-11-18 15:24:11', NULL, '2025-11-18 15:24:48', '0');
+INSERT INTO `dict_ethnic_group` VALUES (3, '3 - 回族	', '3', '-', 'admin', '2025-11-18 15:24:11', NULL, '2025-11-18 15:24:48', '0');
+INSERT INTO `dict_ethnic_group` VALUES (4, '4 - 藏族	', '4', '-', 'admin', '2025-11-18 15:24:11', NULL, '2025-11-18 15:24:48', '0');
+INSERT INTO `dict_ethnic_group` VALUES (5, '5 - 维吾尔族	', '5', '-', 'admin', '2025-11-18 15:24:11', NULL, '2025-11-18 15:24:48', '0');
+INSERT INTO `dict_ethnic_group` VALUES (6, '6 - 苗族	', '6', '-', 'admin', '2025-11-18 15:24:11', NULL, '2025-11-18 15:24:48', '0');
+INSERT INTO `dict_ethnic_group` VALUES (7, '7 - 彝族	', '7', '-', 'admin', '2025-11-18 15:24:11', NULL, '2025-11-18 15:24:48', '0');
+INSERT INTO `dict_ethnic_group` VALUES (8, '8 - 壮族	', '8', '-', 'admin', '2025-11-18 15:24:12', NULL, '2025-11-18 15:24:48', '0');
+INSERT INTO `dict_ethnic_group` VALUES (9, '9 - 布依族	', '9', '-', 'admin', '2025-11-18 15:24:12', NULL, '2025-11-18 15:24:49', '0');
+INSERT INTO `dict_ethnic_group` VALUES (10, '10 - 朝鲜族	', '10', '-', 'admin', '2025-11-18 15:24:12', NULL, '2025-11-18 15:24:49', '0');
+INSERT INTO `dict_ethnic_group` VALUES (11, '11 - 满族	', '11', '-', 'admin', '2025-11-18 15:24:12', NULL, '2025-11-18 15:24:49', '0');
+INSERT INTO `dict_ethnic_group` VALUES (12, '12 - 侗族	', '12', '-', 'admin', '2025-11-18 15:24:12', NULL, '2025-11-18 15:24:49', '0');
+INSERT INTO `dict_ethnic_group` VALUES (13, '13 - 瑶族	', '13', '-', 'admin', '2025-11-18 15:24:12', NULL, '2025-11-18 15:24:49', '0');
+INSERT INTO `dict_ethnic_group` VALUES (14, '14 - 白族	', '14', '-', 'admin', '2025-11-18 15:24:12', NULL, '2025-11-18 15:24:49', '0');
+INSERT INTO `dict_ethnic_group` VALUES (15, '15 - 土家族	', '15', '-', 'admin', '2025-11-18 15:24:12', NULL, '2025-11-18 15:24:49', '0');
+INSERT INTO `dict_ethnic_group` VALUES (16, '16 - 哈尼族	', '16', '-', 'admin', '2025-11-18 15:24:12', NULL, '2025-11-18 15:24:49', '0');
+INSERT INTO `dict_ethnic_group` VALUES (17, '17 - 哈萨克族	', '17', '-', 'admin', '2025-11-18 15:24:12', NULL, '2025-11-18 15:24:49', '0');
+INSERT INTO `dict_ethnic_group` VALUES (18, '18 - 傣族	', '18', '-', 'admin', '2025-11-18 15:24:13', NULL, '2025-11-18 15:24:49', '0');
+INSERT INTO `dict_ethnic_group` VALUES (19, '19 - 黎族	', '19', '-', 'admin', '2025-11-18 15:24:13', NULL, '2025-11-18 15:24:50', '0');
+INSERT INTO `dict_ethnic_group` VALUES (20, '20 - 傈僳族	', '20', '-', 'admin', '2025-11-18 15:24:13', NULL, '2025-11-18 15:24:50', '0');
+INSERT INTO `dict_ethnic_group` VALUES (21, '21 - 佤族	', '21', '-', 'admin', '2025-11-18 15:24:13', NULL, '2025-11-18 15:24:50', '0');
+INSERT INTO `dict_ethnic_group` VALUES (22, '22 - 畲族	', '22', '-', 'admin', '2025-11-18 15:24:13', NULL, '2025-11-18 15:24:50', '0');
+INSERT INTO `dict_ethnic_group` VALUES (23, '23 - 高山族	', '23', '-', 'admin', '2025-11-18 15:24:13', NULL, '2025-11-18 15:24:50', '0');
+INSERT INTO `dict_ethnic_group` VALUES (24, '24 - 拉祜族	', '24', '-', 'admin', '2025-11-18 15:24:14', NULL, '2025-11-18 15:24:50', '0');
+INSERT INTO `dict_ethnic_group` VALUES (25, '25 - 水族	', '25', '-', 'admin', '2025-11-18 15:24:14', NULL, '2025-11-18 15:24:50', '0');
+INSERT INTO `dict_ethnic_group` VALUES (26, '26 - 东乡族	', '26', '-', 'admin', '2025-11-18 15:24:14', NULL, '2025-11-18 15:24:50', '0');
+INSERT INTO `dict_ethnic_group` VALUES (27, '27 - 纳西族	', '27', '-', 'admin', '2025-11-18 15:24:14', NULL, '2025-11-18 15:24:50', '0');
+INSERT INTO `dict_ethnic_group` VALUES (28, '28 - 景颇族	', '28', '-', 'admin', '2025-11-18 15:24:14', NULL, '2025-11-18 15:24:50', '0');
+INSERT INTO `dict_ethnic_group` VALUES (29, '29 - 柯尔克孜族	', '29', '-', 'admin', '2025-11-18 15:24:14', NULL, '2025-11-18 15:24:50', '0');
+INSERT INTO `dict_ethnic_group` VALUES (30, '30 - 土族	', '30', '-', 'admin', '2025-11-18 15:24:14', NULL, '2025-11-18 15:24:51', '0');
+INSERT INTO `dict_ethnic_group` VALUES (31, '31 - 达斡尔族	', '31', '-', 'admin', '2025-11-18 15:24:14', NULL, '2025-11-18 15:24:51', '0');
+INSERT INTO `dict_ethnic_group` VALUES (32, '32 - 仫佬族	', '32', '-', 'admin', '2025-11-18 15:24:14', NULL, '2025-11-18 15:24:51', '0');
+INSERT INTO `dict_ethnic_group` VALUES (33, '33 - 羌族	', '33', '-', 'admin', '2025-11-18 15:24:14', NULL, '2025-11-18 15:24:51', '0');
+INSERT INTO `dict_ethnic_group` VALUES (34, '34 - 布朗族	', '34', '-', 'admin', '2025-11-18 15:24:14', NULL, '2025-11-18 15:24:51', '0');
+INSERT INTO `dict_ethnic_group` VALUES (35, '35 - 撒拉族	', '35', '-', 'admin', '2025-11-18 15:24:15', NULL, '2025-11-18 15:24:51', '0');
+INSERT INTO `dict_ethnic_group` VALUES (36, '36 - 毛难族	', '36', '-', 'admin', '2025-11-18 15:24:15', NULL, '2025-11-18 15:24:51', '0');
+INSERT INTO `dict_ethnic_group` VALUES (37, '37 - 仡佬族	', '37', '-', 'admin', '2025-11-18 15:24:15', NULL, '2025-11-18 15:24:51', '0');
+INSERT INTO `dict_ethnic_group` VALUES (38, '38 - 锡伯族	', '38', '-', 'admin', '2025-11-18 15:24:15', NULL, '2025-11-18 15:24:51', '0');
+INSERT INTO `dict_ethnic_group` VALUES (39, '39 - 阿昌族	', '39', '-', 'admin', '2025-11-18 15:24:15', NULL, '2025-11-18 15:24:51', '0');
+INSERT INTO `dict_ethnic_group` VALUES (40, '40 - 普米族	', '40', '-', 'admin', '2025-11-18 15:24:15', NULL, '2025-11-18 15:24:52', '0');
+INSERT INTO `dict_ethnic_group` VALUES (41, '41 - 塔吉克族	', '41', '-', 'admin', '2025-11-18 15:24:15', NULL, '2025-11-18 15:24:52', '0');
+INSERT INTO `dict_ethnic_group` VALUES (42, '42 - 怒族	', '42', '-', 'admin', '2025-11-18 15:24:15', NULL, '2025-11-18 15:24:52', '0');
+INSERT INTO `dict_ethnic_group` VALUES (43, '43 - 乌孜别克族	', '43', '-', 'admin', '2025-11-18 15:24:15', NULL, '2025-11-18 15:24:52', '0');
+INSERT INTO `dict_ethnic_group` VALUES (44, '44 - 俄罗斯族	', '44', '-', 'admin', '2025-11-18 15:24:15', NULL, '2025-11-18 15:24:52', '0');
+INSERT INTO `dict_ethnic_group` VALUES (45, '45 - 鄂温克族	', '45', '-', 'admin', '2025-11-18 15:24:15', NULL, '2025-11-18 15:24:52', '0');
+INSERT INTO `dict_ethnic_group` VALUES (46, '46 - 德昂族	', '46', '-', 'admin', '2025-11-18 15:24:16', NULL, '2025-11-18 15:24:52', '0');
+INSERT INTO `dict_ethnic_group` VALUES (47, '47 - 保安族	', '47', '-', 'admin', '2025-11-18 15:24:16', NULL, '2025-11-18 15:24:52', '0');
+INSERT INTO `dict_ethnic_group` VALUES (48, '48 - 裕固族	', '48', '-', 'admin', '2025-11-18 15:24:16', NULL, '2025-11-18 15:24:52', '0');
+INSERT INTO `dict_ethnic_group` VALUES (49, '49 - 京族	', '49', '-', 'admin', '2025-11-18 15:24:16', NULL, '2025-11-18 15:24:52', '0');
+INSERT INTO `dict_ethnic_group` VALUES (50, '50 - 塔塔尔族	', '50', '-', 'admin', '2025-11-18 15:24:16', NULL, '2025-11-18 15:24:52', '0');
+INSERT INTO `dict_ethnic_group` VALUES (51, '51 - 独龙族	', '51', '-', 'admin', '2025-11-18 15:24:16', NULL, '2025-11-18 15:24:53', '0');
+INSERT INTO `dict_ethnic_group` VALUES (52, '52 - 鄂伦春族	', '52', '-', 'admin', '2025-11-18 15:24:16', NULL, '2025-11-18 15:24:53', '0');
+INSERT INTO `dict_ethnic_group` VALUES (53, '53 - 赫哲族	', '53', '-', 'admin', '2025-11-18 15:24:16', NULL, '2025-11-18 15:24:53', '0');
+INSERT INTO `dict_ethnic_group` VALUES (54, '54 - 门巴族	', '54', '-', 'admin', '2025-11-18 15:24:16', NULL, '2025-11-18 15:24:53', '0');
+INSERT INTO `dict_ethnic_group` VALUES (55, '55 - 珞巴族	', '55', '-', 'admin', '2025-11-18 15:24:16', NULL, NULL, '0');
+INSERT INTO `dict_ethnic_group` VALUES (56, '56 - 基诺族	', '56', '-', 'admin', '2025-11-18 15:24:17', NULL, NULL, '0');
+INSERT INTO `dict_ethnic_group` VALUES (57, '66 - 其他	', '66', '-', 'admin', '2025-11-18 15:24:17', NULL, NULL, '0');
+INSERT INTO `dict_ethnic_group` VALUES (58, '99 - 外籍人士	', '99', '-', 'admin', '2025-11-18 15:24:17', NULL, NULL, '0');
 
-INSERT INTO `prm_customer`(`tenant_id`, `id`,`organ_id`,`name`,`relationship_type`,`source_code`,`mobile`,`level_code` ) VALUES (101, 11, 12, '华为技术', 'CUSTOMER', 'WEBSITE', '13356411900', 'A');
-INSERT INTO `prm_customer`(`tenant_id`, `id`,`organ_id`,`name`,`relationship_type`,`source_code`,`mobile`,`level_code` ) VALUES (101, 12, 11, '大疆创新', 'CUSTOMER', 'DOUYIN', '13356478900', 'B');
-INSERT INTO `prm_customer`(`tenant_id`, `id`,`organ_id`,`name`,`relationship_type`,`source_code`,`mobile`,`level_code` ) VALUES (101, 13, 13, '中兴通讯', 'CUSTOMER', 'OFFLINE', '13122334455', 'C');
-INSERT INTO `prm_customer`(`tenant_id`, `id`,`organ_id`,`name`,`relationship_type`,`source_code`,`mobile`,`level_code` ) VALUES (101, 14, 14, '中国电信', 'CUSTOMER', 'AD', '13983377889', 'D');
-INSERT INTO `prm_customer`(`tenant_id`, `id`,`organ_id`,`name`,`relationship_type`,`source_code`,`mobile`,`level_code` ) VALUES (101, 15, 19, '大唐电信', 'CUSTOMER', 'AD', '13983377889', 'D');
-INSERT INTO `prm_customer`(`tenant_id`, `id`,`organ_id`,`name`,`relationship_type`,`source_code`,`mobile`,`level_code` ) VALUES (101, 16, 20, '宇树科技', 'CUSTOMER', 'AD', '13983377569', 'D');
-
-CREATE TABLE `prm_customer_relation` (
-  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '客户关系ID',
-  `tenant_id` int(11) NOT NULL DEFAULT 100 COMMENT '租户ID，用于所有非全局表',
-  `tenant_user_id` int(11) DEFAULT NULL COMMENT '租户内部用户ID，用于用户敏感表',
-  `customer_id` int(11) COMMENT '客户ID',
-  `related_customer_id` int(11) DEFAULT NULL COMMENT '关联客户ID，客户的合作伙伴',
-  `relation_type` VARCHAR(20) DEFAULT NULL COMMENT '客户和上级客户的关系类型代码，关联数据字典customer_relation_type，例如客户/代理商/供应商/母公司/子公司',
-  `relation_strength` DECIMAL(3,2) DEFAULT 0.5 COMMENT '客户和上级客户的关系强度',
-  `organ_code` varchar(64)  DEFAULT NULL COMMENT '所属机构编码',
-  `create_by` varchar(64)  NULL DEFAULT 'admin' COMMENT '创建者',
-  `create_time` datetime NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-  `update_by` varchar(64)  NULL DEFAULT 'admin' COMMENT '更新者',
-  `update_time` datetime DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '修改时间',
-  `del_flag` char(1)  NULL DEFAULT '0' COMMENT '逻辑删 0-正常 1-删除',
+-- 行政区划代码表 初始记录见dict_administrative_division.sql
+DROP TABLE IF EXISTS `dict_administrative_division`;
+CREATE TABLE `dict_administrative_division` (
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '主键id自增',
+  `name` varchar(256) NOT NULL COMMENT '行政区划名称',
+  `code` varchar(6) NOT NULL COMMENT '行政区划代码',
+  `level` tinyint(1) NOT NULL COMMENT '行政级别(1:省级,2:市级,3:县级)',
+  `parent_code` varchar(6) DEFAULT NULL COMMENT '上级行政区划代码',
+  `remark` varchar(1024) DEFAULT '-' COMMENT '备注说明',
+  `create_by` varchar(64) DEFAULT NULL COMMENT '创建者',
+  `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `update_by` varchar(64) DEFAULT NULL COMMENT '更新者',
+  `update_time` datetime DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  `del_flag` char(1) DEFAULT '0' COMMENT '逻辑删除标记(0:正常,1:删除)',
   PRIMARY KEY (`id`),
-  CONSTRAINT fk_customer_relation_customer_id FOREIGN KEY (customer_id) REFERENCES prm_customer(id),
-  CONSTRAINT fk_customer_relation_related_customer_id FOREIGN KEY (related_customer_id) REFERENCES prm_customer(id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='客户关系表';
+  UNIQUE KEY `idx_division_code` (`code`),
+  KEY `idx_division_parent` (`parent_code`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='行政区划代码表(GB/T 2260-2013)';
 
-INSERT INTO `prm_customer_relation`(`tenant_id`, `id`,`customer_id`,`related_customer_id`,`relation_type`,`relation_strength` ) VALUES (100, 1, 4, 5, 'CUSTOMER', 0.4);
-INSERT INTO `prm_customer_relation`(`tenant_id`, `id`,`customer_id`,`related_customer_id`,`relation_type`,`relation_strength` ) VALUES (100, 2, 4, 6, 'CUSTOMER', 0.7);
-INSERT INTO `prm_customer_relation`(`tenant_id`, `id`,`customer_id`,`related_customer_id`,`relation_type`,`relation_strength` ) VALUES (100, 3, 1, 4, 'CUSTOMER', 0.6);
-
-INSERT INTO `prm_customer_relation`(`tenant_id`, `id`,`customer_id`,`related_customer_id`,`relation_type`,`relation_strength` ) VALUES (101, 11, 14, 15, 'CUSTOMER', 0.4);
-INSERT INTO `prm_customer_relation`(`tenant_id`, `id`,`customer_id`,`related_customer_id`,`relation_type`,`relation_strength` ) VALUES (101, 12, 14, 16, 'CUSTOMER', 0.7);
-INSERT INTO `prm_customer_relation`(`tenant_id`, `id`,`customer_id`,`related_customer_id`,`relation_type`,`relation_strength` ) VALUES (101, 13, 11, 14, 'CUSTOMER', 0.6);
-
-CREATE TABLE `prm_contact` (
-  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '联系人ID',
-  `tenant_id` int(11) NOT NULL DEFAULT 100 COMMENT '租户ID，用于所有非全局表',
-  `tenant_user_id` int(11) DEFAULT NULL COMMENT '租户内部用户ID，用于用户敏感表',
-  `staff_id` int(11) COMMENT '员工ID，为空表示该联系人不存在于员工表中',
-  `customer_id` int(11) DEFAULT NULL COMMENT '所属客户ID，如果机构ID和客户ID均无法确定，则表示该联系人是个人，而不属于机构',
-  `relationship_type` VARCHAR(20) DEFAULT NULL COMMENT '联系人和用户的关系类型代码，关联数据字典relation_type，例如：同事/商业伙伴/朋友/家庭/亲戚，当customer_id为空时有效',
-  `name` varchar(50) NOT NULL COMMENT '临时姓名或者可能不准确的姓名或者没有员工记录时使用的姓名',
-  `gender` varchar(20) DEFAULT '0' COMMENT '性别代码，关联数据字典sex，若存在员工记录，则同步',
-  `birthday` DATE COMMENT '联系人生日，若存在员工记录，则同步',
-  `mobile` varchar(20) DEFAULT NULL COMMENT '手机号码，，若存在员工记录，则同步',
-  `phone` varchar(20) DEFAULT NULL COMMENT '固定电话，，若存在员工记录，则同步',
-  `email` varchar(50) DEFAULT NULL COMMENT '邮箱，，若存在员工记录，则同步',
-  `position` varchar(50) DEFAULT NULL COMMENT '职务编码，关联数据字典position，若存在员工记录，则同步',
-  `is_decision_maker` char(1) DEFAULT '0' COMMENT '是否关键决策人',
-  `is_primary` char(1) DEFAULT '0' COMMENT '是否主要联系人',
-  `superior_id` int(11) DEFAULT NULL COMMENT '直属上级ID',
-  `province` varchar(20) DEFAULT NULL COMMENT '省份，若存在员工记录，则同步',
-  `city` varchar(20) DEFAULT NULL COMMENT '城市，若存在员工记录，则同步',
-  `district` varchar(20) DEFAULT NULL COMMENT '区县，若存在员工记录，则同步',
-  `address` varchar(500) DEFAULT NULL COMMENT '详细地址，若存在员工记录，则同步',
-  `contact_time` datetime DEFAULT NULL COMMENT '最后联系时间',
-  `visit_time` datetime DEFAULT NULL COMMENT '最后上门时间',
-  `latest_status` varchar(2000) DEFAULT NULL COMMENT '最新情况',
-  `intimacy_score` DECIMAL(3,2) DEFAULT 0.5 COMMENT '关系亲密度0-1',
-  `contact_frequency` INT DEFAULT 0 COMMENT '互动频次',
-  `organ_code` varchar(64)  DEFAULT NULL COMMENT '所属机构编码',
-  `create_by` varchar(64)  DEFAULT NULL COMMENT '创建者',
-  `create_time` datetime NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-  `update_by` varchar(64)  DEFAULT NULL COMMENT '更新者',
-  `update_time` datetime DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '修改时间',
-  `del_flag` char(1)  NULL DEFAULT '0' COMMENT '逻辑删 0-正常 1-删除',
-  PRIMARY KEY (`id`),
-  CONSTRAINT fk_contact_customer_id FOREIGN KEY (customer_id) REFERENCES prm_customer(id),
-  CONSTRAINT fk_contact_staff_id FOREIGN KEY (staff_id) REFERENCES sys_staff(id),
-  CONSTRAINT fk_contact_superior_id FOREIGN KEY (superior_id) REFERENCES prm_contact(id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='联系人表(PRM增强)';
-INSERT INTO `prm_contact` VALUES (1, 100, NULL, NULL, 1, 'PARTNER', '余承东', '3', '1969-01-01', '15515728888', NULL, NULL, 'GENERAL', '1', '0', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0.50, 0, NULL, NULL, NULL, 'amy', '2025-06-05 14:35:28', '0');
-INSERT INTO `prm_contact` VALUES (2, 100, NULL, NULL, 1, 'PARTNER', '张英雄', '3', '1973-05-03', '15940169999', NULL, NULL, 'HEAD', '0', '0', 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0.50, 0, NULL, NULL, NULL, 'amy', '2025-06-05 14:37:32', '0');
-INSERT INTO `prm_contact` VALUES (3, 100, NULL, NULL, 2, 'PARTNER', '汪滔', '3', '1973-05-01', '15901466888', NULL, NULL, 'GENERAL', '1', '0', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0.50, 0, NULL, NULL, NULL, NULL, NULL, '0');
-INSERT INTO `prm_contact` VALUES (4, 100, NULL, NULL, NULL, 'FRIEND', '王大壮', '3', '1973-05-23', '18938258888', NULL, NULL, 'MANAGER', '1', '0', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0.50, 0, NULL, NULL, NULL, NULL, NULL, '0');
-INSERT INTO `prm_contact` VALUES (5, 100, NULL, NULL, NULL, 'FRIEND', '刘全', '3', '1979-05-04', '18943218367', '12322', '15099@QQ.COM', 'STAFF', '0', '0', NULL, '四川', '成都', '靖江', '下沙社街道3-1-1', NULL, NULL, NULL, 0.50, 0, NULL, NULL, NULL, NULL, NULL, '0');
-
-INSERT INTO `prm_contact` VALUES (11, 101, NULL, NULL, 11, 'PARTNER', '余承东', '3', '1969-01-01', '15515728888', NULL, NULL, 'GENERAL', '1', '0', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0.50, 0, NULL, NULL, NULL, 'amy', '2025-06-05 14:35:28', '0');
-INSERT INTO `prm_contact` VALUES (12, 101, NULL, NULL, 11, 'PARTNER', '张英雄', '3', '1973-05-03', '15940169999', NULL, NULL, 'HEAD', '0', '0', 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0.50, 0, NULL, NULL, NULL, 'amy', '2025-06-05 14:37:32', '0');
-INSERT INTO `prm_contact` VALUES (13, 101, NULL, NULL, 12, 'PARTNER', '汪滔', '3', '1973-05-01', '15901466888', NULL, NULL, 'GENERAL', '1', '0', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0.50, 0, NULL, NULL, NULL, NULL, NULL, '0');
-INSERT INTO `prm_contact` VALUES (14, 101, NULL, NULL, NULL, 'FRIEND', '王大壮', '3', '1973-05-23', '18938258888', NULL, NULL, 'MANAGER', '1', '0', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0.50, 0, NULL, NULL, NULL, NULL, NULL, '0');
-INSERT INTO `prm_contact` VALUES (15, 101, NULL, NULL, NULL, 'FRIEND', '刘全', '3', '1979-05-04', '18943218367', '12322', '15099@QQ.COM', 'STAFF', '0', '0', NULL, '四川', '成都', '靖江', '下沙社街道3-1-1', NULL, NULL, NULL, 0.50, 0, NULL, NULL, NULL, NULL, NULL, '0');
-
-CREATE TABLE `prm_social_relationship` (
-  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '关系ID',
-  `tenant_id` int(11) NOT NULL DEFAULT 100 COMMENT '租户ID，用于所有非全局表',
-  `tenant_user_id` int(11) DEFAULT NULL COMMENT '租户内部用户ID，用于用户敏感表',
-  `contact_a` int(11) NOT NULL COMMENT '联系人A-关系线A端',
-  `contact_b` int(11) NOT NULL COMMENT '联系人B-关系线B端',
-  `relationship_type` VARCHAR(20) DEFAULT NULL COMMENT '联系人A和联系人B的关系类型代码，关联数据字典relation_type',
-  `bi_directional` char(1) DEFAULT '1' COMMENT '是否双向关系',
-  `intimacy_score` DECIMAL(3,2) DEFAULT 0.5 COMMENT '关系亲密度0-1',
-  `contact_time` datetime DEFAULT NULL COMMENT '最后联系时间',
-  `contact_frequency` INT DEFAULT 0 COMMENT '互动频次',
-  `interaction_history` JSON COMMENT '互动记录摘要，备用',
-  `remark` VARCHAR(1000)  DEFAULT NULL COMMENT '备注',
-  `organ_code` varchar(64)  DEFAULT NULL COMMENT '所属机构编码',
-  `create_by` varchar(64)  DEFAULT NULL COMMENT '创建者',
-  `create_time` datetime NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-  `update_by` varchar(64)  DEFAULT NULL COMMENT '更新者',
-  `update_time` datetime DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '修改时间',
-  `del_flag` char(1)  NULL DEFAULT '0' COMMENT '逻辑删 0-正常 1-删除',
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `uk_social_relationship_relation` (`tenant_id`, `contact_a`, `contact_b`, `relationship_type`),
-  CONSTRAINT fk_social_relationship_contact_a FOREIGN KEY (contact_a) REFERENCES prm_contact(id),
-  CONSTRAINT fk_social_relationship_contact_b FOREIGN KEY (contact_b) REFERENCES prm_contact(id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='联系人关系网络表(PRM增强)';
-
-INSERT INTO `prm_social_relationship`(`tenant_id`, `id`,`contact_a`,`contact_b`,`relationship_type`,`bi_directional`,`intimacy_score` ) VALUES (100, 1, 1, 2, 'FRIEND', 0, 0.7);
-INSERT INTO `prm_social_relationship`(`tenant_id`, `id`,`contact_a`,`contact_b`,`relationship_type`,`bi_directional`,`intimacy_score` ) VALUES (100, 2, 1, 3, 'FRIEND', 0, 0.8);
-INSERT INTO `prm_social_relationship`(`tenant_id`, `id`,`contact_a`,`contact_b`,`relationship_type`,`bi_directional`,`intimacy_score` ) VALUES (100, 3, 3, 4, 'FRIEND', 0, 0.6);
-
-INSERT INTO `prm_social_relationship`(`tenant_id`, `id`,`contact_a`,`contact_b`,`relationship_type`,`bi_directional`,`intimacy_score` ) VALUES (101, 11, 11, 12, 'FRIEND', 0, 0.7);
-INSERT INTO `prm_social_relationship`(`tenant_id`, `id`,`contact_a`,`contact_b`,`relationship_type`,`bi_directional`,`intimacy_score` ) VALUES (101, 12, 11, 13, 'FRIEND', 0, 0.8);
-INSERT INTO `prm_social_relationship`(`tenant_id`, `id`,`contact_a`,`contact_b`,`relationship_type`,`bi_directional`,`intimacy_score` ) VALUES (101, 13, 13, 14, 'FRIEND', 0, 0.6);
-
-CREATE TABLE `prm_follow_record` (
-  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '记录ID',
-  `tenant_id` int(11) NOT NULL DEFAULT 100 COMMENT '租户ID，用于所有非全局表',
-  `tenant_user_id` int(11) DEFAULT NULL COMMENT '租户内部用户ID，用于用户敏感表',
-  `relationship_id` int(11) NOT NULL COMMENT '关系ID,强制把staff_id所对应的联系人和contact_id之间的关系记录到prm_social_relationship中',
-  `customer_id` int(11) COMMENT '关联的客户ID',
-  `contact_id` int(11) NOT NULL COMMENT '关联的联系人ID',
-  `follow_type` VARCHAR(20) NOT NULL COMMENT '跟踪方式，关联数据字典，例如(phone/visit/email等)',
-  `content` TEXT COMMENT '跟踪内容',
-  `result` VARCHAR(200) COMMENT '跟踪结果',
-  `follow_time` DATETIME COMMENT '跟进时间',
-  `next_follow_time` DATETIME COMMENT '下次跟进时间',
-  `staff_id` int(11) NOT NULL COMMENT '跟进人ID',
-  `staff_name` VARCHAR(50) COMMENT '跟进人姓名',
-  `organ_code` varchar(64)  DEFAULT NULL COMMENT '所属机构编码',
-  `create_by` varchar(64)  DEFAULT NULL COMMENT '创建者',
-  `create_time` datetime NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-  `update_by` varchar(64)  DEFAULT NULL COMMENT '更新者',
-  `update_time` datetime DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '修改时间',
-  `del_flag` char(1)  NULL DEFAULT '0' COMMENT '逻辑删 0-正常 1-删除',
-  PRIMARY KEY (`id`),
-  CONSTRAINT fk_follow_record_relationship_id FOREIGN KEY (relationship_id) REFERENCES prm_social_relationship(id),
-  CONSTRAINT fk_follow_record_customer_id FOREIGN KEY (customer_id) REFERENCES prm_customer(id),
-  CONSTRAINT fk_follow_record_contact_id FOREIGN KEY (contact_id) REFERENCES prm_contact(id),
-  CONSTRAINT fk_follow_record_staff_id FOREIGN KEY (staff_id) REFERENCES sys_staff(id),
-  INDEX `idx_time` (`create_time`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='客户跟踪记录表';
-
-INSERT INTO `prm_follow_record`(`tenant_id`, `id`,`relationship_id`,`customer_id`,`contact_id`,`follow_type`,`result`,`content`,`follow_time`,`next_follow_time`,`staff_id`,`staff_name`) VALUES (100, 1, 1, 1, 1, 'PHONE', '有初步购买CRM意向', '打电话，余总认为产品功能比较新，希望试用一周', '2025-06-04 22:49:43', '2025-07-26 22:49:47', 1, 'amy');
-INSERT INTO `prm_follow_record`(`tenant_id`, `id`,`relationship_id`,`customer_id`,`contact_id`,`follow_type`,`result`,`content`,`follow_time`,`next_follow_time`,`staff_id`,`staff_name`) VALUES (100, 2, 1, 1, 1, 'visit', '有进一步购买CRM意向', '演示了CRM系统功能', '2025-06-05 22:49:43', '2025-07-26 22:49:47', 1, 'amy' );
-INSERT INTO `prm_follow_record`(`tenant_id`, `id`,`relationship_id`,`customer_id`,`contact_id`,`follow_type`,`result`,`content`,`follow_time`,`next_follow_time`,`staff_id`,`staff_name`) VALUES (100, 3, 1, 1, 1, 'email', '有购买CRM意向', '用电子邮件发送了试用地址', '2025-06-06 22:49:43', '2025-07-26 22:49:47', 1, 'amy' );
-INSERT INTO `prm_follow_record`(`tenant_id`, `id`,`relationship_id`,`customer_id`,`contact_id`,`follow_type`,`result`,`content`,`follow_time`,`next_follow_time`,`staff_id`,`staff_name`) VALUES (101, 11, 11, 11, 11, 'PHONE', '有初步购买CRM意向', '打电话，余总认为产品功能比较新，希望试用一周', '2025-06-04 22:49:43', '2025-07-26 22:49:47', 1, 'amy');
-INSERT INTO `prm_follow_record`(`tenant_id`, `id`,`relationship_id`,`customer_id`,`contact_id`,`follow_type`,`result`,`content`,`follow_time`,`next_follow_time`,`staff_id`,`staff_name`) VALUES (101, 12, 11, 11, 11, 'visit', '有进一步购买CRM意向', '演示了CRM系统功能', '2025-06-05 22:49:43', '2025-07-26 22:49:47', 1, 'amy' );
-INSERT INTO `prm_follow_record`(`tenant_id`, `id`,`relationship_id`,`customer_id`,`contact_id`,`follow_type`,`result`,`content`,`follow_time`,`next_follow_time`,`staff_id`,`staff_name`) VALUES (101, 13, 11, 11, 11, 'email', '有购买CRM意向', '用电子邮件发送了试用地址', '2025-06-06 22:49:43', '2025-07-26 22:49:47', 1, 'amy' );
 
 SET FOREIGN_KEY_CHECKS = 1;

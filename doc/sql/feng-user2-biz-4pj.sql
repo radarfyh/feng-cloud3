@@ -17,108 +17,6 @@ CREATE DATABASE "feng-user2-biz"
 
 \c "feng-user2-biz";
 
--- ----------------------------
--- Table structure for sys_project
--- ----------------------------
-DROP TABLE IF EXISTS sys_project;
-CREATE TABLE sys_project (
-  id SERIAL PRIMARY KEY,
-  project_name varchar(255) NOT NULL,
-  project_code varchar(64) NOT NULL,
-  project_desc text NULL,
-  organ_code varchar(64) NULL,
-  dept_id int NULL,
-  project_manager_staff_no varchar(200) NULL,
-  project_manager_name varchar(200) NULL,
-  start_date date NULL,
-  end_date date NULL,
-  status_code varchar(64) NULL,
-  status_name varchar(64) NULL,
-  budget decimal(15, 2) NULL,
-  actual_cost decimal(15, 2) NULL,
-  progress decimal(5, 2) NULL,
-  priority_code varchar(64) NULL,
-  priority_name varchar(64) NULL,
-  status char(1) NULL DEFAULT '0',
-  create_by varchar(64) NULL,
-  create_time timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  update_by varchar(64) NULL,
-  update_time timestamp NULL,
-  del_flag char(1) NULL DEFAULT '0'
-);
-
-COMMENT ON TABLE sys_project IS '项目表';
-COMMENT ON COLUMN sys_project.id IS '项目ID';
-COMMENT ON COLUMN sys_project.project_name IS '项目名称';
-COMMENT ON COLUMN sys_project.project_code IS '项目编码';
-COMMENT ON COLUMN sys_project.project_desc IS '项目描述';
-COMMENT ON COLUMN sys_project.organ_code IS '所属机构编码';
-COMMENT ON COLUMN sys_project.dept_id IS '所属部门ID';
-COMMENT ON COLUMN sys_project.project_manager_staff_no IS '项目经理工号';
-COMMENT ON COLUMN sys_project.project_manager_name IS '项目经理姓名';
-COMMENT ON COLUMN sys_project.start_date IS '项目开始日期';
-COMMENT ON COLUMN sys_project.end_date IS '项目结束日期';
-COMMENT ON COLUMN sys_project.status_code IS '项目状态代码';
-COMMENT ON COLUMN sys_project.status_name IS '项目状态名称';
-COMMENT ON COLUMN sys_project.budget IS '项目预算';
-COMMENT ON COLUMN sys_project.actual_cost IS '实际成本';
-COMMENT ON COLUMN sys_project.progress IS '项目进度（百分比）';
-COMMENT ON COLUMN sys_project.priority_code IS '项目优先级代码';
-COMMENT ON COLUMN sys_project.priority_name IS '项目优先级名称';
-COMMENT ON COLUMN sys_project.status IS '状态:0-启用 1-禁用';
-COMMENT ON COLUMN sys_project.create_by IS '创建者';
-COMMENT ON COLUMN sys_project.create_time IS '创建时间';
-COMMENT ON COLUMN sys_project.update_by IS '更新者';
-COMMENT ON COLUMN sys_project.update_time IS '更新时间';
-COMMENT ON COLUMN sys_project.del_flag IS '逻辑删 0-正常 1-删除';
-
-drop INDEX IF EXISTS idx_project_code;
-CREATE UNIQUE INDEX idx_project_code ON sys_project(project_code);
-COMMENT ON INDEX idx_project_code IS '项目编码唯一索引';
-
-drop INDEX IF EXISTS idx_project_organ_code;
-CREATE INDEX idx_project_organ_code ON sys_project(organ_code);
-COMMENT ON INDEX idx_project_organ_code IS '机构编码索引';
-
-drop INDEX IF EXISTS idx_project_dept_id;
-CREATE INDEX idx_project_dept_id ON sys_project(dept_id);
-COMMENT ON INDEX idx_project_dept_id IS '部门ID索引';
-
--- ----------------------------
--- Records of sys_project
--- ----------------------------
-INSERT INTO sys_project VALUES (1, 'ERP研发项目', 'ERP', '自研企业资源计划管理系统', 'DJ', 1, '1001', 'amy', '2023-01-01', '2023-12-31', 'P', '进行中', 100000.00, 50000.00, 50.00, 'H', '高', '0', 'admin', '2025-03-24 22:33:04', 'admin', NULL, '0');
-
--- ----------------------------
--- Table structure for sys_project_staff
--- ----------------------------
-DROP TABLE IF EXISTS sys_project_staff;
-CREATE TABLE sys_project_staff (
-  project_id int NULL,
-  role_id int NULL,
-  staff_no varchar(255) NULL,
-  staff_notes varchar(255) NULL
-);
-
-COMMENT ON TABLE sys_project_staff IS '项目成员表，暂未使用';
-COMMENT ON COLUMN sys_project_staff.project_id IS '项目id';
-COMMENT ON COLUMN sys_project_staff.role_id IS '角色id';
-COMMENT ON COLUMN sys_project_staff.staff_no IS '人员工号';
-COMMENT ON COLUMN sys_project_staff.staff_notes IS '人员备注';
-
--- Create a trigger to handle the ON UPDATE CURRENT_TIMESTAMP functionality
-CREATE OR REPLACE FUNCTION update_timestamp()
-RETURNS TRIGGER AS $$
-BEGIN
-   NEW.update_time = NOW();
-   RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-
-CREATE TRIGGER update_sys_project_timestamp
-BEFORE UPDATE ON sys_project
-FOR EACH ROW
-EXECUTE FUNCTION update_timestamp();
 
 -- ----------------------------
 -- Table structure for sys_role_application
@@ -137,75 +35,6 @@ COMMENT ON COLUMN sys_role_application.application_id IS '应用id';
 -- Records of sys_role_application
 -- ----------------------------
 
--- ----------------------------
--- Table structure for sys_affiliation
--- ----------------------------
-DROP TABLE IF EXISTS sys_affiliation;
-CREATE TABLE sys_affiliation (
-  id SERIAL PRIMARY KEY,
-  affiliation_name varchar(255) NULL,
-  affiliation_code varchar(255) NULL,
-  affiliation_introduction text NULL,
-  principal_name varchar(255) NULL,
-  principal_telephone varchar(255) NULL,
-  status char(1) NULL DEFAULT '0',
-  create_by varchar(64) NULL,
-  create_time timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  update_by varchar(64) NULL,
-  update_time timestamp NULL,
-  del_flag char(1) NULL DEFAULT '0'
-);
-
-COMMENT ON TABLE sys_affiliation IS '联盟信息表，暂未使用';
-COMMENT ON COLUMN sys_affiliation.id IS 'id';
-COMMENT ON COLUMN sys_affiliation.affiliation_name IS '名称';
-COMMENT ON COLUMN sys_affiliation.affiliation_code IS '编码';
-COMMENT ON COLUMN sys_affiliation.affiliation_introduction IS '简介';
-COMMENT ON COLUMN sys_affiliation.principal_name IS '主要负责人';
-COMMENT ON COLUMN sys_affiliation.principal_telephone IS '负责人电话';
-COMMENT ON COLUMN sys_affiliation.status IS '状态:0-启用 1-禁用';
-COMMENT ON COLUMN sys_affiliation.create_by IS '创建者';
-COMMENT ON COLUMN sys_affiliation.create_time IS '创建时间';
-COMMENT ON COLUMN sys_affiliation.update_by IS '更新者';
-COMMENT ON COLUMN sys_affiliation.update_time IS '修改时间';
-COMMENT ON COLUMN sys_affiliation.del_flag IS '逻辑删 0-正常 1-删除';
-
--- Create trigger for update_time
-CREATE OR REPLACE FUNCTION update_sys_affiliation_timestamp()
-RETURNS TRIGGER AS $$
-BEGIN
-   NEW.update_time = NOW();
-   RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-
-CREATE TRIGGER trigger_sys_affiliation_update
-BEFORE UPDATE ON sys_affiliation
-FOR EACH ROW
-EXECUTE FUNCTION update_sys_affiliation_timestamp();
-
--- ----------------------------
--- Records of sys_affiliation
--- ----------------------------
-
--- ----------------------------
--- Table structure for sys_affiliation_organ
--- ----------------------------
-DROP TABLE IF EXISTS sys_affiliation_organ;
-CREATE TABLE sys_affiliation_organ (
-  affiliation_id int NULL,
-  organ_id int NULL,
-  is_leader char(1) NULL
-);
-
-COMMENT ON TABLE sys_affiliation_organ IS '联盟机构关联表，暂未使用';
-COMMENT ON COLUMN sys_affiliation_organ.affiliation_id IS '联盟id';
-COMMENT ON COLUMN sys_affiliation_organ.organ_id IS '机构id';
-COMMENT ON COLUMN sys_affiliation_organ.is_leader IS '是否为主联盟机构';
-
--- ----------------------------
--- Records of sys_affiliation_organ
--- ----------------------------
 
 -- ----------------------------
 -- Table structure for sys_application
@@ -338,69 +167,6 @@ EXECUTE FUNCTION update_sys_config_timestamp();
 
 -- ----------------------------
 -- Records of sys_config
--- ----------------------------
-
--- ----------------------------
--- Table structure for sys_datasource
--- ----------------------------
-DROP TABLE IF EXISTS sys_datasource;
-CREATE TABLE sys_datasource (
-  id SERIAL PRIMARY KEY,
-  name varchar(255) NULL,
-  ds_type varchar(100) NULL,
-  conf_type char(1) NULL DEFAULT '1',
-  host varchar(128) NULL,
-  port int NULL,
-  url varchar(500) NULL,
-  ds_name varchar(100) NULL,
-  username varchar(100) NULL,
-  password varchar(100) NULL,
-  application_code varchar(255) NULL,
-  var_parameter json NULL,
-  organ_code varchar(64) NULL,
-  create_by varchar(64) NULL,
-  create_time timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  update_by varchar(64) NULL,
-  update_time timestamp NULL,
-  del_flag char(1) NULL DEFAULT '0'
-);
-
-COMMENT ON TABLE sys_datasource IS '数据源表';
-COMMENT ON COLUMN sys_datasource.id IS 'id';
-COMMENT ON COLUMN sys_datasource.name IS '连接名';
-COMMENT ON COLUMN sys_datasource.ds_type IS '数据源类型';
-COMMENT ON COLUMN sys_datasource.conf_type IS '配置类型 （0 主机形式 | 1 url形式）';
-COMMENT ON COLUMN sys_datasource.host IS '主机host地址';
-COMMENT ON COLUMN sys_datasource.port IS '主机端口号';
-COMMENT ON COLUMN sys_datasource.url IS '拼接后的数据源地址';
-COMMENT ON COLUMN sys_datasource.ds_name IS '数据库名称';
-COMMENT ON COLUMN sys_datasource.username IS '用户名';
-COMMENT ON COLUMN sys_datasource.password IS '密码';
-COMMENT ON COLUMN sys_datasource.application_code IS '应用编码';
-COMMENT ON COLUMN sys_datasource.var_parameter IS '变量入参';
-COMMENT ON COLUMN sys_datasource.organ_code IS '所属机构编码';
-COMMENT ON COLUMN sys_datasource.create_by IS '创建者';
-COMMENT ON COLUMN sys_datasource.create_time IS '创建时间';
-COMMENT ON COLUMN sys_datasource.update_by IS '更新者';
-COMMENT ON COLUMN sys_datasource.update_time IS '修改时间';
-COMMENT ON COLUMN sys_datasource.del_flag IS '逻辑删 0-正常 1-删除';
-
--- Create trigger for update_time
-CREATE OR REPLACE FUNCTION update_sys_datasource_timestamp()
-RETURNS TRIGGER AS $$
-BEGIN
-   NEW.update_time = NOW();
-   RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-
-CREATE TRIGGER trigger_sys_datasource_update
-BEFORE UPDATE ON sys_datasource
-FOR EACH ROW
-EXECUTE FUNCTION update_sys_datasource_timestamp();
-
--- ----------------------------
--- Records of sys_datasource
 -- ----------------------------
 
 -- ----------------------------
@@ -1615,68 +1381,6 @@ INSERT INTO sys_role_menu VALUES (2, 187);
 INSERT INTO sys_role_menu VALUES (2, 188);
 INSERT INTO sys_role_menu VALUES (2, 189);
 
--- Table structure for sys_route_conf
-DROP TABLE IF EXISTS sys_route_conf;
-CREATE TABLE sys_route_conf (
-  id serial PRIMARY KEY NOT NULL,
-  route_name varchar(30) NULL,
-  route_id varchar(30) NULL,
-  predicates json NULL,
-  filters json NULL,
-  uri varchar(50) NULL,
-  sort_order int NULL DEFAULT 30,
-  meta_data varchar(255) NULL,
-  create_time timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  update_time timestamp NULL,
-  del_flag char(1) NULL DEFAULT '0'
-);
-
-COMMENT ON TABLE sys_route_conf IS '路由配置表';
-COMMENT ON COLUMN sys_route_conf.id IS '主键';
-COMMENT ON COLUMN sys_route_conf.route_name IS '路由名称';
-COMMENT ON COLUMN sys_route_conf.route_id IS '路由id';
-COMMENT ON COLUMN sys_route_conf.predicates IS '断言';
-COMMENT ON COLUMN sys_route_conf.filters IS '过滤器，用于微服务接口限流过滤等作用';
-COMMENT ON COLUMN sys_route_conf.uri IS '路由url';
-COMMENT ON COLUMN sys_route_conf.sort_order IS '排序';
-COMMENT ON COLUMN sys_route_conf.meta_data IS '路由元信息';
-COMMENT ON COLUMN sys_route_conf.create_time IS '创建时间';
-COMMENT ON COLUMN sys_route_conf.update_time IS '修改时间';
-COMMENT ON COLUMN sys_route_conf.del_flag IS '逻辑删 0-正常 1-删除';
-
--- Records of sys_route_conf
-INSERT INTO sys_route_conf VALUES (1, '用户中心', 'feng-user2-biz', '[{"args": {"_genkey_0": "/admin/**"}, "name": "Path"}]', '[{"args": {"key-resolver": "#{@remoteAddrKeyResolver}", "redis-rate-limiter.burstCapacity": "1000", "redis-rate-limiter.replenishRate": "1000"}, "name": "RequestRateLimiter"}]', 'lb://feng-user2-biz', 1, NULL, '2025-03-24 22:33:22', '2025-03-24 22:33:22', '0');
-INSERT INTO sys_route_conf VALUES (2, '认证中心', 'feng-auth', '[{"args": {"_genkey_0": "/auth/**"}, "name": "Path"}]', '[{"args": {}, "name": "ValidateCodeGatewayFilter"}, {"args": {}, "name": "PasswordDecoderFilter"}]', 'lb://feng-auth', 2, NULL, '2025-03-24 22:33:22', '2025-03-24 22:33:22', '0');
-INSERT INTO sys_route_conf VALUES (3, '消息管理', 'feng-msg-biz', '[{"args": {"_genkey_0": "/msg/**"}, "name": "Path"}]', '[]', 'lb://feng-msg-biz', 99, NULL, '2025-03-24 22:33:22', '2025-03-24 22:33:22', '0');
-INSERT INTO sys_route_conf VALUES (4, '日志服务', 'feng-log2-biz', '[{"args": {"_genkey_0": "/log/**"}, "name": "Path"}]', '[]', 'lb://feng-log2-biz', 100, NULL, '2025-03-24 22:33:22', '2025-03-24 22:33:22', '0');
-INSERT INTO sys_route_conf VALUES (5, 'AI服务', 'feng-ai-biz', '[{"args": {"_genkey_0": "/aigc/**"}, "name": "Path"}]', '[]', 'lb://feng-ai-biz', 100, NULL, '2025-03-24 22:33:22', '2025-03-24 22:33:22', '0');
-
--- Table structure for sys_social_details
-DROP TABLE IF EXISTS sys_social_details;
-CREATE TABLE sys_social_details (
-  id serial PRIMARY KEY NOT NULL,
-  type varchar(16) NULL,
-  remark varchar(64) NULL,
-  app_id varchar(64) NULL,
-  app_secret varchar(64) NULL,
-  redirect_url varchar(128) NULL,
-  create_time timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  update_time timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  del_flag char(1) NULL DEFAULT '0',
-  organ_code varchar(64) NULL
-);
-
-COMMENT ON TABLE sys_social_details IS '系统社交登录账号表';
-COMMENT ON COLUMN sys_social_details.id IS '主鍵';
-COMMENT ON COLUMN sys_social_details.type IS '类型';
-COMMENT ON COLUMN sys_social_details.remark IS '备注';
-COMMENT ON COLUMN sys_social_details.app_id IS '应用ID';
-COMMENT ON COLUMN sys_social_details.app_secret IS '应用密钥';
-COMMENT ON COLUMN sys_social_details.redirect_url IS '重定向URL';
-COMMENT ON COLUMN sys_social_details.create_time IS '创建时间';
-COMMENT ON COLUMN sys_social_details.update_time IS '更新时间';
-COMMENT ON COLUMN sys_social_details.del_flag IS '删除标志';
-COMMENT ON COLUMN sys_social_details.organ_code IS '所属机构编码';
 
 -- Table structure for sys_staff
 DROP TABLE IF EXISTS sys_staff;
@@ -1863,33 +1567,6 @@ INSERT INTO sys_staff_dept VALUES (1, 1);
 INSERT INTO sys_staff_dept VALUES (2, 1);
 INSERT INTO sys_staff_dept VALUES (3, 1);
 
--- Table structure for sys_team
-DROP TABLE IF EXISTS sys_team;
-CREATE TABLE sys_team (
-  id serial PRIMARY KEY NOT NULL,
-  affiliation_id int NULL,
-  team_name varchar(255) NULL,
-  team_code varchar(255) NULL,
-  status char(1) NULL DEFAULT '0',
-  create_by varchar(64) NULL,
-  create_time timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  update_by varchar(64) NULL,
-  update_time timestamp NULL,
-  del_flag char(1) NULL DEFAULT '0'
-);
-
-COMMENT ON TABLE sys_team IS '小组';
-COMMENT ON COLUMN sys_team.id IS 'id';
-COMMENT ON COLUMN sys_team.affiliation_id IS '联盟id';
-COMMENT ON COLUMN sys_team.team_name IS '小组名称';
-COMMENT ON COLUMN sys_team.team_code IS '小组编码';
-COMMENT ON COLUMN sys_team.status IS '状态:0-启用 1-禁用';
-COMMENT ON COLUMN sys_team.create_by IS '创建者';
-COMMENT ON COLUMN sys_team.create_time IS '创建时间';
-COMMENT ON COLUMN sys_team.update_by IS '更新者';
-COMMENT ON COLUMN sys_team.update_time IS '修改时间';
-COMMENT ON COLUMN sys_team.del_flag IS '逻辑删 0-正常 1-删除';
-
 -- Table structure for sys_user
 DROP TABLE IF EXISTS sys_user;
 CREATE TABLE sys_user (
@@ -1962,42 +1639,6 @@ COMMENT ON TABLE sys_user_department IS '用户部门表,暂未使用';
 COMMENT ON COLUMN sys_user_department.user_id IS '用户ID';
 COMMENT ON COLUMN sys_user_department.dept_id IS '部门ID';
 
--- Table structure for sys_user_ext_config
-DROP TABLE IF EXISTS sys_user_ext_config;
-CREATE TABLE sys_user_ext_config (
-  id serial PRIMARY KEY NOT NULL,
-  ext_key varchar(255) NULL,
-  ext_name varchar(255) NULL,
-  ext_type varchar(255) NULL,
-  dict_url varchar(255) NULL,
-  dict_data text NULL,
-  dict_value varchar(255) NULL,
-  dict_label varchar(255) NULL,
-  fill_in_type char(1) NULL,
-  organ_code varchar(64) NULL,
-  create_by varchar(64) NULL,
-  create_time timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  update_by varchar(64) NULL,
-  update_time timestamp NULL,
-  del_flag char(1) NULL DEFAULT '0'
-);
-
-COMMENT ON TABLE sys_user_ext_config IS '用户扩展属性配置，暂未使用';
-COMMENT ON COLUMN sys_user_ext_config.id IS 'id';
-COMMENT ON COLUMN sys_user_ext_config.ext_key IS '属性标识';
-COMMENT ON COLUMN sys_user_ext_config.ext_name IS '属性名称';
-COMMENT ON COLUMN sys_user_ext_config.ext_type IS '属性取值类型';
-COMMENT ON COLUMN sys_user_ext_config.dict_url IS '字典取值URL';
-COMMENT ON COLUMN sys_user_ext_config.dict_data IS '本地字典 json数组';
-COMMENT ON COLUMN sys_user_ext_config.dict_value IS '字典value属性';
-COMMENT ON COLUMN sys_user_ext_config.dict_label IS '字典label属性';
-COMMENT ON COLUMN sys_user_ext_config.fill_in_type IS '界面填写样式';
-COMMENT ON COLUMN sys_user_ext_config.organ_code IS '所属机构编码';
-COMMENT ON COLUMN sys_user_ext_config.create_by IS '创建者';
-COMMENT ON COLUMN sys_user_ext_config.create_time IS '创建时间';
-COMMENT ON COLUMN sys_user_ext_config.update_by IS '更新者';
-COMMENT ON COLUMN sys_user_ext_config.update_time IS '修改时间';
-COMMENT ON COLUMN sys_user_ext_config.del_flag IS '逻辑删 0-正常 1-删除';
 
 -- Table structure for sys_user_role
 DROP TABLE IF EXISTS sys_user_role;
@@ -2017,24 +1658,9 @@ INSERT INTO sys_user_role VALUES (2, 2);
 INSERT INTO sys_user_role VALUES (3, 2);
 INSERT INTO sys_user_role VALUES (4, 1);
 
--- Table structure for sys_team_staff
-DROP TABLE IF EXISTS sys_team_staff;
-CREATE TABLE sys_team_staff (
-  team_id int NULL,
-  staff_id int NULL
-);
-
-COMMENT ON TABLE sys_team_staff IS '小组人员关联表，暂未使用';
-COMMENT ON COLUMN sys_team_staff.team_id IS '小组id';
-COMMENT ON COLUMN sys_team_staff.staff_id IS '人员id';
-
-SELECT setval('sys_project_id_seq', (SELECT MAX(id) FROM sys_project));
-
-SELECT setval('sys_affiliation_id_seq', (SELECT MAX(id) FROM sys_affiliation));
 
 SELECT setval('sys_application_id_seq', (SELECT MAX(id) FROM sys_application));
 SELECT setval('sys_config_id_seq', (SELECT MAX(id) FROM sys_config));
-SELECT setval('sys_datasource_id_seq', (SELECT MAX(id) FROM sys_datasource));
 SELECT setval('sys_department_id_seq', (SELECT MAX(id) FROM sys_department));
 
 SELECT setval('sys_dict_id_seq', (SELECT MAX(id) FROM sys_dict));
@@ -2048,10 +1674,6 @@ SELECT setval('sys_organ_id_seq', (SELECT MAX(id) FROM sys_organ));
 SELECT setval('sys_public_param_public_id_seq', (SELECT MAX(public_id) FROM sys_public_param));
 SELECT setval('sys_role_id_seq', (SELECT MAX(id) FROM sys_role));
 
-SELECT setval('sys_route_conf_id_seq', (SELECT MAX(id) FROM sys_route_conf));
-SELECT setval('sys_social_details_id_seq', (SELECT MAX(id) FROM sys_social_details));
 SELECT setval('sys_staff_id_seq', (SELECT MAX(id) FROM sys_staff));
-SELECT setval('sys_team_id_seq', (SELECT MAX(id) FROM sys_team));
-SELECT setval('sys_user_id_seq', (SELECT MAX(id) FROM sys_user));
 
-SELECT setval('sys_user_ext_config_id_seq', (SELECT MAX(id) FROM sys_user_ext_config));
+SELECT setval('sys_user_id_seq', (SELECT MAX(id) FROM sys_user));

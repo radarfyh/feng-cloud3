@@ -1,3 +1,0 @@
-org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-    work.metanet.feng.common.sentinel.SentinelAutoConfiguration,\
-    work.metanet.feng.common.sentinel.handle.GlobalBizExceptionHandler

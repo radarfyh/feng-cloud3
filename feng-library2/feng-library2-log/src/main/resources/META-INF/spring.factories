@@ -1,5 +1,0 @@
-org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-    work.metanet.feng.common.log.LogAutoConfiguration,\
-    work.metanet.feng.common.log.config.SysLogFilterConfig
-org.springframework.boot.env.EnvironmentPostProcessor=\
-    work.metanet.feng.common.log.init.ApplicationLoggerInitializer

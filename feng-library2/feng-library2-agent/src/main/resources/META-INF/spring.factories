@@ -1,2 +1,0 @@
-org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-  work.metanet.feng.common.agent.AgentAutoConfiguration
