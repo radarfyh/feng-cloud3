@@ -41,5 +41,21 @@
             <groupId>org.springframework</groupId>
             <artifactId>spring-webmvc</artifactId>
         </dependency>
+
+        <!-- 1. 引入 Spring Cloud Context 以支持 @RefreshScope -->
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-context</artifactId>
+        </dependency>
+
+        <!-- 2. 引入 MyBatis Plus Starter (包含 extension, core, spring integration) -->
+        <!-- 修复 PaginationInnerInterceptor 找不到的问题 -->
+        <!-- 注意：父工程中我们定义的是 mybatis-plus-spring-boot4-starter (假设您用的快照版) -->
+        <!-- 如果 Maven 仓库下载不到 boot4-starter，请回退改用 mybatis-plus-spring-boot3-starter -->
+        <dependency>
+            <groupId>com.baomidou</groupId>
+            <artifactId>mybatis-plus-spring-boot4-starter</artifactId>
+            <!-- 这里的版本号由 feng-cloud3 父工程管理，不需要写 <version> -->
+        </dependency>
     </dependencies>
 </project>
