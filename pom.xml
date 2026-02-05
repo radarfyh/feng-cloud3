@@ -12,12 +12,10 @@
     <modules>
         <!-- 暂时先只激活 library，确保基础库编译通过 -->
         <module>feng-library3</module>
-        <module>feng-bom</module>
-
-        <!-- 后续逐步开启 -->
+        <!-- <module>feng-bom</module> -->
         <!-- <module>feng-gateway2</module> -->
         <!-- <module>feng-auth</module> -->
-        <!-- <module>feng-user2</module> -->
+        <module>feng-busi</module>
         <!-- <module>feng-message-center</module> -->
     </modules>
 
@@ -38,6 +36,11 @@
         <hutool.version>5.8.35</hutool.version>
         <mysql.version>9.1.0</mysql.version> <!-- MySQL 9.x 驱动 -->
         <lombok.version>1.18.36</lombok.version>
+
+        <!--JSON工具-->
+        <jackson-annotations.version>2.21</jackson-annotations.version>
+        <jackson-core.version>2.21.0</jackson-core.version>
+        <feign-jackson.version>13.6</feign-jackson.version>
     </properties>
 
     <!-- 依赖版本锁定 -->
@@ -102,14 +105,19 @@
                 <artifactId>mybatis-plus-extension</artifactId>
                 <version>${mybatis-plus.version}</version>
             </dependency>
+            <!-- 修复 PaginationInnerInterceptor 找不到的问题 -->
+            <dependency>
+                <groupId>com.baomidou</groupId>
+                <artifactId>mybatis-plus-jsqlparser</artifactId>
+                <version>${mybatis-plus.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.baomidou</groupId>
+                <artifactId>mybatis-plus-spring</artifactId>
+                <version>${mybatis-plus.version}</version>
+            </dependency>
 
-            <!-- 7. Apache HttpClient 4 (修复 RestTemplateConfiguration) -->
-            <!-- <dependency>
-                <groupId>org.apache.httpcomponents</groupId>
-                <artifactId>httpclient</artifactId>
-                <version>4.5.14</version>
-            </dependency> -->
-            <!-- === 新增 HttpClient 5 依赖 (适配 Spring Boot 3/4) === -->
+            <!-- 7. Apache HttpClient 5 -->
             <dependency>
                 <groupId>org.apache.httpcomponents.client5</groupId>
                 <artifactId>httpclient5</artifactId>
@@ -143,6 +151,39 @@
                 <artifactId>bcprov-jdk18on</artifactId>
                 <version>1.77</version>
             </dependency>
+
+            <!-- 12. Jackson 工具-->
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-annotations</artifactId>
+                <version>${jackson-annotations.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-core</artifactId>
+                <version>${jackson-core.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-databind</artifactId>
+                <version>${jackson-core.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.dataformat</groupId>
+                <artifactId>jackson-dataformat-xml</artifactId>
+                <version>${jackson-core.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.datatype</groupId>
+                <artifactId>jackson-datatype-jsr310</artifactId>
+                <version>${jackson-core.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.github.openfeign</groupId>
+                <artifactId>feign-jackson</artifactId>
+                <version>${feign-jackson.version}</version>
+            </dependency>            
+ 
 
 
             <!--bom 内部模块版本定义-->
