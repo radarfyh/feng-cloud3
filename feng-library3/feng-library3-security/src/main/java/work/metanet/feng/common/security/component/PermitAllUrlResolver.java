@@ -17,8 +17,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.http.HttpMethod;
-import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configurers.ExpressionUrlAuthorizationConfigurer;
+import org.springframework.security.config.annotation.web.configurers.AuthorizeHttpRequestsConfigurer;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.util.PathMatcher;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -75,7 +74,7 @@ public class PermitAllUrlResolver implements InitializingBean {
             // 2. 当类上不包含 @Inner 注解则获取该方法的注解
             if (controller == null) {
                 Inner method = AnnotationUtils.findAnnotation(handlerMethod.getMethod(), Inner.class);
-                Optional.ofNullable(method).ifPresent(inner -> info.getPatternsCondition().getPatterns()
+                Optional.ofNullable(method).ifPresent(inner -> info.getPatternValues()
                         .forEach(url -> this.filterPath(url, info, map)));
                 continue;
             }
@@ -85,7 +84,7 @@ public class PermitAllUrlResolver implements InitializingBean {
             Method[] methods = beanType.getDeclaredMethods();
             Method method = handlerMethod.getMethod();
             if (ArrayUtil.contains(methods, method)) {
-                info.getPatternsCondition().getPatterns().forEach(url -> filterPath(url, info, map));
+                info.getPatternValues().forEach(url -> filterPath(url, info, map));
             }
         }
     }
@@ -137,7 +136,7 @@ public class PermitAllUrlResolver implements InitializingBean {
                 continue;
             }
 
-            Set<String> patterns = info.getPatternsCondition().getPatterns();
+            Set<String> patterns = info.getPatternValues();
             for (String pattern : patterns) {
                 // 跳过自身
                 if (StrUtil.equals(url, pattern)) {
@@ -160,20 +159,20 @@ public class PermitAllUrlResolver implements InitializingBean {
      * 
      * @param registry Spring Security 的配置对象，用于注册 URL 权限
      */
-    public void registry(ExpressionUrlAuthorizationConfigurer<HttpSecurity>.ExpressionInterceptUrlRegistry registry) {
+    public void registry(AuthorizeHttpRequestsConfigurer<?>.AuthorizationManagerRequestMatcherRegistry registry) {
         for (String url : getIgnoreUrls()) {
             List<String> strings = StrUtil.split(url, "|");
 
             // 仅配置对外暴露的 URL，注册到 Spring Security 的为全部方法
             if (strings.size() == 1) {
-                registry.antMatchers(strings.get(0)).permitAll();
+                registry.requestMatchers(strings.get(0)).permitAll();
                 continue;
             }
 
             // 当配置对外的 URL|GET,POST 这种形式，则获取方法列表并注册到 Spring Security
             if (strings.size() == 2) {
                 for (String method : StrUtil.split(strings.get(1), StrUtil.COMMA)) {
-                    registry.antMatchers(HttpMethod.valueOf(method), strings.get(0)).permitAll();
+                    registry.requestMatchers(HttpMethod.valueOf(method), strings.get(0)).permitAll();
                 }
                 continue;
             }

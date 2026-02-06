@@ -1,15 +1,15 @@
 package work.metanet.feng.common.security.component;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
+import org.springframework.security.web.AuthenticationEntryPoint;
+import org.springframework.security.web.SecurityFilterChain;
+
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configurers.ExpressionUrlAuthorizationConfigurer;
-import org.springframework.security.oauth2.config.annotation.web.configuration.ResourceServerConfigurerAdapter;
-import org.springframework.security.oauth2.config.annotation.web.configurers.ResourceServerSecurityConfigurer;
-import org.springframework.security.oauth2.provider.authentication.TokenExtractor;
-import org.springframework.security.oauth2.provider.token.ResourceServerTokenServices;
-import org.springframework.security.web.AuthenticationEntryPoint;
 
 /**
  * 支持本地模式（不经过认证中心 CheckToken）的资源服务器配置。
@@ -22,7 +22,7 @@ import org.springframework.security.web.AuthenticationEntryPoint;
  * </p>
  */
 @Slf4j
-public class FengLocalResourceServerConfigurerAdapter extends ResourceServerConfigurerAdapter {
+public class FengLocalResourceServerConfigurerAdapter {
 
     @Autowired
     protected AuthenticationEntryPoint resourceAuthExceptionEntryPoint;
@@ -30,11 +30,6 @@ public class FengLocalResourceServerConfigurerAdapter extends ResourceServerConf
     @Autowired
     private PermitAllUrlResolver permitAllUrlResolver;
 
-    @Autowired
-    private TokenExtractor tokenExtractor;
-
-    @Autowired
-    private ResourceServerTokenServices resourceServerTokenServices;
 
     /**
      * 配置 HTTP 安全策略，指定哪些 URL 无需认证，哪些需要认证。
@@ -46,37 +41,25 @@ public class FengLocalResourceServerConfigurerAdapter extends ResourceServerConf
      * 
      * @param httpSecurity HTTP 安全配置
      */
-    @Override
+    @Bean
     @SneakyThrows
-    public void configure(HttpSecurity httpSecurity) {
+    public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) {
         // 允许使用 iframe 嵌套，解决 Swagger UI 加载问题
-        httpSecurity.headers().frameOptions().disable();
+        httpSecurity.headers(headers -> headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::disable));
+
 
         // 配置 URL 请求权限
-        ExpressionUrlAuthorizationConfigurer<HttpSecurity>.ExpressionInterceptUrlRegistry registry = httpSecurity
-                .authorizeRequests();
+        httpSecurity.authorizeHttpRequests(registry -> {
+            // 配置无需认证的接口
+            permitAllUrlResolver.registry(registry);
+            // 默认配置：任何请求都需要认证
+            registry.anyRequest().authenticated();
+        });
 
-        // 配置无需认证的接口
-        permitAllUrlResolver.registry(registry);
-
-        // 默认配置：任何请求都需要认证
-        registry.anyRequest().authenticated()
-                .and()
-                .csrf().disable();  // 禁用 CSRF 防护
+        httpSecurity.csrf(AbstractHttpConfigurer::disable); // 禁用 CSRF 防护
+        
+       
+        return httpSecurity.build();
     }
 
-    /**
-     * 配置资源服务器的认证和令牌验证
-     * <p>
-     * 该方法配置了资源服务器的认证入口、令牌提取器以及资源服务器令牌服务。
-     * </p>
-     * 
-     * @param resources 资源服务器配置
-     */
-    @Override
-    public void configure(ResourceServerSecurityConfigurer resources) {
-        resources.authenticationEntryPoint(resourceAuthExceptionEntryPoint)
-                .tokenExtractor(tokenExtractor)
-                .tokenServices(resourceServerTokenServices);
-    }
 }

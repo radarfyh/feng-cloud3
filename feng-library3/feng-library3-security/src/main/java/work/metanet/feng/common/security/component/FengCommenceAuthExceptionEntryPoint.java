@@ -16,7 +16,6 @@ import org.springframework.security.authentication.CredentialsExpiredException;
 import org.springframework.security.authentication.InsufficientAuthenticationException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.oauth2.provider.authentication.OAuth2AuthenticationProcessingFilter;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.stereotype.Component;
 
@@ -29,7 +28,6 @@ import java.util.Map;
 /**
  * 资源服务器异常处理类，处理 OAuth2 认证过程中的不同异常
  * <p>
- * 该类用于处理 {@link OAuth2AuthenticationProcessingFilter} 在认证失败时的异常。
  * 它根据不同的异常类型，返回自定义的错误信息并设置 HTTP 响应状态码。支持对认证过期、用户名不存在、凭证错误等多种错误进行细化处理。
  * </p>
  * <p>

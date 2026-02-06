@@ -6,13 +6,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.SpringSecurityCoreVersion;
-import org.springframework.security.core.userdetails.User;
-
-import java.util.Collection;
-
-/**
- * 扩展用户信息类，继承自 Spring Security 的 User 类。
+import org.springframework.security.core.lplt，继承自 Spring Security 的 User 类。
  * 此类添加了额外的用户属性，如用户ID、科室信息、头像、职位等，用于身份验证和授权处理。
  * <p>
  * 该类用于管理用户的详细信息，通常与系统中的用户角色和权限管理结合使用。
@@ -20,33 +14,6 @@ import java.util.Collection;
  */
 public class FengUser extends User {
 
-    private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
-
-    /**
-     * 用户ID
-     */
-    @Getter
-    private Integer id;
-
-    /**
-     * 科室id
-     */
-    @Getter
-    private Integer deptId;
-
-    /**
-     * 科室编码
-     */
-    @Getter
-    @Schema(description = "科室编码")
-    private String deptCode;
-
-    /**
-     * 是否首次登录：0-否/1-是 默认1
-     */
-    @Getter
-    @Schema(description = "是否首次登录：0-否/1-是 默认1")
-    private String firstLogin;
 
     /**
      * 手机号

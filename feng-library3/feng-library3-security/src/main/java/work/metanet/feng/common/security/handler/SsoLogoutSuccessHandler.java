@@ -27,6 +27,8 @@ import java.util.List;
 @Slf4j
 public class SsoLogoutSuccessHandler implements LogoutSuccessHandler {
 
+    private static final String[] ALLOWED_DOMAINS = { "localhost", "metanet.work" }; // 根据实际需求配置允许的域名
+
     private static final String REDIRECT_URL = "redirect_url";
 
     // 用于验证合法的重定向域名，可以根据实际需要进行配置

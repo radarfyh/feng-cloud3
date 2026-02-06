@@ -46,6 +46,16 @@
                 </exclusion>
             </exclusions>
         </dependency>
+        <!--切面依赖-->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-aop</artifactId>
+        </dependency>
+        <!--IO 工具-->
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+        </dependency>
 <!--        <安全依赖获取上下文信息>-->
 <!--        <dependency>-->
 <!--            <groupId>org.springframework.security</groupId>-->

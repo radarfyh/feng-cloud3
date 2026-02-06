@@ -36,7 +36,7 @@
         <mybatis-plus.version>3.5.16</mybatis-plus.version> 
         <hutool.version>5.8.43</hutool.version>
         <mysql.version>9.1.0</mysql.version> <!-- MySQL 9.x 驱动 -->
-        <lombok.version>1.18.36</lombok.version>
+        <lombok.version>1.18.42</lombok.version>
 
         <!--JSON工具-->
         <jackson-annotations.version>2.21</jackson-annotations.version>
@@ -54,6 +54,18 @@
                 <version>${spring-boot.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
+            </dependency>
+            <!--切面依赖-->
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter-aop</artifactId>
+                <version>4.0.0-M2</version>
+            </dependency>
+            <dependency>
+                <groupId>org.redisson</groupId>
+                <artifactId>redisson-spring-boot-starter</artifactId>
+                <version>4.1.0</version>
+                <scope>compile</scope>
             </dependency>
 
             <!-- 2. Spring Cloud 2025 BOM -->
@@ -91,6 +103,22 @@
                 <groupId>cn.hutool</groupId>
                 <artifactId>hutool-http</artifactId>
                 <version>${hutool.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>cn.hutool</groupId>
+                <artifactId>hutool-extra</artifactId>
+                <version>${hutool.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.projectlombok</groupId>
+                <artifactId>lombok</artifactId>
+                <version>${lombok.version}</version>
+            </dependency>
+            <!--IO 工具-->
+            <dependency>
+                <groupId>commons-io</groupId>
+                <artifactId>commons-io</artifactId>
+                <version>2.16.1</version>
             </dependency>
             
             <!-- 6. MyBatis Plus 注解包 (修复 IEnum, @TableName) -->
