@@ -1,8 +1,21 @@
 package work.metanet.feng.common.security.util;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Set;
+
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
+
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
+import jakarta.servlet.http.HttpServletRequest;
+import lombok.experimental.UtilityClass;
+import lombok.extern.slf4j.Slf4j;
 import work.metanet.feng.admin.api.dto.UserInfo;
 import work.metanet.feng.admin.api.feign.RemoteUserService;
 import work.metanet.feng.common.core.config.TenantOfHeader;
@@ -11,29 +24,7 @@ import work.metanet.feng.common.core.constant.CommonConstants;
 import work.metanet.feng.common.core.constant.SecurityConstants;
 import work.metanet.feng.common.core.util.JasyptUtil;
 import work.metanet.feng.common.core.util.SpringContextHolder;
-import work.metanet.feng.common.security.component.FengRedisTokenStore;
 import work.metanet.feng.common.security.service.FengUser;
-import lombok.experimental.UtilityClass;
-import lombok.extern.slf4j.Slf4j;
-
-import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.http.HttpHeaders;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.oauth2.common.OAuth2AccessToken;
-import org.springframework.security.oauth2.common.exceptions.InvalidTokenException;
-import org.springframework.security.oauth2.provider.OAuth2Authentication;
-import org.springframework.security.oauth2.provider.token.TokenStore;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
-
-import jakarta.servlet.http.HttpServletRequest;
 
 /**
  * 安全工具类，提供与用户认证、角色获取相关的实用方法。
@@ -260,72 +251,4 @@ public class SecurityUtils {
         return null;
     }
     
-    /**
-     * 从当前认证信息中获取 OAuth2AccessToken
-     * <p>
-     * 该方法先通过 Spring 上下文获取 FengRedisTokenStore Bean，
-     * 再传入当前的 OAuth2Authentication，返回对应的访问令牌。
-     * 如果当前未认证或不是 OAuth2Authentication，则返回 null。
-     * </p>
-     * @return OAuth2AccessToken 或 null
-     */
-    public OAuth2AccessToken getAccessToken() {
-        Authentication authentication = getAuthentication();
-        if (!(authentication instanceof OAuth2Authentication)) {
-            log.debug("当前 Authentication 不是 OAuth2Authentication，无法获取访问令牌");
-            return null;
-        }
-        OAuth2Authentication oauth2Auth = (OAuth2Authentication) authentication;
-        // 从 Spring 容器中获取你的 TokenStore 实例
-        FengRedisTokenStore tokenStore = SpringContextHolder.getBean(FengRedisTokenStore.class);
-        if (tokenStore == null) {
-            log.debug("未能从 Spring 容器中获取 FengRedisTokenStore 实例");
-            return null;
-        }
-        return tokenStore.getAccessToken(oauth2Auth);
-    }
-
-    /**
-     * 从当前请求的 Authorization Header 中获取 OAuth2AccessToken
-     * <p>
-     * 1. 从 RequestContextHolder 拿到 HttpServletRequest
-     * 2. 解析出 Bearer token 字符串
-     * 3. 从 Spring 容器中拿到 TokenStore（你的 FengRedisTokenStore）
-     * 4. 调用 readAccessToken(tokenValue) 并返回结果
-     * </p>
-     */
-    public OAuth2AccessToken getAccessTokenFromHeader() {
-        // 1. 获取当前请求
-        ServletRequestAttributes attrs = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
-        if (attrs == null) {
-        	// 如果attrs为空，那么很可能是因为本方法位于子线程中，而RequestContextHolder在主线程中初始化了，解决方案在控制器中新增两句，即ChatEndpoint.chat的前两句，这样就可以在主线程和子线程中共享。
-            log.debug("无法获取 ServletRequestAttributes，无法读取请求头");
-            return null;
-        }
-        HttpServletRequest request = attrs.getRequest();
-
-        // 2. 解析 Authorization: Bearer xxx
-        String header = request.getHeader(HttpHeaders.AUTHORIZATION);
-        if (StrUtil.isBlank(header) || !header.startsWith(SecurityConstants.BEARER_TOKEN_TYPE)) {
-            log.debug("请求头中未包含 Bearer token");
-            return null;
-        }
-        String tokenValue = header.substring(SecurityConstants.BEARER_TOKEN_TYPE.length()).trim();
-
-        // 3. 从 Spring 上下文中获取你的 TokenStore Bean
-        TokenStore tokenStore = SpringContextHolder.getBean(TokenStore.class);
-        if (tokenStore == null) {
-            log.debug("从 Spring 容器中无法获取 TokenStore Bean");
-            return null;
-        }
-
-        // 4. 读取并返回访问令牌
-        try {
-            return tokenStore.readAccessToken(tokenValue);
-        } catch (InvalidTokenException e) {
-            log.debug("无效的访问令牌: {}", tokenValue, e);
-            return null;
-        }
-    }
-
 }
