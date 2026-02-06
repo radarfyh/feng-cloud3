@@ -1,0 +1,1 @@
+java -jar target\feng-gateway2.jar -Xmx128m -Xms64m
