@@ -1,5 +1,5 @@
-CREATE DATABASE IF NOT EXISTS `feng-user2-biz`;
-USE `feng-user2-biz`;
+CREATE DATABASE IF NOT EXISTS `feng-user3-biz`;
+USE `feng-user3-biz`;
 
 SET NAMES utf8mb4;
 SET FOREIGN_KEY_CHECKS = 0;
@@ -1137,7 +1137,7 @@ CREATE TABLE `sys_route_conf`  (
 -- ----------------------------
 -- Records of sys_route_conf
 -- ----------------------------
-INSERT INTO `sys_route_conf` VALUES (1, '用户中心', 'feng-user2-biz', '[{\"args\": {\"_genkey_0\": \"/admin/**\"}, \"name\": \"Path\"}]',   '[{\"args\": {\"key-resolver\": \"#{@remoteAddrKeyResolver}\", \"redis-rate-limiter.burstCapacity\": \"1000\", \"redis-rate-limiter.replenishRate\": \"1000\"}, \"name\": \"RequestRateLimiter\"}]', 'lb://feng-user2-biz', 1,    NULL, now(), now(), '0');
+INSERT INTO `sys_route_conf` VALUES (1, '用户中心', 'feng-user3-biz', '[{\"args\": {\"_genkey_0\": \"/admin/**\"}, \"name\": \"Path\"}]',   '[{\"args\": {\"key-resolver\": \"#{@remoteAddrKeyResolver}\", \"redis-rate-limiter.burstCapacity\": \"1000\", \"redis-rate-limiter.replenishRate\": \"1000\"}, \"name\": \"RequestRateLimiter\"}]', 'lb://feng-user3-biz', 1,    NULL, now(), now(), '0');
 INSERT INTO `sys_route_conf` VALUES (2, '认证中心', 'feng-auth',      '[{\"args\": {\"_genkey_0\": \"/auth/**\"}, \"name\": \"Path\"}]',    '[{\"args\": {}, \"name\": \"ValidateCodeGatewayFilter\"}, {\"args\": {}, \"name\": \"PasswordDecoderFilter\"}]',                                                                                    'lb://feng-auth',      2,    NULL, now(), now(), '0');
 INSERT INTO `sys_route_conf` VALUES (3, '消息管理', 'feng-msg-biz',   '[{\"args\": {\"_genkey_0\": \"/msg/**\"}, \"name\": \"Path\"}]',     '[]',                                                                                                                                                                                                'lb://feng-msg-biz',   99,   NULL, now(), now(), '0');
 INSERT INTO `sys_route_conf` VALUES (4, '日志服务', 'feng-log2-biz',  '[{\"args\": {\"_genkey_0\": \"/log/**\"}, \"name\": \"Path\"}]',     '[]',                                                                                                                                                                                                'lb://feng-log2-biz',  100,  NULL, now(), now(), '0');

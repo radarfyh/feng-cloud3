@@ -58,8 +58,8 @@
 #        enabled: true
 #    gateway:
 #      routes:
-#        - id: feng-user2-biz
-#          uri: lb://feng-user2-biz
+#        - id: feng-user3-biz
+#          uri: lb://feng-user3-biz
 #          order: 1
 #          predicates:
 #            - Path=/admin/**

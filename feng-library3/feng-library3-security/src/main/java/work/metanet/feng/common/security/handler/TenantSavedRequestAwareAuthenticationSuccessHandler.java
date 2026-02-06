@@ -17,6 +17,10 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
+import org.springframework.web.util.UriComponentsBuilder;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+
 /**
  * 增强认证成功回调处理，增加租户上下文信息，避免在某些极端情况下丢失。
  * 继承自SimpleUrlAuthenticationSuccessHandler，重写onAuthenticationSuccess方法。
@@ -48,7 +52,7 @@ public class TenantSavedRequestAwareAuthenticationSuccessHandler extends SimpleU
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
                                          Authentication authentication) throws ServletException, IOException {
-        
+
         // 获取保存的请求
         SavedRequest savedRequest = this.requestCache.getRequest(request, response);
         
@@ -72,15 +76,19 @@ public class TenantSavedRequestAwareAuthenticationSuccessHandler extends SimpleU
         // 获取保存请求的重定向URL
         String targetUrl = savedRequest.getRedirectUrl();
 
-        // 获取租户信息，并将其附加到目标URL
+        // 获取租户信息，并将其安全地附加到目标URL
         try {
             KeyStrResolver keyStrResolver = SpringContextHolder.getBean(KeyStrResolver.class);
             String tenantId = keyStrResolver.key();
 
-            targetUrl += "&" + CommonConstants.TENANT_ID + "=" + tenantId;  // 追加租户信息
+            // 使用 UriComponentsBuilder 安全地构建URL（自动处理参数分隔和编码）
+            String finalRedirectUrl = UriComponentsBuilder.fromUriString(targetUrl)
+                    .queryParam(CommonConstants.TENANT_ID, tenantId)
+                    .build()
+                    .toUriString();
 
-            log.info("Redirecting to URL: {}", targetUrl);
-            this.getRedirectStrategy().sendRedirect(request, response, targetUrl);
+            log.info("Redirecting to URL: {}", finalRedirectUrl);
+            this.getRedirectStrategy().sendRedirect(request, response, finalRedirectUrl);
         } catch (Exception e) {
             log.error("Error while adding tenant information to redirect URL.", e);
             super.onAuthenticationSuccess(request, response, authentication);

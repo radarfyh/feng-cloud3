@@ -149,7 +149,7 @@
             <groupId>org.elasticsearch.plugin</groupId>
             <artifactId>x-pack-sql-jdbc</artifactId>
         </dependency>
-        <!--web 模块 注意和feng-library2-gateway 冲突，gateway使用fluxweb-->
+        <!--web 模块 注意和feng-library3-gateway 冲突，gateway使用fluxweb-->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>

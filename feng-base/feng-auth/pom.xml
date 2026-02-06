@@ -5,7 +5,7 @@
     <parent>
         <groupId>work.metanet</groupId>
         <artifactId>feng-base</artifactId>
-        <version>1.0.0</version>
+        <version>1.0.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>feng-auth</artifactId>
@@ -34,32 +34,32 @@
         <!--log-->
         <dependency>
             <groupId>work.metanet</groupId>
-            <artifactId>feng-library2-log</artifactId>
+            <artifactId>feng-library3-log</artifactId>
         </dependency>
         <!--security-->
         <dependency>
             <groupId>work.metanet</groupId>
-            <artifactId>feng-library2-security</artifactId>
+            <artifactId>feng-library3-security</artifactId>
         </dependency>
         <!--feign 依赖-->
         <dependency>
             <groupId>work.metanet</groupId>
-            <artifactId>feng-library2-feign</artifactId>
+            <artifactId>feng-library3-feign</artifactId>
         </dependency>
         <!--缓存操作-->
         <dependency>
             <groupId>work.metanet</groupId>
-            <artifactId>feng-library2-data</artifactId>
+            <artifactId>feng-library3-data</artifactId>
         </dependency>
         <!--sentinel 依赖-->
         <dependency>
             <groupId>work.metanet</groupId>
-            <artifactId>feng-library2-sentinel</artifactId>
+            <artifactId>feng-library3-sentinel</artifactId>
         </dependency>
         <!--路由控制-->
         <dependency>
             <groupId>work.metanet</groupId>
-            <artifactId>feng-library2-gray</artifactId>
+            <artifactId>feng-library3-gray</artifactId>
         </dependency>
 
         <!--web 模块-->

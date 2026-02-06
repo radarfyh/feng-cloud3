@@ -5,7 +5,7 @@ RUN mkdir /data/webserver -p
 WORKDIR /data/webserver
 
 ADD start.sh .
-ADD feng-user2-biz/target/feng-user2-biz.jar .
+ADD feng-user3-biz/target/feng-user3-biz.jar .
 
 RUN chmod u+x start.sh
 ENV PROJECT DEV

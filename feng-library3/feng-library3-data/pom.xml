@@ -38,13 +38,13 @@
 		<!--安全依赖获取上下文信息-->
 		<dependency>
 			<groupId>work.metanet</groupId>
-			<artifactId>feng-library2-security</artifactId>
+			<artifactId>feng-library3-security</artifactId>
 			<optional>true</optional>
 		</dependency>
         <!--mybatis plus-->
         <dependency>
             <groupId>work.metanet</groupId>
-            <artifactId>feng-library2-mybatis</artifactId>
+            <artifactId>feng-library3-mybatis</artifactId>
             <optional>true</optional>
         </dependency>
 		<!--缓存依赖-->

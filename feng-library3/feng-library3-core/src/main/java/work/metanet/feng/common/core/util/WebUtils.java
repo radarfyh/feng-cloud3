@@ -136,13 +136,19 @@ public class WebUtils extends org.springframework.web.util.WebUtils {
         try {
             RequestAttributes requestAttributes = RequestContextHolder.currentRequestAttributes();
             if (requestAttributes == null) {
-            	log.error("getRequest-->获取的请求对象为空");
-            	return null;
+                log.warn("getRequest: RequestAttributes为空，可能不在Web请求上下文中");
+                return null;
             }
             
-            return ((ServletRequestAttributes) requestAttributes).getRequest();
+            if (requestAttributes instanceof ServletRequestAttributes) {
+                return ((ServletRequestAttributes) requestAttributes).getRequest();
+            } else {
+                log.warn("getRequest: 当前请求属性不是ServletRequestAttributes类型: {}", 
+                        requestAttributes.getClass().getName());
+                return null;
+            }
         } catch (IllegalStateException e) {
-            log.error("Failed to get HttpServletRequest from RequestContextHolder", e);
+            log.warn("getRequest: 无法从RequestContextHolder获取HttpServletRequest", e);
             return null;
         }
     }
@@ -151,12 +157,30 @@ public class WebUtils extends org.springframework.web.util.WebUtils {
      * 获取当前响应对象
      * <p>
      * 该方法从RequestContextHolder中获取当前的HttpServletResponse对象。
+     * 注意：在非Web请求线程中调用此方法将返回null。
      * </p>
      *
-     * @return 当前的HttpServletResponse对象
+     * @return 当前的HttpServletResponse对象，如果无法获取则返回null
      */
     public HttpServletResponse getResponse() {
-        return ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getResponse();
+        try {
+            RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
+            if (requestAttributes == null) {
+                log.warn("无法获取当前请求属性，可能不在Web请求上下文中");
+                return null;
+            }
+            
+            if (requestAttributes instanceof ServletRequestAttributes) {
+                return ((ServletRequestAttributes) requestAttributes).getResponse();
+            } else {
+                log.warn("当前请求属性不是ServletRequestAttributes类型: {}", 
+                        requestAttributes.getClass().getName());
+                return null;
+            }
+        } catch (IllegalStateException e) {
+            log.error("从RequestContextHolder获取HttpServletResponse失败", e);
+            return null;
+        }
     }
 
     /**
@@ -257,32 +281,24 @@ public class WebUtils extends org.springframework.web.util.WebUtils {
      * @param request HttpServletRequest 请求对象，用于获取请求头
      * @return 从请求头中提取的有效IP地址，如果没有找到有效IP地址，则返回null
      */
-    private String extractIpFromHeaders(HttpServletRequest request) {
-        // 从X-Requested-For头字段获取IP地址，并检查是否有效
-        String ip = getHeaderIp(request, "X-Requested-For");
-        if (isValidIp(ip)) return ip;
-
-        // 从X-Forwarded-For头字段获取IP地址，并检查是否有效
-        ip = getHeaderIp(request, "X-Forwarded-For");
-        if (isValidIp(ip)) return ip;
-
-        // 从Proxy-Client-IP头字段获取IP地址，并检查是否有效
-        ip = getHeaderIp(request, "Proxy-Client-IP");
-        if (isValidIp(ip)) return ip;
-
-        // 从WL-Proxy-Client-IP头字段获取IP地址，并检查是否有效
-        ip = getHeaderIp(request, "WL-Proxy-Client-IP");
-        if (isValidIp(ip)) return ip;
-
-        // 从HTTP_CLIENT_IP头字段获取IP地址，并检查是否有效
-        ip = getHeaderIp(request, "HTTP_CLIENT_IP");
-        if (isValidIp(ip)) return ip;
-
-        // 从HTTP_X_FORWARDED_FOR头字段获取IP地址，并检查是否有效
-        ip = getHeaderIp(request, "HTTP_X_FORWARDED_FOR");
-        // 如果IP有效，则返回该IP地址；否则返回null
-        return isValidIp(ip) ? ip : null;
+private String extractIpFromHeaders(HttpServletRequest request) {
+    String[] headerNames = {
+        "X-Requested-For",
+        "X-Forwarded-For", 
+        "Proxy-Client-IP",
+        "WL-Proxy-Client-IP",
+        "HTTP_CLIENT_IP",
+        "HTTP_X_FORWARDED_FOR"
+    };
+    
+    for (String header : headerNames) {
+        String ip = request.getHeader(header);
+        if (isValidIp(ip)) {
+            return ip;
+        }
     }
+    return null;
+}
 
     
     /**

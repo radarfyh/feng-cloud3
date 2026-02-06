@@ -27,25 +27,4 @@ public class FengMethodNotAllowedException extends FengAuth2Exception {
     public FengMethodNotAllowedException(String msg, Throwable t) {
         super(msg, t);  // 调用父类构造函数
     }
-
-    /**
-     * 获取 OAuth2 错误代码。
-     * 
-     * @return 返回错误代码 "method_not_allowed"
-     */
-    @Override
-    public String getOAuth2ErrorCode() {
-        return "method_not_allowed"; // 错误代码，用于标识 HTTP 方法不被允许的错误
-    }
-
-    /**
-     * 获取 HTTP 错误码。
-     * 
-     * @return 返回 HTTP 状态码 405，表示方法不被允许。
-     */
-    @Override
-    public int getHttpErrorCode() {
-        // 使用 BusinessEnum 获取对应的错误码
-        return BusinessEnum.WEB_METHOD_NOT_ALLOWED.getCode(); // 获取业务枚举中的错误码
-    }
 }

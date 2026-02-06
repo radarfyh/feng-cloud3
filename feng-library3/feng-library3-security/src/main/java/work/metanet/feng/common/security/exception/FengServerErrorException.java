@@ -28,24 +28,4 @@ public class FengServerErrorException extends FengAuth2Exception {
         super(msg, t);  // 调用父类构造函数，传递异常消息和根本原因
     }
 
-    /**
-     * 获取 OAuth2 错误代码。
-     * 
-     * @return 返回错误代码 "server_error" 表示服务器内部错误。
-     */
-    @Override
-    public String getOAuth2ErrorCode() {
-        return "server_error";  // 错误代码，表示服务器错误
-    }
-
-    /**
-     * 获取 HTTP 错误码。
-     * 
-     * @return 返回 HTTP 状态码 500，表示服务器内部错误。
-     */
-    @Override
-    public int getHttpErrorCode() {
-        // 使用 BusinessEnum 获取对应的错误码
-        return BusinessEnum.WEB_INTERNAL_SERVER_ERROR.getCode();  // 获取业务枚举中的错误码
-    }
 }

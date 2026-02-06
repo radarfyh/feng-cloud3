@@ -24,25 +24,4 @@ public class FengTokenInvalidException extends FengAuth2Exception {
     public FengTokenInvalidException(String msg, Throwable t) {
         super(msg, t);  // 调用父类构造函数，传递异常消息和根本原因
     }
-
-    /**
-     * 获取 OAuth2 错误代码。
-     * 
-     * @return 返回错误代码 "invalid_token" 表示令牌无效。
-     */
-    @Override
-    public String getOAuth2ErrorCode() {
-        return "invalid_token";  // 返回固定的 OAuth2 错误码
-    }
-
-    /**
-     * 获取 HTTP 错误码。
-     * 
-     * @return 返回 HTTP 状态码 424，表示依赖失败（Failed Dependency）。
-     */
-    @Override
-    public int getHttpErrorCode() {
-        // 使用 BusinessEnum 获取对应的错误码
-        return BusinessEnum.WEB_FAILED_DEPENDENCY.getCode();  // 获取业务枚举中的错误码
-    }
 }

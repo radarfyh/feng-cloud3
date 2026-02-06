@@ -120,7 +120,7 @@
             <!-- user2-api 模块-->
             <dependency>
                 <groupId>work.metanet</groupId>
-                <artifactId>feng-user2-api</artifactId>
+                <artifactId>feng-user3-api</artifactId>
                 <version>${project.version}</version>
             </dependency>
 

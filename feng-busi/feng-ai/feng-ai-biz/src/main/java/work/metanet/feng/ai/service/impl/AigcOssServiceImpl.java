@@ -48,7 +48,7 @@ public class AigcOssServiceImpl extends ServiceImpl<AigcOssMapper, AigcOss> impl
 
     /**
      * 上传文件
-     * 已废弃(改用feng-user2-biz.SysFileController.upload)
+     * 已废弃(改用feng-user3-biz.SysFileController.upload)
      */
     @Override
     @Deprecated

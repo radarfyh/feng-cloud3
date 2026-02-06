@@ -4,11 +4,11 @@
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>work.metanet</groupId>
-		<artifactId>feng-library2</artifactId>
-		<version>1.0.0</version>
+		<artifactId>feng-library3</artifactId>
+		<version>1.0.0-SNAPSHOT</version>
 	</parent>
 
-	<artifactId>feng-library2-idempotent</artifactId>
+	<artifactId>feng-library3-idempotent</artifactId>
 	<packaging>jar</packaging>
 
 	<description>幂等插件</description>
@@ -16,7 +16,7 @@
 	<dependencies>
         <dependency>
             <groupId>work.metanet</groupId>
-            <artifactId>feng-library2-core</artifactId>
+            <artifactId>feng-library3-core</artifactId>
         </dependency>
         <!--Lombok-->
         <dependency>

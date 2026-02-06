@@ -26,18 +26,18 @@
 ## 三、后台公共多模块支持
 
 1. feng-cloud：父项目  
-2. feng-library2-BOM：依赖包清单
-3. feng-library2-swagger：OPENAPI3规范支持  
-4. feng-library2-core：核心工具提供  
-5. feng-library2-data：租户、缓存工具提供  
-6. feng-library2-datasource：多数据源工具提供  
-7. feng-library2-feign：远程通讯工具OPENFEIGN  
-8. feng-library2-gateway：网关工具  
-9. feng-library2-log：日志工具  
-10. feng-library2-oss：对象存储工具  
-11. feng-library2-security：安全工具
-12. feng-library2-sentinel：熔断器工具  
-13. feng-library2-mybatis基于苞米豆的数据库访问工具  
+2. feng-library3-BOM：依赖包清单
+3. feng-library3-swagger：OPENAPI3规范支持  
+4. feng-library3-core：核心工具提供  
+5. feng-library3-data：租户、缓存工具提供  
+6. feng-library3-datasource：多数据源工具提供  
+7. feng-library3-feign：远程通讯工具OPENFEIGN  
+8. feng-library3-gateway：网关工具  
+9. feng-library3-log：日志工具  
+10. feng-library3-oss：对象存储工具  
+11. feng-library3-security：安全工具
+12. feng-library3-sentinel：熔断器工具  
+13. feng-library3-mybatis基于苞米豆的数据库访问工具  
 
 ## 四、网关服务feng-gateway2
 

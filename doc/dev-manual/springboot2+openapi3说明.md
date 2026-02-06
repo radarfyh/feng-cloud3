@@ -105,8 +105,8 @@ spring:
   cloud:
     gateway:
       routes:
-        - id: feng-user2-biz
-          uri: lb://feng-user2-biz
+        - id: feng-user3-biz
+          uri: lb://feng-user3-biz
           order: 1
           predicates:
             - Path=/admin/**
@@ -210,7 +210,7 @@ app.c31badf5.js:1 Error: Network Error
     <dependencies>
         <dependency>
             <groupId>work.metanet</groupId>
-            <artifactId>feng-library2-swagger</artifactId>
+            <artifactId>feng-library3-swagger</artifactId>
         </dependency>
     </dependencies>
 ```

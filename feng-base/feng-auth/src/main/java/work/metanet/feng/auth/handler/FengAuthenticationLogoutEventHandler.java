@@ -14,7 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.oauth2.provider.OAuth2Authentication;
+// 已移除对旧版 OAuth2Authentication 的导入
 import org.springframework.stereotype.Component;
 import org.springframework.web.util.ContentCachingResponseWrapper;
 
@@ -64,21 +64,18 @@ public class FengAuthenticationLogoutEventHandler implements AuthenticationLogou
         // 3.记录响应数据
         SysLogUtils.recordResponseData(response, sysLog);
 
-//        // 获取 OAuth2 认证对象
-//        if (authentication instanceof OAuth2Authentication) {
-//            OAuth2Authentication oauth2Authentication = (OAuth2Authentication) authentication;
-//            sysLog.setServiceId(oauth2Authentication.getOAuth2Request().getClientId());
-//        } else {
-//            log.warn("Authentication is not of type OAuth2Authentication, cannot retrieve clientId");
-//            sysLog.setServiceId("unknown");
-//        }
+        // 注意：在新的 Spring Security OAuth2 Authorization Server 架构下，
+        // 客户端信息（clientId）的获取方式已改变，此处暂时不记录，或需从其他上下文获取。
+        // 可根据未来需要，从 Token 或 SecurityContext 中解析。
+        sysLog.setServiceId("N/A"); // 或留空，或从其他地方获取
 
-        // 设置租户信息
+        // 设置租户信息 (增强异常处理)
         try {
-	        Integer tenantId = Integer.valueOf(tenantKeyStrResolver.key());
-	        sysLog.setTenantId(tenantId);
-        } finally {
-        	
+            Integer tenantId = Integer.valueOf(tenantKeyStrResolver.key());
+            sysLog.setTenantId(tenantId);
+        } catch (NumberFormatException e) {
+            log.error("Failed to parse tenant ID: {}", tenantKeyStrResolver.key(), e);
+            sysLog.setTenantId(null); // 或设置一个默认值，如 0
         }
 
         // 获取退出的 token

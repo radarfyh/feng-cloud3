@@ -33,7 +33,7 @@ import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 //1.删除@EnableConfigurationProperties理由：Spring Cloud Gateway 自动配置会创建一个 GatewayProperties Bean。而@EnableConfigurationProperties(GatewayProperties.class) 又创建了一个
 //所以，两者命名不同但类型相同导致冲突，必须禁用@EnableConfigurationProperties
 //@EnableConfigurationProperties(GatewayProperties.class) 
-//2.移除@ComponentScan原因:在公共库(feng-library2-gateway)中，组件扫描应由引用方控制,避免与业务服务的扫描配置冲突,改为显式@Bean声明更可控
+//2.移除@ComponentScan原因:在公共库(feng-library3-gateway)中，组件扫描应由引用方控制,避免与业务服务的扫描配置冲突,改为显式@Bean声明更可控
 //@ComponentScan("work.metanet.feng.common.gateway")
 //3.移除@ConditionalOnWebApplication原因：Gateway服务必定是Reactive Web环境，该注解冗余；若需条件控制，应在引用方处理
 //@ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.REACTIVE)

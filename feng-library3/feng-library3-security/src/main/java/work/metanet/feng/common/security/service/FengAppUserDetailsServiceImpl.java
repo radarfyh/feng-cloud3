@@ -11,6 +11,7 @@ import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.authentication.AuthenticationServiceException;
 
 /**
  * 用户详细信息服务，提供基于手机号登录和 check-token 校验功能的用户信息加载
@@ -56,7 +57,8 @@ public class FengAppUserDetailsServiceImpl implements FengUserDetailsService {
             return userDetails;
         } catch (Exception e) {
             log.error("加载用户信息失败: {}", e.getMessage(), e);
-            throw new RuntimeException("加载用户信息失败", e);
+            // 修改：抛出 Spring Security 标准异常
+            throw new AuthenticationServiceException("加载用户信息失败", e);
         }
     }
 

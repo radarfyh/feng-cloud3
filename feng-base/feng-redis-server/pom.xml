@@ -5,7 +5,7 @@
     <parent>
         <artifactId>feng-base</artifactId>
         <groupId>work.metanet</groupId>
-        <version>1.0.0</version>
+        <version>1.0.0-SNAPSHOT</version>
     </parent>
 
 	<artifactId>feng-redis-server</artifactId>
@@ -38,7 +38,7 @@
 	    <!--工具类核心包-->
         <dependency>
             <groupId>work.metanet</groupId>
-            <artifactId>feng-library2-core</artifactId>
+            <artifactId>feng-library3-core</artifactId>
         </dependency>
 		<dependency>
 			<groupId>de.codecentric</groupId>

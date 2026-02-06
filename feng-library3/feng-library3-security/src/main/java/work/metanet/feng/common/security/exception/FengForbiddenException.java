@@ -32,24 +32,4 @@ public class FengForbiddenException extends FengAuth2Exception {
     public FengForbiddenException(String msg, Throwable t) {
         super(msg, t);
     }
-
-    /**
-     * 返回 OAuth2 错误码，该错误码用于标识资源访问被拒绝
-     *
-     * @return OAuth2 错误码 "access_denied"
-     */
-    @Override
-    public String getOAuth2ErrorCode() {
-        return "access_denied";
-    }
-
-    /**
-     * 返回 HTTP 错误码，该错误码用于标识 "Forbidden" 错误
-     *
-     * @return HTTP 错误码 403 (Forbidden)
-     */
-    @Override
-    public int getHttpErrorCode() {
-        return HttpStatus.FORBIDDEN.value();
-    }
 }

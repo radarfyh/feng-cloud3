@@ -36,15 +36,13 @@ public class FormAuthenticationFailureHandler implements AuthenticationFailureHa
     public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response,
             AuthenticationException exception) {
         
-        // 记录认证失败的详细信息
         log.debug("表单登录失败:{}", exception.getLocalizedMessage());
 
-        // 构建登录失败后的重定向 URL，附带错误信息
         String errorMessage = exception.getMessage();
         String encodedUrl = HttpUtil.encodeParams(String.format("/token/login?error=%s", errorMessage), 
                 CharsetUtil.CHARSET_UTF_8);
 
-        // 使用 WebUtils 获取当前响应并进行重定向
-        WebUtils.getResponse().sendRedirect(encodedUrl);
+        // 关键修改：直接使用传入的 response 参数
+        response.sendRedirect(encodedUrl);
     }
 }

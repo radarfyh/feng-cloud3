@@ -5,7 +5,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
-import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.SpringSecurityCoreVersion;
 import org.springframework.security.core.userdetails.User;
@@ -74,13 +73,6 @@ public class FengUser extends User {
     private String orgCode;
 
     /**
-     * 锁定状态（false表示锁定，true表示未锁定）
-     */
-    @Getter
-    @Setter
-    private boolean accountNonLocked;
-
-    /**
      * 构造函数，初始化 FengUser 实例。此构造函数扩展了 Spring Security User 的默认构造函数。
      * 在此基础上增加了额外的用户属性，如用户ID、科室、职位等。
      *
@@ -126,6 +118,6 @@ public class FengUser extends User {
         this.deptId = deptId;
         this.deptCode = deptCode;
         this.firstLogin = firstLogin;
-        this.accountNonLocked = accountNonLocked;
+        // 注意：不再设置 accountNonLocked 字段，使用父类的状态
     }
 }

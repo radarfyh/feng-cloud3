@@ -17,7 +17,7 @@ public interface AigcOssService extends IService<AigcOss> {
 
     /**
      * 上传文件
-     * 已废弃(改用feng-user2-biz.SysFileController.upload)
+     * 已废弃(改用feng-user3-biz.SysFileController.upload)
      */
 	@Deprecated
     AigcOss upload(MultipartFile file, Integer userId);

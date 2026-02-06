@@ -5,7 +5,7 @@
     <parent>
         <artifactId>feng-ai</artifactId>
         <groupId>work.metanet</groupId>
-        <version>1.0.0</version>
+        <version>1.0.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -15,7 +15,7 @@
          <!--工具类核心包-->
         <dependency>
             <groupId>work.metanet</groupId>
-            <artifactId>feng-library2-core</artifactId>
+            <artifactId>feng-library3-core</artifactId>
         </dependency>
         <!--Lombok-->
         <dependency>
@@ -26,7 +26,7 @@
         <!--user2 api、model 模块-->
         <dependency>
             <groupId>work.metanet</groupId>
-            <artifactId>feng-user2-api</artifactId>
+            <artifactId>feng-user3-api</artifactId>
             <exclusions>
                 <exclusion>
                     <groupId>org.springframework.cloud</groupId>
@@ -37,12 +37,12 @@
         <!--日志处理-->
         <dependency>
             <groupId>work.metanet</groupId>
-            <artifactId>feng-library2-log</artifactId>
+            <artifactId>feng-library3-log</artifactId>
         </dependency>
         <!--swagger-->
         <dependency>
             <groupId>work.metanet</groupId>
-            <artifactId>feng-library2-swagger</artifactId>
+            <artifactId>feng-library3-swagger</artifactId>
         </dependency>
         <!--注册中心客户端-->
         <dependency>
@@ -68,26 +68,26 @@
         <!--spring security 、oauth、jwt依赖-->
         <dependency>
             <groupId>work.metanet</groupId>
-            <artifactId>feng-library2-security</artifactId>
+            <artifactId>feng-library3-security</artifactId>
         </dependency>
         <!--支持动态路由配置 -->
         <!--<dependency>
             <groupId>work.metanet</groupId>
-            <artifactId>feng-library2-gateway</artifactId>
+            <artifactId>feng-library3-gateway</artifactId>
         </dependency>-->
         <!--sentinel 依赖-->
         <dependency>
             <groupId>work.metanet</groupId>
-            <artifactId>feng-library2-sentinel</artifactId>
+            <artifactId>feng-library3-sentinel</artifactId>
         </dependency>
 <!--        <dependency>
             <groupId>work.metanet</groupId>
-            <artifactId>feng-library2-websocket</artifactId>
+            <artifactId>feng-library3-websocket</artifactId>
         </dependency>-->
         <!--路由控制-->
         <dependency>
             <groupId>work.metanet</groupId>
-            <artifactId>feng-library2-gray</artifactId>
+            <artifactId>feng-library3-gray</artifactId>
         </dependency>
         <!--mybatis-->
         <dependency>
@@ -97,7 +97,7 @@
         <!--多数据源-->
         <dependency>
             <groupId>work.metanet</groupId>
-            <artifactId>feng-library2-datasource</artifactId>
+            <artifactId>feng-library3-datasource</artifactId>
         </dependency>
         <!--选配: mysql 数据库驱动 -->
         <dependency>
@@ -127,7 +127,7 @@
         <!--幂等校验-->
         <dependency>
             <groupId>work.metanet</groupId>
-            <artifactId>feng-library2-idempotent</artifactId>
+            <artifactId>feng-library3-idempotent</artifactId>
         </dependency>
         <!--redis分布式锁 移除redisson 3.2.0防止和幂等版本冲突-->
         <dependency>
@@ -143,7 +143,7 @@
         <!--文件系统-->
         <dependency>
             <groupId>work.metanet</groupId>
-            <artifactId>feng-library2-oss</artifactId>
+            <artifactId>feng-library3-oss</artifactId>
         </dependency>
 
         <!--thumbnailator图片处理-->
@@ -205,7 +205,7 @@
         </dependency>
         <dependency>
         	<groupId>work.metanet</groupId>
-        	<artifactId>feng-library2-agent</artifactId>
+        	<artifactId>feng-library3-agent</artifactId>
         	<version>1.0.0</version>
         </dependency>
         <!-- druid 连接池 -->
@@ -214,10 +214,10 @@
             <artifactId>druid-spring-boot-starter</artifactId>
             <scope>provided</scope>
         </dependency>
-        <!--feng-library2-data要和druid-spring-boot-starter配合使用-->
+        <!--feng-library3-data要和druid-spring-boot-starter配合使用-->
         <dependency>
             <groupId>work.metanet</groupId>
-            <artifactId>feng-library2-data</artifactId>
+            <artifactId>feng-library3-data</artifactId>
         </dependency>
         <!--从 Java 9 开始，JAXB 不再是 JDK 的一部分，需要手动添加依赖-->
         <dependency>

@@ -19,7 +19,7 @@ export JAVA_HOME=/usr/local/java/jdk-17.0.12
 export _EXECJAVA="$JAVA_HOME/bin/java"
 
 # 查找 jar 包名称
-JAVANAME=$(ls feng-user2-biz/target/*.jar)
+JAVANAME=$(ls feng-user3-biz/target/*.jar)
 
 # 检查是否找到 jar 包
 if [ -z "$JAVANAME" ]; then

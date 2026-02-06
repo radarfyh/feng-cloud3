@@ -92,12 +92,19 @@ public interface FengUserDetailsService extends UserDetailsService, Ordered {
         // 将权限集合转为 GrantedAuthority 列表
         Collection<? extends GrantedAuthority> authorities = AuthorityUtils.createAuthorityList(dbAuthsSet.toArray(new String[0]));
         SysUser user = info.getSysUser();
+
+        // 密码处理：检查是否已经包含编码器前缀
+        String password = user.getPassword();
+        if (!password.startsWith("{") && !password.contains("}")) {
+            // 如果没有前缀，添加默认的BCRYPT前缀
+            password = SecurityConstants.BCRYPT + password;
+        }
         
         // 构建并返回 Spring Security 的 FengUser 对象
         return new FengUser(
             user.getId(), 
             user.getUsername(), 
-            SecurityConstants.BCRYPT + user.getPassword(),
+            password,
             user.getPhone(), 
             user.getAvatar(), 
             user.getTenantId(),

@@ -31,19 +31,20 @@ import java.util.Objects;
 @RequiredArgsConstructor
 public class FengDefaultUserDetailsServiceImpl implements FengUserDetailsService {
 
-    private final RemoteUserService remoteUserService;  // 用于从远程服务获取用户信息
-    private final CacheManager cacheManager;            // 缓存管理器
-    private UserDetailsChecker detailsChecker = new FengPreAuthenticationChecks();  // 用户信息检查器
+    private final RemoteUserService remoteUserService;
+    private final CacheManager cacheManager;
+    private final UserDetailsChecker detailsChecker; // 改为通过构造函数注入
 
-    /**
-     * 根据用户名加载用户信息。
-     * 首先从缓存中查找用户信息，如果缓存不存在，则从远程服务加载用户数据。
-     * 如果用户信息加载成功，则执行用户信息有效性检查。
-     *
-     * @param username 用户名
-     * @return 加载的用户信息
-     * @throws UsernameNotFoundException 如果用户不存在，抛出此异常
-     */
+    // 如果FengPreAuthenticationChecks是唯一的实现，可以这样注入
+    // 如果有多个实现，可以通过@Qualifier指定
+    public FengDefaultUserDetailsServiceImpl(RemoteUserService remoteUserService, 
+                                             CacheManager cacheManager, 
+                                             FengPreAuthenticationChecks detailsChecker) {
+        this.remoteUserService = remoteUserService;
+        this.cacheManager = cacheManager;
+        this.detailsChecker = detailsChecker;
+    }
+
     @Override
     @SneakyThrows
     public UserDetails loadUserByUsername(String username) {
@@ -58,7 +59,9 @@ public class FengDefaultUserDetailsServiceImpl implements FengUserDetailsService
         log.debug("{}-->userDetails: {}", Thread.currentThread().getStackTrace()[1].getMethodName(), userDetails);
 
         // 检查用户账号的状态（例如是否被禁用、过期等）
-        detailsChecker.check(userDetails);
+        if (detailsChecker != null) {
+            detailsChecker.check(userDetails);
+        }
 
         // 将用户信息存入缓存
         cacheUserDetails(username, userDetails);
@@ -121,5 +124,4 @@ public class FengDefaultUserDetailsServiceImpl implements FengUserDetailsService
     public int getOrder() {
         return Integer.MIN_VALUE;
     }
-
 }

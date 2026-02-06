@@ -1,1 +1,1 @@
-java -jar target\feng-user2-biz.jar -Xmx128m -Xms64m
+java -jar target\feng-user3-biz.jar -Xmx128m -Xms64m

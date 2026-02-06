@@ -3,6 +3,7 @@ package work.metanet.feng.common.security.handler;
 import cn.hutool.core.util.StrUtil;
 import lombok.extern.slf4j.Slf4j;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
@@ -29,7 +30,8 @@ public class SsoLogoutSuccessHandler implements LogoutSuccessHandler {
     private static final String REDIRECT_URL = "redirect_url";
 
     // 用于验证合法的重定向域名，可以根据实际需要进行配置
-    private static final List<String> ALLOWED_DOMAINS = Arrays.asList("https://metanet.work", "http://localhost:2000");
+    @Value("${sso.logout.allowed-domains:https://metanet.work,http://localhost:2000}")
+    private List<String> allowedDomains;
 
     /**
      * 处理用户退出后的重定向逻辑。
@@ -80,7 +82,16 @@ public class SsoLogoutSuccessHandler implements LogoutSuccessHandler {
      * @return 如果URL以合法域名开头，则返回true，反之返回false。
      */
     private boolean isValidRedirectUrl(String url) {
-//        return ALLOWED_DOMAINS.stream().anyMatch(url::startsWith);
-    	return true;
+        // 方案1：严格检查允许的域名（推荐）
+        // return ALLOWED_DOMAINS.stream().anyMatch(domain -> url.startsWith(domain));
+        
+        // 方案2：更灵活的正则表达式匹配
+        // 例如：允许同一域名下的任意路径
+        for (String domain : ALLOWED_DOMAINS) {
+            if (url.startsWith(domain) || url.startsWith("/")) { // 也允许相对路径
+                return true;
+            }
+        }
+        return false;
     }
 }

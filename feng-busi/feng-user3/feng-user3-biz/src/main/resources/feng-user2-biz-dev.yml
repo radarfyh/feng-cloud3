@@ -10,13 +10,13 @@
 #          driver-class-name: com.mysql.cj.jdbc.Driver
 #          username: root
 #          password: radar
-#          url: jdbc:mysql://127.0.0.1:3306/feng-user2-biz?characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=false&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=GMT%2B8&allowMultiQueries=true&allowPublicKeyRetrieval=true
+#          url: jdbc:mysql://127.0.0.1:3306/feng-user3-biz?characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=false&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=GMT%2B8&allowMultiQueries=true&allowPublicKeyRetrieval=true
 #          type: com.alibaba.druid.pool.DruidDataSource
 #        postgres:
 #          driver-class-name: org.postgresql.Driver
 #          username: postgres
 #          password: radar
-#          url: jdbc:postgresql://localhost:5432/feng-user2-biz?currentSchema=public&stringtype=unspecified
+#          url: jdbc:postgresql://localhost:5432/feng-user3-biz?currentSchema=public&stringtype=unspecified
 #      druid:
 #        initialSize: 5
 #        minIdle: 10

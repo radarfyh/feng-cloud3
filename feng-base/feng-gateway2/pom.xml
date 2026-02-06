@@ -6,7 +6,7 @@
     <parent>
         <groupId>work.metanet</groupId>
         <artifactId>feng-base</artifactId>
-        <version>1.0.0</version>
+        <version>1.0.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>feng-gateway2</artifactId>
@@ -18,7 +18,7 @@
         <!--工具类核心包-->
         <dependency>
             <groupId>work.metanet</groupId>
-            <artifactId>feng-library2-core</artifactId>
+            <artifactId>feng-library3-core</artifactId>
         </dependency>
         <!--Lombok-->
         <dependency>
@@ -38,7 +38,7 @@
         <!--动态路由组件-->
         <dependency>
             <groupId>work.metanet</groupId>
-            <artifactId>feng-library2-gateway</artifactId>
+            <artifactId>feng-library3-gateway</artifactId>
         </dependency>
         <!--加解密组件-->
         <dependency>
@@ -122,7 +122,7 @@
         <!-- LB 扩展 -->
         <dependency>
             <groupId>work.metanet</groupId>
-            <artifactId>feng-library2-sentinel</artifactId>
+            <artifactId>feng-library3-sentinel</artifactId>
         </dependency>
         <!--caffeine 替换LB 默认缓存实现-->
         <dependency>

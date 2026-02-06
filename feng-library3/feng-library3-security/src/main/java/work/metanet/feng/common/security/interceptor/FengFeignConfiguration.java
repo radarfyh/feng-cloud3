@@ -1,54 +1,32 @@
-package work.metanet.feng.common.security.interceptor;
+// package work.metanet.feng.common.security.interceptor;
 
-import feign.Feign;
-import feign.RequestInterceptor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.cloud.commons.security.AccessTokenContextRelay;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.security.oauth2.client.OAuth2ClientContext;
-import org.springframework.security.oauth2.client.resource.OAuth2ProtectedResourceDetails;
+// import feign.Feign;
+// import feign.RequestInterceptor;
+// import lombok.extern.slf4j.Slf4j;
+// import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
+// import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
+// import org.springframework.context.annotation.Bean;
+// import org.springframework.context.annotation.Configuration;
+// import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
+// // 注意：这里可能还需要注入其他Spring Security 6的管理器，如OAuth2AuthorizedClientManager
 
-/**
- * <p>
- * FengFeignConfiguration 类提供了对 Feign 客户端的配置增强，
- * 它会在 Feign 请求中自动添加 OAuth2 认证信息（如 token）。
- * </p>
- * 
- * <p>
- * 该类在 Feign 可用时加载，并且依赖于 OAuth2 的相关配置。
- * </p>
- */
-@Slf4j
-@Configuration
-@ConditionalOnClass(Feign.class)  // 当 Feign 类存在时加载该配置
-public class FengFeignConfiguration {
+// /**
+//  * 新架构下的Feign配置，用于传播JWT令牌。
+//  */
+// @Slf4j
+// @Configuration
+// @ConditionalOnClass(Feign.class)
+// public class FengFeignConfiguration {
 
-    /**
-     * 配置 OAuth2 Feign 请求拦截器。
-     * <p>
-     * 当配置了 OAuth2 客户端的相关信息（如 client-id）时，初始化 FengFeignClientInterceptor 拦截器，
-     * 它将会在 Feign 请求中自动插入 OAuth2 token 进行认证。
-     * </p>
-     * 
-     * @param oAuth2ClientContext OAuth2 客户端上下文，包含访问令牌等信息
-     * @param resource OAuth2 受保护资源的配置
-     * @param accessTokenContextRelay 用于复制 OAuth2 token 的上下文
-     * @return RequestInterceptor 请求拦截器
-     */
-    @Bean
-    @ConditionalOnProperty("security.oauth2.client.client-id")  // 当配置了 OAuth2 客户端 id 时加载该配置
-    public RequestInterceptor oauth2FeignRequestInterceptor(OAuth2ClientContext oAuth2ClientContext,
-                                                             OAuth2ProtectedResourceDetails resource,
-                                                             AccessTokenContextRelay accessTokenContextRelay) {
-        log.debug("Creating OAuth2 Feign Request Interceptor for client: {}", resource.getClientId());
-        
-        // 创建并返回 Feign 请求拦截器
-        FengFeignClientInterceptor interceptor = new FengFeignClientInterceptor(oAuth2ClientContext, resource, accessTokenContextRelay);
-        log.info("OAuth2 Feign Request Interceptor created successfully for client: {}", resource.getClientId());
-        
-        return interceptor;
-    }
-}
+//     /**
+//      * 配置一个全局的Feign请求拦截器，用于传播当前的安全上下文（JWT令牌）。
+//      * 仅当当前认证类型为JWT（即资源服务器模式）时，此拦截器才生效。
+//      */
+//     @Bean
+//     @ConditionalOnBean(JwtAuthenticationToken.class) // 示例性条件，可根据实际情况调整
+//     public RequestInterceptor jwtFeignRequestInterceptor() {
+//         log.info("Creating JWT Feign Request Interceptor for microservice calls.");
+//         // 返回一个基于Spring Security 6新API的自定义拦截器
+//         return new FengFeignClientInterceptor(); 
+//     }
+// }

@@ -22,7 +22,7 @@ public interface ServiceNameConstants {
      * 该常量表示用户管理模块的服务名称。
      * </p>
      */
-    String USER2_SERVICE = "feng-user2-biz";
+    String USER2_SERVICE = "feng-user3-biz";
     
     /**
      * 网关服务

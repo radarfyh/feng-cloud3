@@ -9,7 +9,7 @@ export JRE_HOME=${JAVA_HOME}/jre
 export CLASSPATH=.:${JAVA_HOME}/lib:${JRE_HOME}/lib:$CLASSPATH
 export JAVA_PATH=${JAVA_HOME}/bin:${JRE_HOME}/bin
 export PATH=$PATH:${JAVA_PATH}
-${JAVA_HOME}/bin/java -Dfile.encoding=UTF-8 -Xms128m -Xmx256m -Ddruid.mysql.usePingMethod=false -jar feng-user2-biz/target/feng-user2-biz.jar --spring.profiles.active=dev
+${JAVA_HOME}/bin/java -Dfile.encoding=UTF-8 -Xms128m -Xmx256m -Ddruid.mysql.usePingMethod=false -jar feng-user3-biz/target/feng-user3-biz.jar --spring.profiles.active=dev
 EOF
 
 # 2.生成user2系统服务脚本

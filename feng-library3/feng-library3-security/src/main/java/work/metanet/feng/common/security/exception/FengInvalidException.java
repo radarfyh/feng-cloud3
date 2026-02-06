@@ -25,23 +25,4 @@ public class FengInvalidException extends FengAuth2Exception {
         super(msg, t);
     }
 
-    /**
-     * 返回 OAuth2 错误码 "invalid_exception"，该错误码表示无效的请求异常
-     *
-     * @return OAuth2 错误码
-     */
-    @Override
-    public String getOAuth2ErrorCode() {
-        return "invalid_exception";
-    }
-
-    /**
-     * 返回 HTTP 错误码 426（Upgrade Required），表示客户端需要升级协议或资源
-     *
-     * @return HTTP 错误码
-     */
-    @Override
-    public int getHttpErrorCode() {
-        return BusinessEnum.WEB_UPGRADE_REQUIRED.getCode();
-    }
 }
