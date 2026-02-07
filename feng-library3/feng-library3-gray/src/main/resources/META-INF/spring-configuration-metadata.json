@@ -4,7 +4,7 @@
       "name": "gray.rule.enabled",
       "type": "java.lang.Boolean",
       "defaultValue": false,
-      "sourceType": "work.metanet.feng.common.gray.GrayLoadBalancerAutoConfiguration",
+      "sourceType": "ltd.huntinginfo.feng.common.gray.GrayLoadBalancerAutoConfiguration",
       "description": "是否开启灰度路由功能"
     }
   ],

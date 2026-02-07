@@ -1,2 +1,2 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-    work.metanet.feng.ai.core.util.LangChatProps
+    ltd.huntinginfo.feng.ai.core.util.LangChatProps

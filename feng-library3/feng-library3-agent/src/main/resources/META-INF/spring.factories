@@ -1,2 +1,2 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-  work.metanet.feng.common.agent.AgentAutoConfiguration
+  ltd.huntinginfo.feng.common.agent.AgentAutoConfiguration

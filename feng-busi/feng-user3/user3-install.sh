@@ -4,7 +4,7 @@ echo '>>> 安装user2后台服务'
 # 1.生成系统服务启动脚本，使用单引号的EOF可以抑制变量扩展
 cat <<'EOF' > user2-service.sh
 #!/bin/bash
-export JAVA_HOME=/usr/local/java/jdk-17.0.12
+export JAVA_HOME=/usr/local/java/jdk-21.0.10
 export JRE_HOME=${JAVA_HOME}/jre
 export CLASSPATH=.:${JAVA_HOME}/lib:${JRE_HOME}/lib:$CLASSPATH
 export JAVA_PATH=${JAVA_HOME}/bin:${JRE_HOME}/bin

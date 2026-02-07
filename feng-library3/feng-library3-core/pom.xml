@@ -1,109 +1,74 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<!--
+  ~ All Rights Reserved.
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    
     <parent>
-        <groupId>work.metanet</groupId>
+        <groupId>ltd.huntinginfo</groupId>
         <artifactId>feng-library3</artifactId>
-        <version>1.0.0-SNAPSHOT</version>
+        <version>${revision}</version>
     </parent>
 
     <artifactId>feng-library3-core</artifactId>
     <packaging>jar</packaging>
-    <name>feng-library3-core</name>
-    <description>核心基础包：包含BaseEntity, R, 常量, 工具类等</description>
+
+    <description>feng cloud 公共工具类核心包</description>
+
 
     <dependencies>
-        <!-- 1. Web Starter: 提供 Jakarta Servlet API, Spring Web MVC -->
-        <!-- 注意：Root POM 中已经锁定了版本，这里不需要 version -->
+        <!--hutool-->
+        <dependency>
+            <groupId>cn.hutool</groupId>
+            <artifactId>hutool-core</artifactId>
+        </dependency>
+        <!--redis-->
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
+            <artifactId>spring-boot-starter-data-redis</artifactId>
         </dependency>
-
-        <!-- 2. Validation: Spring Boot 2.3+ 后从 Web 中分离，必须显式引入 -->
-        <!-- 包含 Hibernate Validator (Jakarta Bean Validation) -->
+        <!--server-api-->
+        <dependency>
+            <groupId>jakarta.servlet</groupId>
+            <artifactId>jakarta.servlet-api</artifactId>
+        </dependency>
+        <!--hibernate-validator-->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-validation</artifactId>
         </dependency>
-
-        <!-- 3. JSON 处理: Spring Boot 4 强力推荐 Jackson -->
+        <!--json模块-->
         <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-databind</artifactId>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-json</artifactId>
         </dependency>
-        <!-- 支持 Java 8 时间类型 (LocatDateTime) -->
         <dependency>
-            <groupId>com.fasterxml.jackson.datatype</groupId>
-            <artifactId>jackson-datatype-jsr310</artifactId>
-        </dependency>
-
-        <!-- 4. 工具类 Hutool -->
-        <dependency>
-            <groupId>cn.hutool</groupId>
-            <artifactId>hutool-all</artifactId>
-        </dependency>
-
-        <!-- 5. Lombok -->
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-webmvc</artifactId>
             <scope>provided</scope>
         </dependency>
-
-        <!-- 6. 移除 Fastjson，移除 Swagger2 (springfox) -->
-        <!-- 如果你需要 API 文档注解，请引入 springdoc (适配 Swagger3) -->
-        <!-- 
         <dependency>
-            <groupId>org.springdoc</groupId>
-            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
-            <version>2.3.0</version> 
-        </dependency> 
-        -->
-
-        <!-- 1. MyBatis Plus 注解包 (修复 IEnum, @TableName) -->
-        <!-- 注意：Core模块不需要引入 starter，只需要 annotation 或 extension -->
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-commons</artifactId>
+        </dependency>
+        
         <dependency>
             <groupId>com.baomidou</groupId>
-            <artifactId>mybatis-plus-annotation</artifactId>
+            <artifactId>mybatis-plus-core</artifactId>
         </dependency>
-        <!-- 如果 IEnum 找不到，可能需要 core -->
-        <dependency>
-             <groupId>com.baomidou</groupId>
-             <artifactId>mybatis-plus-core</artifactId>
-        </dependency>
-
-        <!-- 2. Swagger 3 注解 (修复 @Schema) -->
-        <dependency>
-            <groupId>io.swagger.core.v3</groupId>
-            <artifactId>swagger-annotations-jakarta</artifactId>
-        </dependency>
-
-        <!-- 3. Apache HttpClient (修复 RestTemplateConfiguration) -->
-        <dependency>
-            <groupId>org.apache.httpcomponents.client5</groupId>
-            <artifactId>httpclient5</artifactId>
-        </dependency>
-
-        <!-- 4. Jasypt (修复 JasyptUtil) -->
-        <dependency>
-            <groupId>com.github.ulisesbocchio</groupId>
-            <artifactId>jasypt-spring-boot-starter</artifactId>
-        </dependency>
-        <!-- 修复 org.bouncycastle.jce.provider -->
-        <dependency>
-            <groupId>org.bouncycastle</groupId>
-            <artifactId>bcprov-jdk18on</artifactId>
-        </dependency>
-
-        <!-- 5. LangChain4j (修复 PromptUtil) -->
-        <dependency>
-            <groupId>dev.langchain4j</groupId>
-            <artifactId>langchain4j</artifactId>
-        </dependency>
-
-    </dependencies>
+	</dependencies>
 </project>

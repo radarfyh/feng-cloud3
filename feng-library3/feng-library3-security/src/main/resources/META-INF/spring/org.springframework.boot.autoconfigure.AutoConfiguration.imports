@@ -1,0 +1,8 @@
+ltd.huntinginfo.feng.common.security.service.FengUserDetailsServiceImpl
+ltd.huntinginfo.feng.common.security.service.PigAppUserDetailsServiceImpl
+ltd.huntinginfo.feng.common.security.service.PigRedisOAuth2AuthorizationService
+ltd.huntinginfo.feng.common.security.service.PigRedisOAuth2AuthorizationConsentService
+ltd.huntinginfo.feng.common.security.component.PigSecurityInnerAspect
+ltd.huntinginfo.feng.common.security.component.PigSecurityMessageSourceConfiguration
+ltd.huntinginfo.feng.common.security.component.FengBootCorsProperties
+ltd.huntinginfo.feng.common.security.service.PigRemoteRegisteredClientRepository

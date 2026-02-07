@@ -90,7 +90,7 @@
 #      select-strategy: NOT_NULL
 #      insert-strategy: NOT_NULL
 #      update-strategy: NOT_NULL
-#  type-handlers-package:  work.metanet.feng.common.data.handler, work.metanet.feng.admin.api.handler
+#  type-handlers-package:  ltd.huntinginfo.feng.common.data.handler, ltd.huntinginfo.feng.admin.api.handler
 #  configuration:
 #    jdbc-type-for-null: 'null'
 #    call-setters-on-nulls: true

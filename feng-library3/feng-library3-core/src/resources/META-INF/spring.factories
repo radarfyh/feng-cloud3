@@ -1,5 +1,0 @@
-org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-  work.metanet.feng.common.core.config.JacksonConfiguration,\
-  work.metanet.feng.common.core.config.MessageSourceConfiguration,\
-  work.metanet.feng.common.core.config.RestTemplateConfiguration,\
-  work.metanet.feng.common.core.util.SpringContextHolder

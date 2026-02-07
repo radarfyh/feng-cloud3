@@ -74,8 +74,8 @@
 #        langchain4j: INFO
 #        ai4j:
 #          openai4j: INFO
-#    work.metanet.feng.ai: INFO
-#    work.metanet.feng.common: INFO
+#    ltd.huntinginfo.feng.ai: INFO
+#    ltd.huntinginfo.feng.common: INFO
 #    com.baomidou.dynamic.datasource: INFO
 #    com.alibaba.druid: INFO
 #    org.springframework: INFO

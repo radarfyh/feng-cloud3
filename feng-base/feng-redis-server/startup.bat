@@ -1,1 +1,0 @@
-java -jar target\feng-redis-server.jar -Xmx128m -Xms64m

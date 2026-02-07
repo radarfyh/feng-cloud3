@@ -209,7 +209,7 @@ app.c31badf5.js:1 Error: Network Error
 ```
     <dependencies>
         <dependency>
-            <groupId>work.metanet</groupId>
+            <groupId>ltd.huntinginfo</groupId>
             <artifactId>feng-library3-swagger</artifactId>
         </dependency>
     </dependencies>

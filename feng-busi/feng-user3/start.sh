@@ -14,7 +14,7 @@ echo "启动 user2，环境: $MODULE"
 echo -------------------------------------------
 
 # JAVA_HOME
-export JAVA_HOME=/usr/local/java/jdk-17.0.12
+export JAVA_HOME=/usr/local/java/jdk-21.0.10
 # 设置项目代码路径
 export _EXECJAVA="$JAVA_HOME/bin/java"
 

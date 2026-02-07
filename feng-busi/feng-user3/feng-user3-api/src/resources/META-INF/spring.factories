@@ -1,9 +1,0 @@
-work.metanet.feng.common.feign.FengFeignAutoConfiguration=\
-  work.metanet.feng.admin.api.feign.RemoteDataScopeService,\
-  work.metanet.feng.admin.api.feign.RemoteClientDetailsService,\
-  work.metanet.feng.admin.api.feign.RemoteLogService,\
-  work.metanet.feng.admin.api.feign.RemoteParamService,\
-  work.metanet.feng.admin.api.feign.RemoteOrganService,\
-  work.metanet.feng.admin.api.feign.RemoteTokenService,\
-  work.metanet.feng.admin.api.feign.RemoteProjectStaffService,\
-  work.metanet.feng.admin.api.feign.RemoteUserService

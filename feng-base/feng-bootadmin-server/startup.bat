@@ -1,0 +1,1 @@
+java -jar target\feng-bootadmin-server.jar -Xmx128m -Xms64m

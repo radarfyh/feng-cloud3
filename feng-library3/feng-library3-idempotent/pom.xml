@@ -3,9 +3,9 @@
 		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
-		<groupId>work.metanet</groupId>
+		<groupId>ltd.huntinginfo</groupId>		
 		<artifactId>feng-library3</artifactId>
-		<version>1.0.0-SNAPSHOT</version>
+		<version>${revision}</version>
 	</parent>
 
 	<artifactId>feng-library3-idempotent</artifactId>
@@ -15,14 +15,8 @@
 
 	<dependencies>
         <dependency>
-            <groupId>work.metanet</groupId>
+            <groupId>ltd.huntinginfo</groupId>
             <artifactId>feng-library3-core</artifactId>
-        </dependency>
-        <!--Lombok-->
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-            <scope>provided</scope>
         </dependency>
 		<!--aop-->
 		<dependency>

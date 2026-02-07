@@ -3,29 +3,31 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>work.metanet</groupId>
+	<groupId>ltd.huntinginfo</groupId>
 	<artifactId>feng-cloud3</artifactId>
-	<version>1.0.0-SNAPSHOT</version>
+	<version>${revision}</version>
 	<name>feng-cloud3</name>
 	<description>feng-cloud3 for AI SaaS</description>
 	<packaging>pom</packaging>
     <modules>
-        <!-- 暂时先只激活 library，确保基础库编译通过 -->
+        <module>feng-bom</module>
         <module>feng-library3</module>
-        <!-- <module>feng-bom</module> -->
-        <!-- <module>feng-gateway2</module> -->
-        <!-- <module>feng-auth</module> -->
+
+        <module>feng-base</module>
+
         <module>feng-busi</module>
-        <!-- <module>feng-message-center</module> -->
+        <module>feng-single</module>
     </modules>
 
     <properties>
+    	<!-- 项目版本号 -->
+		<revision>1.0.0-SNAPSHOT</revision>
         <!-- 核心：基准环境 -->
         <java.version>21</java.version>
         <maven.compiler.source>21</maven.compiler.source>
         <maven.compiler.target>21</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven-compiler-plugin.version>3.13.0</maven-compiler-plugin.version>
+        <maven-compiler-plugin.version>3.14.0</maven-compiler-plugin.version>
 
         <!-- 核心：版本矩阵 (Golden Matrix 2026) -->
         <spring-boot.version>4.0.2</spring-boot.version>
@@ -42,11 +44,40 @@
         <jackson-annotations.version>2.21</jackson-annotations.version>
         <jackson-core.version>2.21.0</jackson-core.version>
         <feign-jackson.version>13.6</feign-jackson.version>
+
+        <!-- AWS SDK -->
+        <aws-sdk.version>2.25.0</aws-sdk.version>
+
+        <jasypt.version>3.0.5</jasypt.version>
+		<git.commit.plugin>9.0.1</git.commit.plugin>
+		<docker.namespace>huntinginfo</docker.namespace>
+
+        <docker.host>http://192.168.137.115:2375</docker.host>
+		<commons-lang3.version>3.20.0</commons-lang3.version>
+		<docker.plugin.version>0.45.1</docker.plugin.version>
+		<spring.checkstyle.plugin>0.0.47</spring.checkstyle.plugin>
+		<spring-boot-admin.version>3.5.6</spring-boot-admin.version>
+		<flatten-maven-plugin.version>1.6.0</flatten-maven-plugin.version>
+		<docker.username>username</docker.username>
+		<docker.password>password</docker.password>
+		<docker.registry>registry.cn-shanghai.aliyuncs.com</docker.registry>
+		
+		<ttl.version>2.11.4</ttl.version>
+		
+		<klock.version>1.5-RELEASE</klock.version>
     </properties>
 
     <!-- 依赖版本锁定 -->
     <dependencyManagement>
         <dependencies>
+        	<!--公共版本定义-->
+			<dependency>
+				<groupId>ltd.huntinginfo</groupId>
+				<artifactId>feng-bom</artifactId>
+				<version>${project.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
             <!-- 1. Spring Boot 4.0 BOM -->
             <dependency>
                 <groupId>org.springframework.boot</groupId>
@@ -67,6 +98,33 @@
                 <version>4.1.0</version>
                 <scope>compile</scope>
             </dependency>
+            <!--redis分布式锁-->
+            <dependency>
+                <groupId>cn.keking</groupId>
+                <artifactId>spring-boot-klock-starter</artifactId>
+                <version>${klock.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.baomidou</groupId>
+                <artifactId>dynamic-datasource-spring-boot4-starter</artifactId>
+                <version>4.5.0</version>
+                <scope>compile</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>de.codecentric</groupId>
+                <artifactId>spring-boot-admin-starter-server</artifactId>
+                <version>4.0.0-M1</version>
+                <scope>compile</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>de.codecentric</groupId>
+                <artifactId>spring-boot-admin-server-ui</artifactId>
+                <version>4.0.0-M1</version>
+                <scope>compile</scope>
+            </dependency>
 
             <!-- 2. Spring Cloud 2025 BOM -->
             <dependency>
@@ -77,6 +135,13 @@
                 <scope>import</scope>
             </dependency>
 
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-gateway-server</artifactId>
+                <version>4.3.3</version>
+                <scope>compile</scope>
+            </dependency>
+
             <!-- 3. Spring Cloud Alibaba 2025 BOM -->
             <dependency>
                 <groupId>com.alibaba.cloud</groupId>
@@ -85,6 +150,13 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
+            
+            <!--TTL-->
+            <dependency>
+                <groupId>com.alibaba</groupId>
+                <artifactId>transmittable-thread-local</artifactId>
+                <version>${ttl.version}</version>
+            </dependency>  
 
             <!-- 4. MyBatis Plus -->
             <dependency>
@@ -101,12 +173,22 @@
             </dependency>
             <dependency>
                 <groupId>cn.hutool</groupId>
+                <artifactId>hutool-core</artifactId>
+                <version>${hutool.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>cn.hutool</groupId>
                 <artifactId>hutool-http</artifactId>
                 <version>${hutool.version}</version>
             </dependency>
             <dependency>
                 <groupId>cn.hutool</groupId>
                 <artifactId>hutool-extra</artifactId>
+                <version>${hutool.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>cn.hutool</groupId>
+                <artifactId>hutool-cache</artifactId>
                 <version>${hutool.version}</version>
             </dependency>
             <dependency>
@@ -119,6 +201,27 @@
                 <groupId>commons-io</groupId>
                 <artifactId>commons-io</artifactId>
                 <version>2.16.1</version>
+            </dependency>
+            
+            <dependency>
+                <groupId>commons-fileupload</groupId>
+                <artifactId>commons-fileupload</artifactId>
+                <version>1.6.0</version>
+                <scope>compile</scope>
+            </dependency>
+
+            <!-- commons-lang3 -->
+			<dependency>
+				<groupId>org.apache.commons</groupId>
+				<artifactId>commons-lang3</artifactId>
+				<version>${commons-lang3.version}</version>
+			</dependency>
+
+            <dependency>
+                <groupId>net.coobird</groupId>
+                <artifactId>thumbnailator</artifactId>
+                <version>0.4.21</version>
+                <scope>compile</scope>
             </dependency>
             
             <!-- 6. MyBatis Plus 注解包 (修复 IEnum, @TableName) -->
@@ -150,6 +253,13 @@
                 <artifactId>mybatis-plus-spring</artifactId>
                 <version>${mybatis-plus.version}</version>
             </dependency>
+            <!-- elasticsearch的JDBC驱动 -->
+            <dependency>
+                <groupId>org.elasticsearch.plugin</groupId>
+                <artifactId>x-pack-sql-jdbc</artifactId>
+                <version>9.3.0</version>
+                <scope>compile</scope>
+            </dependency>
 
             <!-- 7. Apache HttpClient 5 -->
             <dependency>
@@ -163,6 +273,13 @@
                 <groupId>io.swagger.core.v3</groupId>
                 <artifactId>swagger-annotations-jakarta</artifactId>
                 <version>2.2.20</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.github.xiaoymin</groupId>
+                <artifactId>knife4j-openapi3-jakarta-spring-boot-starter</artifactId>
+                <version>4.5.0</version>
+                <scope>compile</scope>
             </dependency>
 
             <!-- 9. Jasypt 加密 (修复 JasyptUtil) -->
@@ -218,110 +335,156 @@
                 <version>${feign-jackson.version}</version>
             </dependency>            
  
+            <dependency>
+                <groupId>com.alibaba</groupId>
+                <artifactId>fastjson</artifactId>
+                <version>1.2.83</version>
+            </dependency>
 
+            <!-- 13. OSS 依赖-->
+            <dependency>
+                <groupId>software.amazon.awssdk</groupId>
+                <artifactId>s3</artifactId>
+                <version>${aws-sdk.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>software.amazon.awssdk</groupId>
+                <artifactId>aws-sdk-java</artifactId>
+                <version>${aws-sdk.version}</version>
+            </dependency>
+            
+            <!-- 14. langchain依赖 -->            
+            <dependency>
+                <groupId>dev.langchain4j</groupId>
+                <artifactId>langchain4j-bom</artifactId>
+                <version>1.11.0</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            
+            <dependency>
+                <groupId>dev.langchain4j</groupId>
+                <artifactId>langchain4j-community-zhipu-ai</artifactId>
+                <version>1.11.0-beta19</version>
+                <scope>compile</scope>
+            </dependency>
+            
+            <dependency>
+                <groupId>dev.langchain4j</groupId>
+                <artifactId>langchain4j-community-qianfan</artifactId>
+                <version>1.11.0-beta19</version>
+                <scope>compile</scope>
+            </dependency>
+            
+            <dependency>
+                <groupId>dev.langchain4j</groupId>
+                <artifactId>langchain4j-community-dashscope</artifactId>
+                <version>1.11.0-beta19</version>
+                <scope>compile</scope>
+            </dependency>
 
-            <!--bom 内部模块版本定义-->
+            <!-- 15. bom 内部模块版本定义-->
             <!-- core模块 -->
             <dependency>
-                <groupId>work.metanet</groupId>
+                <groupId>ltd.huntinginfo</groupId>
                 <artifactId>feng-library3-core</artifactId>
                 <version>${project.version}</version>
             </dependency>
 
             <!-- mybatis 模块-->
             <dependency>
-                <groupId>work.metanet</groupId>
+                <groupId>ltd.huntinginfo</groupId>
                 <artifactId>feng-library3-mybatis</artifactId>
                 <version>${project.version}</version>
             </dependency>
 
             <!-- feign 模块-->
             <dependency>
-                <groupId>work.metanet</groupId>
+                <groupId>ltd.huntinginfo</groupId>
                 <artifactId>feng-library3-feign</artifactId>
                 <version>${project.version}</version>
             </dependency>
 
             <!-- agent 模块-->
             <dependency>
-                <groupId>work.metanet</groupId>
+                <groupId>ltd.huntinginfo</groupId>
                 <artifactId>feng-library3-agent</artifactId>
                 <version>${project.version}</version>
             </dependency>
 
             <!-- datasource 模块-->
             <dependency>
-                <groupId>work.metanet</groupId>
+                <groupId>ltd.huntinginfo</groupId>
                 <artifactId>feng-library3-datasource</artifactId>
                 <version>${project.version}</version>
             </dependency>
 
             <!-- gateway 模块-->
             <dependency>
-                <groupId>work.metanet</groupId>
+                <groupId>ltd.huntinginfo</groupId>
                 <artifactId>feng-library3-gateway</artifactId>
                 <version>${project.version}</version>
             </dependency>
 
             <!-- gray 模块-->
             <dependency>
-                <groupId>work.metanet</groupId>
+                <groupId>ltd.huntinginfo</groupId>
                 <artifactId>feng-library3-gray</artifactId>
                 <version>${project.version}</version>
             </dependency>
 
             <!-- idempotent 模块-->
             <dependency>
-                <groupId>work.metanet</groupId>
+                <groupId>ltd.huntinginfo</groupId>
                 <artifactId>feng-library3-idempotent</artifactId>
                 <version>${project.version}</version>
             </dependency>
 
             <!-- log 模块-->
             <dependency>
-                <groupId>work.metanet</groupId>
+                <groupId>ltd.huntinginfo</groupId>
                 <artifactId>feng-library3-log</artifactId>
                 <version>${project.version}</version>
             </dependency>
 
             <!-- security 模块-->
             <dependency>
-                <groupId>work.metanet</groupId>
+                <groupId>ltd.huntinginfo</groupId>
                 <artifactId>feng-library3-security</artifactId>
                 <version>${project.version}</version>
             </dependency>
 
             <!-- swagger 模块-->
             <dependency>
-                <groupId>work.metanet</groupId>
+                <groupId>ltd.huntinginfo</groupId>
                 <artifactId>feng-library3-swagger</artifactId>
                 <version>${project.version}</version>
             </dependency>
 
             <!-- oss 模块-->
             <dependency>
-                <groupId>work.metanet</groupId>
+                <groupId>ltd.huntinginfo</groupId>
                 <artifactId>feng-library3-oss</artifactId>
                 <version>${project.version}</version>
             </dependency>
 
             <!-- sentinel 模块-->
             <dependency>
-                <groupId>work.metanet</groupId>
+                <groupId>ltd.huntinginfo</groupId>
                 <artifactId>feng-library3-sentinel</artifactId>
                 <version>${project.version}</version>
             </dependency>
 
             <!-- websocket 模块-->
             <dependency>
-                <groupId>work.metanet</groupId>
+                <groupId>ltd.huntinginfo</groupId>
                 <artifactId>feng-library3-websocket</artifactId>
                 <version>${project.version}</version>
             </dependency>
 
             <!-- user2-api 模块-->
             <dependency>
-                <groupId>work.metanet</groupId>
+                <groupId>ltd.huntinginfo</groupId>
                 <artifactId>feng-user3-api</artifactId>
                 <version>${project.version}</version>
             </dependency>
@@ -332,20 +495,56 @@
             
             <!-- RabbitMQ 实现 -->
             <dependency>
-                <groupId>work.metanet</groupId>
+                <groupId>ltd.huntinginfo</groupId>
                 <artifactId>feng-library3-rabbitmq</artifactId>
                 <version>${project.version}</version>
             </dependency>
 
             <!-- Kafka 实现 -->
             <dependency>
-                <groupId>work.metanet</groupId>
+                <groupId>ltd.huntinginfo</groupId>
                 <artifactId>feng-library3-kafka</artifactId>
                 <version>${project.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
-
+	<!-- 以下依赖 全局所有的模块都会引入  -->
+	<dependencies>
+		<!--配置文件处理器-->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-configuration-processor</artifactId>
+			<optional>true</optional>
+		</dependency>
+		<!--配置文件加解密-->
+		<dependency>
+			<groupId>com.github.ulisesbocchio</groupId>
+			<artifactId>jasypt-spring-boot-starter</artifactId>
+			<version>${jasypt.version}</version>
+		</dependency>
+		<!--监控-->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-actuator</artifactId>
+		</dependency>
+		<!--监控客户端-->
+		<dependency>
+			<groupId>de.codecentric</groupId>
+			<artifactId>spring-boot-admin-starter-client</artifactId>
+			<version>${spring-boot-admin.version}</version>
+		</dependency>
+		<!--Lombok-->
+		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+			<scope>provided</scope>
+		</dependency>
+		<!-- JAVA-->
+		<dependency>
+			<groupId>com.sun.xml.bind</groupId>
+			<artifactId>jaxb-impl</artifactId>
+		</dependency>
+	</dependencies>
     <build>
         <plugins>
             <plugin>

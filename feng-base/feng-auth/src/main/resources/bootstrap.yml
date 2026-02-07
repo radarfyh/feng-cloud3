@@ -1,8 +1,0 @@
-server:
-  port: 2001
-
-spring:
-  application:
-    name: @artifactId@
-  profiles:
-    active: dev

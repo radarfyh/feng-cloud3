@@ -5,9 +5,9 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>work.metanet</groupId>
+        <groupId>ltd.huntinginfo</groupId>
         <artifactId>feng-cloud3</artifactId>
-        <version>1.0.0-SNAPSHOT</version>
+        <version>${revision}</version>
     </parent>
 
     <artifactId>feng-base</artifactId>
@@ -16,11 +16,14 @@
     <description>基础聚合模块</description>
     
     <modules>
-        <module>feng-redis-server</module>
+        <module>feng-bootadmin-server</module>
         <module>feng-config</module>
-        <module>feng-gateway2</module>
+        <module>feng-gateway3</module>
         <module>feng-auth</module>
-
+        <module>feng-register</module>
+        <module>feng-monitor</module>
+        <module>feng-quartz</module>
+        <module>feng-codegen</module>
     </modules>
     <build>
         <plugins>
