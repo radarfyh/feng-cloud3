@@ -545,7 +545,7 @@
 			<artifactId>jaxb-impl</artifactId>
 		</dependency>
 	</dependencies>
-    <build>
+    <!-- <build>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -562,5 +562,197 @@
                 </configuration>
             </plugin>
         </plugins>
+    </build> -->
+    <build>
+        <finalName>${project.name}</finalName>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-maven-plugin</artifactId>
+                    <version>${spring-boot.version}</version>
+                    <configuration>
+                        <finalName>${project.build.finalName}</finalName>
+                        <layers>
+                            <enabled>true</enabled>
+                        </layers>
+                    </configuration>
+                    <executions>
+                        <execution>
+                            <goals>
+                                <goal>repackage</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+                <plugin>
+                    <groupId>io.fabric8</groupId>
+                    <artifactId>docker-maven-plugin</artifactId>
+                    <version>${docker.plugin.version}</version>
+                    <configuration>
+                        <!-- Docker Remote Api-->
+                        <dockerHost>${docker.host}</dockerHost>
+                        <!-- Docker 镜像私服-->
+                        <registry>${docker.registry}</registry>
+                        <!-- 认证信息-->
+                        <authConfig>
+                            <push>
+                                <username>${docker.username}</username>
+                                <password>${docker.password}</password>
+                            </push>
+                        </authConfig>
+                        <images>
+                            <image>
+                                <!-- 镜像名称： 172.17.0.111/library/pig-gateway:2.6.3-->
+                                <name>${docker.registry}/${docker.namespace}/${project.name}:${project.version}</name>
+                                <build>
+                                    <dockerFile>${project.basedir}/Dockerfile</dockerFile>
+                                </build>
+                            </image>
+                        </images>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+        <plugins>
+            <!-- 统一 revision 版本 -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>flatten-maven-plugin</artifactId>
+                <version>${flatten-maven-plugin.version}</version>
+                <configuration>
+                    <flattenMode>resolveCiFriendliesOnly</flattenMode>
+                    <updatePomFile>true</updatePomFile>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>flatten</id>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>flatten</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>flatten.clean</id>
+                        <phase>clean</phase>
+                        <goals>
+                            <goal>clean</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>${maven-compiler-plugin.version}</version>
+                <configuration>
+                    <release>${java.version}</release>
+                    <encoding>UTF-8</encoding>
+                    <parameters>true</parameters>
+                </configuration>
+            </plugin>
+            <!--打包jar 与git commit 关联插件-->
+            <plugin>
+                <groupId>io.github.git-commit-id</groupId>
+                <artifactId>git-commit-id-maven-plugin</artifactId>
+                <version>${git.commit.plugin}</version>
+                <executions>
+                    <execution>
+                        <id>get-the-git-infos</id>
+                        <phase>initialize</phase>
+                    </execution>
+                </executions>
+                <configuration>
+                    <failOnNoGitDirectory>false</failOnNoGitDirectory>
+                    <generateGitPropertiesFile>true</generateGitPropertiesFile>
+                    <!--因为项目定制了jackson的日期时间序列化/反序列化格式，因此这里要进行配置,不然通过management.info.git.mode=full进行完整git信息监控时会存在问题-->
+                    <dateFormat>yyyy-MM-dd HH:mm:ss</dateFormat>
+                    <includeOnlyProperties>
+                        <includeOnlyProperty>^git.build.(time|version)$</includeOnlyProperty>
+                        <includeOnlyProperty>^git.commit.(id|message|time).*$</includeOnlyProperty>
+                    </includeOnlyProperties>
+                </configuration>
+            </plugin>
+            <!--
+                代码格式插件，默认使用spring 规则，可运行命令进行项目格式化：./mvnw spring-javaformat:apply 或 mvn spring-javaformat:apply，可在IDEA中安装插件以下插件进行自动格式化：
+                https://repo1.maven.org/maven2/io/spring/javaformat/spring-javaformat-intellij-idea-plugin
+            -->
+            <plugin>
+                <groupId>io.spring.javaformat</groupId>
+                <artifactId>spring-javaformat-maven-plugin</artifactId>
+                <version>${spring.checkstyle.plugin}</version>
+                <executions>
+                    <execution>
+                        <phase>validate</phase>
+                        <inherited>true</inherited>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
     </build>
+
+    <profiles>
+        <profile>
+            <id>cloud</id>
+            <properties>
+                <!-- 环境标识，需要与配置文件的名称相对应 -->
+                <profiles.active>dev</profiles.active>
+                <nacos.username>nacos</nacos.username>
+                <nacos.password>nacos</nacos.password>
+            </properties>
+            <activation>
+                <!-- 默认环境 -->
+                <activeByDefault>true</activeByDefault>
+            </activation>
+        </profile>
+        <profile>
+            <id>boot</id>
+            <modules>
+                <module>pig-boot</module>
+            </modules>
+        </profile>
+        <!-- 自动激活，针对 lombok 注解增强-->
+        <profile>
+            <id>jdk25-annotation-processor</id>
+            <activation>
+                <jdk>[25,)</jdk>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-compiler-plugin</artifactId>
+                        <configuration>
+                            <!-- 支持 JDK 25+ 编译 -->
+                            <annotationProcessorPaths>
+                                <path>
+                                    <groupId>org.projectlombok</groupId>
+                                    <artifactId>lombok</artifactId>
+                                </path>
+                            </annotationProcessorPaths>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+
+    <repositories>
+        <repository>
+            <id>github</id>
+            <url>https://maven.pkg.github.com/alibaba/spring-cloud-alibaba</url>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
 </project>

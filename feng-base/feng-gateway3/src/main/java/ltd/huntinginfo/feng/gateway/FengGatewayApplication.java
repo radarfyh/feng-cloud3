@@ -28,10 +28,10 @@ import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
  */
 @EnableDiscoveryClient
 @SpringBootApplication
-public class PigGatewayApplication {
+public class FengGatewayApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(PigGatewayApplication.class, args);
+		SpringApplication.run(FengGatewayApplication.class, args);
 	}
 
 }
