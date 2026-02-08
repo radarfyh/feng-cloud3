@@ -33,6 +33,7 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-data-redis-reactive</artifactId>
 		</dependency>
+
 		<!--注册中心客户端 -->
 		<dependency>
 			<groupId>com.alibaba.cloud</groupId>

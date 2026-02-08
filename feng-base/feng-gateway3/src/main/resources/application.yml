@@ -6,15 +6,18 @@ spring:
     name: @artifactId@
   cloud:
     nacos:
-      username: @nacos.username@
-      password: @nacos.password@
+      username: nacos
+      password: Feng2025Cloud      
       discovery:
         server-addr: ${NACOS_HOST:127.0.0.1}:${NACOS_PORT:8848}
+        namespace: feng-${spring.profiles.active}
         watch:
           enabled: true
         watch-delay: 1000
       config:
         server-addr: ${spring.cloud.nacos.discovery.server-addr}
+        namespace: ${spring.cloud.nacos.discovery.namespace}
+        file-extension: yml
   config:
     import:
       - nacos:application-@profiles.active@.yml

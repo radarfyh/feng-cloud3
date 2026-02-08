@@ -1,0 +1,1 @@
+java -jar target\feng-register.jar -Xmx128m -Xms64m
