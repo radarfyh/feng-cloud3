@@ -38,6 +38,7 @@
 		<dependency>
 			<groupId>commons-fileupload</groupId>
 			<artifactId>commons-fileupload</artifactId>
+			<version>1.6.0</version>
 		</dependency>
 		<!-- okhttp 扩展 -->
 		<dependency>

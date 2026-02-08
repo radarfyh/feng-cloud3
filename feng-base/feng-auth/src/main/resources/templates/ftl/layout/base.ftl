@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><#if title??>${title}<#else>Pig 统一身份认证</#if></title>
+    <title><#if title??>${title}<#else>Feng 统一身份认证</#if></title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {

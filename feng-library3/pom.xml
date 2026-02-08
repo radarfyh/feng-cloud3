@@ -33,7 +33,7 @@
         <module>feng-library3-log</module>
         <!-- <module>feng-library3-rabbitmq</module> -->
         <!-- <module>feng-library3-kafka</module> -->
-        <module>feng-library3-agent</module>
+        <!-- <module>feng-library3-agent</module> -->
 
     </modules>
 

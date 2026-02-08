@@ -62,8 +62,6 @@
 		<docker.password>password</docker.password>
 		<docker.registry>registry.cn-shanghai.aliyuncs.com</docker.registry>
 		
-		<ttl.version>2.11.4</ttl.version>
-		
 		<klock.version>1.5-RELEASE</klock.version>
     </properties>
 
@@ -86,20 +84,9 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
-            <!--切面依赖-->
-            <dependency>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-starter-aop</artifactId>
-                <version>4.0.0-M2</version>
-            </dependency>
-            <dependency>
-                <groupId>org.redisson</groupId>
-                <artifactId>redisson-spring-boot-starter</artifactId>
-                <version>4.1.0</version>
-                <scope>compile</scope>
-            </dependency>
+            
             <!--redis分布式锁-->
-            <dependency>
+            <!--<dependency>
                 <groupId>cn.keking</groupId>
                 <artifactId>spring-boot-klock-starter</artifactId>
                 <version>${klock.version}</version>
@@ -112,19 +99,7 @@
                 <scope>compile</scope>
             </dependency>
 
-            <dependency>
-                <groupId>de.codecentric</groupId>
-                <artifactId>spring-boot-admin-starter-server</artifactId>
-                <version>4.0.0-M1</version>
-                <scope>compile</scope>
-            </dependency>
-
-            <dependency>
-                <groupId>de.codecentric</groupId>
-                <artifactId>spring-boot-admin-server-ui</artifactId>
-                <version>4.0.0-M1</version>
-                <scope>compile</scope>
-            </dependency>
+            -->
 
             <!-- 2. Spring Cloud 2025 BOM -->
             <dependency>
@@ -135,12 +110,12 @@
                 <scope>import</scope>
             </dependency>
 
-            <dependency>
+            <!--<dependency>
                 <groupId>org.springframework.cloud</groupId>
                 <artifactId>spring-cloud-gateway-server</artifactId>
                 <version>4.3.3</version>
                 <scope>compile</scope>
-            </dependency>
+            </dependency>-->
 
             <!-- 3. Spring Cloud Alibaba 2025 BOM -->
             <dependency>
@@ -151,22 +126,15 @@
                 <scope>import</scope>
             </dependency>
             
-            <!--TTL-->
-            <dependency>
-                <groupId>com.alibaba</groupId>
-                <artifactId>transmittable-thread-local</artifactId>
-                <version>${ttl.version}</version>
-            </dependency>  
-
             <!-- 4. MyBatis Plus -->
-            <dependency>
+            <!--<dependency>
                 <groupId>com.baomidou</groupId>
                 <artifactId>mybatis-plus-spring-boot4-starter</artifactId>
                 <version>${mybatis-plus.version}</version>
-            </dependency>
+            </dependency>-->
 
             <!-- 5. 工具类 -->
-            <dependency>
+            <!--<dependency>
                 <groupId>cn.hutool</groupId>
                 <artifactId>hutool-all</artifactId>
                 <version>${hutool.version}</version>
@@ -195,20 +163,15 @@
                 <groupId>org.projectlombok</groupId>
                 <artifactId>lombok</artifactId>
                 <version>${lombok.version}</version>
-            </dependency>
+            </dependency>-->
             <!--IO 工具-->
-            <dependency>
+            <!--<dependency>
                 <groupId>commons-io</groupId>
                 <artifactId>commons-io</artifactId>
                 <version>2.16.1</version>
-            </dependency>
+            </dependency>-->
             
-            <dependency>
-                <groupId>commons-fileupload</groupId>
-                <artifactId>commons-fileupload</artifactId>
-                <version>1.6.0</version>
-                <scope>compile</scope>
-            </dependency>
+
 
             <!-- commons-lang3 -->
 			<dependency>
@@ -217,22 +180,22 @@
 				<version>${commons-lang3.version}</version>
 			</dependency>
 
-            <dependency>
+            <!--<dependency>
                 <groupId>net.coobird</groupId>
                 <artifactId>thumbnailator</artifactId>
                 <version>0.4.21</version>
                 <scope>compile</scope>
-            </dependency>
+            </dependency>-->
             
             <!-- 6. MyBatis Plus 注解包 (修复 IEnum, @TableName) -->
             <!-- 注意：Core模块不需要引入 starter，只需要 annotation 或 extension -->
-            <dependency>
+            <!--<dependency>
                 <groupId>com.baomidou</groupId>
                 <artifactId>mybatis-plus-annotation</artifactId>
-                <version>${mybatis-plus.version}</version> <!-- 必须显式指定，因为父工程管理的是 starter -->
-            </dependency>
+                <version>${mybatis-plus.version}</version> 
+            </dependency>-->
             <!-- 如果 IEnum 找不到，可能需要 core -->
-            <dependency>
+            <!--<dependency>
                 <groupId>com.baomidou</groupId>
                 <artifactId>mybatis-plus-core</artifactId>
                 <version>${mybatis-plus.version}</version>
@@ -241,9 +204,9 @@
                 <groupId>com.baomidou</groupId>
                 <artifactId>mybatis-plus-extension</artifactId>
                 <version>${mybatis-plus.version}</version>
-            </dependency>
+            </dependency>-->
             <!-- 修复 PaginationInnerInterceptor 找不到的问题 -->
-            <dependency>
+            <!--<dependency>
                 <groupId>com.baomidou</groupId>
                 <artifactId>mybatis-plus-jsqlparser</artifactId>
                 <version>${mybatis-plus.version}</version>
@@ -252,24 +215,24 @@
                 <groupId>com.baomidou</groupId>
                 <artifactId>mybatis-plus-spring</artifactId>
                 <version>${mybatis-plus.version}</version>
-            </dependency>
+            </dependency>-->
             <!-- elasticsearch的JDBC驱动 -->
-            <dependency>
+            <!--<dependency>
                 <groupId>org.elasticsearch.plugin</groupId>
                 <artifactId>x-pack-sql-jdbc</artifactId>
                 <version>9.3.0</version>
                 <scope>compile</scope>
-            </dependency>
+            </dependency>-->
 
             <!-- 7. Apache HttpClient 5 -->
-            <dependency>
+            <!--<dependency>
                 <groupId>org.apache.httpcomponents.client5</groupId>
                 <artifactId>httpclient5</artifactId>
-                <version>5.3.1</version>
-            </dependency>
+                <version>5.3.6</version>
+            </dependency>-->
 
             <!-- 8. Swagger 3 Annotations (修复 @Schema) -->
-            <dependency>
+            <!--<dependency>
                 <groupId>io.swagger.core.v3</groupId>
                 <artifactId>swagger-annotations-jakarta</artifactId>
                 <version>2.2.20</version>
@@ -280,31 +243,60 @@
                 <artifactId>knife4j-openapi3-jakarta-spring-boot-starter</artifactId>
                 <version>4.5.0</version>
                 <scope>compile</scope>
-            </dependency>
+            </dependency>-->
 
             <!-- 9. Jasypt 加密 (修复 JasyptUtil) -->
-            <dependency>
+            <!--<dependency>
                 <groupId>com.github.ulisesbocchio</groupId>
                 <artifactId>jasypt-spring-boot-starter</artifactId>
                 <version>3.0.5</version>
-            </dependency>
+            </dependency>-->
 
-            <!-- 10. LangChain4j (修复 PromptUtil) -->
-            <dependency>
+            <!-- 10. LangChain4j  -->
+            <!--<dependency>
                 <groupId>dev.langchain4j</groupId>
                 <artifactId>langchain4j</artifactId>
-                <version>0.29.1</version> <!-- 建议使用较新版本 -->
+                <version>0.29.1</version> 
+            </dependency>-->
+ 
+            <!--<dependency>
+                <groupId>dev.langchain4j</groupId>
+                <artifactId>langchain4j-bom</artifactId>
+                <version>1.11.0</version>
+                <type>pom</type>
+                <scope>import</scope>
             </dependency>
             
-            <!-- 11. Bouncy Castle (Jasypt 可能需要的加密提供者) -->
             <dependency>
+                <groupId>dev.langchain4j</groupId>
+                <artifactId>langchain4j-community-zhipu-ai</artifactId>
+                <version>1.11.0-beta19</version>
+                <scope>compile</scope>
+            </dependency>
+            
+            <dependency>
+                <groupId>dev.langchain4j</groupId>
+                <artifactId>langchain4j-community-qianfan</artifactId>
+                <version>1.11.0-beta19</version>
+                <scope>compile</scope>
+            </dependency>
+            
+            <dependency>
+                <groupId>dev.langchain4j</groupId>
+                <artifactId>langchain4j-community-dashscope</artifactId>
+                <version>1.11.0-beta19</version>
+                <scope>compile</scope>
+            </dependency>-->
+           
+            <!-- 11. Bouncy Castle (Jasypt 可能需要的加密提供者) -->
+            <!--<dependency>
                 <groupId>org.bouncycastle</groupId>
                 <artifactId>bcprov-jdk18on</artifactId>
                 <version>1.77</version>
-            </dependency>
+            </dependency>-->
 
             <!-- 12. Jackson 工具-->
-            <dependency>
+            <!--<dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
                 <artifactId>jackson-annotations</artifactId>
                 <version>${jackson-annotations.version}</version>
@@ -339,10 +331,10 @@
                 <groupId>com.alibaba</groupId>
                 <artifactId>fastjson</artifactId>
                 <version>1.2.83</version>
-            </dependency>
+            </dependency>-->
 
             <!-- 13. OSS 依赖-->
-            <dependency>
+            <!--<dependency>
                 <groupId>software.amazon.awssdk</groupId>
                 <artifactId>s3</artifactId>
                 <version>${aws-sdk.version}</version>
@@ -351,160 +343,144 @@
                 <groupId>software.amazon.awssdk</groupId>
                 <artifactId>aws-sdk-java</artifactId>
                 <version>${aws-sdk.version}</version>
-            </dependency>
+            </dependency>-->
             
-            <!-- 14. langchain依赖 -->            
-            <dependency>
-                <groupId>dev.langchain4j</groupId>
-                <artifactId>langchain4j-bom</artifactId>
-                <version>1.11.0</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-            
-            <dependency>
-                <groupId>dev.langchain4j</groupId>
-                <artifactId>langchain4j-community-zhipu-ai</artifactId>
-                <version>1.11.0-beta19</version>
-                <scope>compile</scope>
-            </dependency>
-            
-            <dependency>
-                <groupId>dev.langchain4j</groupId>
-                <artifactId>langchain4j-community-qianfan</artifactId>
-                <version>1.11.0-beta19</version>
-                <scope>compile</scope>
-            </dependency>
-            
-            <dependency>
-                <groupId>dev.langchain4j</groupId>
-                <artifactId>langchain4j-community-dashscope</artifactId>
-                <version>1.11.0-beta19</version>
-                <scope>compile</scope>
-            </dependency>
 
-            <!-- 15. bom 内部模块版本定义-->
+            <!-- 14. bom 内部模块版本定义-->
             <!-- core模块 -->
-            <dependency>
+            <!--<dependency>
                 <groupId>ltd.huntinginfo</groupId>
                 <artifactId>feng-library3-core</artifactId>
                 <version>${project.version}</version>
-            </dependency>
+            </dependency>-->
 
             <!-- mybatis 模块-->
-            <dependency>
+            <!--<dependency>
                 <groupId>ltd.huntinginfo</groupId>
                 <artifactId>feng-library3-mybatis</artifactId>
                 <version>${project.version}</version>
-            </dependency>
+            </dependency>-->
 
             <!-- feign 模块-->
-            <dependency>
+            <!--<dependency>
                 <groupId>ltd.huntinginfo</groupId>
                 <artifactId>feng-library3-feign</artifactId>
                 <version>${project.version}</version>
-            </dependency>
+            </dependency>-->
 
             <!-- agent 模块-->
-            <dependency>
+            <!--<dependency>
                 <groupId>ltd.huntinginfo</groupId>
                 <artifactId>feng-library3-agent</artifactId>
                 <version>${project.version}</version>
-            </dependency>
+            </dependency>-->
 
             <!-- datasource 模块-->
-            <dependency>
+            <!--<dependency>
                 <groupId>ltd.huntinginfo</groupId>
                 <artifactId>feng-library3-datasource</artifactId>
                 <version>${project.version}</version>
-            </dependency>
+            </dependency>-->
 
             <!-- gateway 模块-->
-            <dependency>
+            <!--<dependency>
                 <groupId>ltd.huntinginfo</groupId>
                 <artifactId>feng-library3-gateway</artifactId>
                 <version>${project.version}</version>
-            </dependency>
+            </dependency>-->
 
             <!-- gray 模块-->
-            <dependency>
+            <!--<dependency>
                 <groupId>ltd.huntinginfo</groupId>
                 <artifactId>feng-library3-gray</artifactId>
                 <version>${project.version}</version>
-            </dependency>
+            </dependency>-->
 
             <!-- idempotent 模块-->
-            <dependency>
+            <!--<dependency>
                 <groupId>ltd.huntinginfo</groupId>
                 <artifactId>feng-library3-idempotent</artifactId>
                 <version>${project.version}</version>
-            </dependency>
+            </dependency>-->
 
             <!-- log 模块-->
-            <dependency>
+            <!--<dependency>
                 <groupId>ltd.huntinginfo</groupId>
                 <artifactId>feng-library3-log</artifactId>
                 <version>${project.version}</version>
-            </dependency>
+            </dependency>-->
 
             <!-- security 模块-->
-            <dependency>
+            <!--<dependency>
                 <groupId>ltd.huntinginfo</groupId>
                 <artifactId>feng-library3-security</artifactId>
                 <version>${project.version}</version>
-            </dependency>
+            </dependency>-->
 
             <!-- swagger 模块-->
-            <dependency>
+            <!--<dependency>
                 <groupId>ltd.huntinginfo</groupId>
                 <artifactId>feng-library3-swagger</artifactId>
                 <version>${project.version}</version>
-            </dependency>
+            </dependency>-->
 
             <!-- oss 模块-->
-            <dependency>
+            <!--<dependency>
                 <groupId>ltd.huntinginfo</groupId>
                 <artifactId>feng-library3-oss</artifactId>
                 <version>${project.version}</version>
-            </dependency>
+            </dependency>-->
 
             <!-- sentinel 模块-->
-            <dependency>
+            <!--<dependency>
                 <groupId>ltd.huntinginfo</groupId>
                 <artifactId>feng-library3-sentinel</artifactId>
                 <version>${project.version}</version>
-            </dependency>
+            </dependency>-->
 
             <!-- websocket 模块-->
-            <dependency>
+            <!--<dependency>
                 <groupId>ltd.huntinginfo</groupId>
                 <artifactId>feng-library3-websocket</artifactId>
                 <version>${project.version}</version>
-            </dependency>
+            </dependency>-->
 
             <!-- user2-api 模块-->
-            <dependency>
+            <!--<dependency>
                 <groupId>ltd.huntinginfo</groupId>
                 <artifactId>feng-user3-api</artifactId>
                 <version>${project.version}</version>
-            </dependency>
+            </dependency>-->
 
             <!-- ================================================= -->
             <!-- MQ 适配模块 (按需引用)                             -->
             <!-- ================================================= -->
             
             <!-- RabbitMQ 实现 -->
-            <dependency>
+            <!--<dependency>
                 <groupId>ltd.huntinginfo</groupId>
                 <artifactId>feng-library3-rabbitmq</artifactId>
                 <version>${project.version}</version>
-            </dependency>
+            </dependency>-->
 
             <!-- Kafka 实现 -->
-            <dependency>
+            <!--<dependency>
                 <groupId>ltd.huntinginfo</groupId>
                 <artifactId>feng-library3-kafka</artifactId>
                 <version>${project.version}</version>
+            </dependency>-->
+            
+            <!--web 模块-->
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter-web</artifactId>
+                <version>${spring-boot.version}</version>
+            </dependency>
+            <!-- 排除 spring cloud alibaba 令人头疼的日志封装-->
+            <dependency>
+                <groupId>com.alibaba.cloud</groupId>
+                <artifactId>spring-cloud-starter-alibaba-nacos-discovery</artifactId>
+                <version>${spring-cloud-alibaba.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -698,6 +674,7 @@
     </build>
 
     <profiles>
+        <!--mvn clean package -Pcloud构建微服务版本-->
         <profile>
             <id>cloud</id>
             <properties>
@@ -711,10 +688,11 @@
                 <activeByDefault>true</activeByDefault>
             </activation>
         </profile>
+        <!--mvn clean package -Pboot 该指令会在构建时构建单机版-->
         <profile>
             <id>boot</id>
             <modules>
-                <module>pig-boot</module>
+                <module>feng-single</module>
             </modules>
         </profile>
         <!-- 自动激活，针对 lombok 注解增强-->

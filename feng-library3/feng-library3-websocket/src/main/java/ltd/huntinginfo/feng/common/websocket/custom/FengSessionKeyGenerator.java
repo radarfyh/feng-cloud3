@@ -17,7 +17,7 @@ import org.springframework.web.socket.WebSocketSession;
  */
 @Configuration
 @RequiredArgsConstructor
-public class PigxSessionKeyGenerator implements SessionKeyGenerator {
+public class FengSessionKeyGenerator implements SessionKeyGenerator {
 
 	/**
 	 * 根据 WebSocket 会话中的用户信息生成会话的唯一标识。

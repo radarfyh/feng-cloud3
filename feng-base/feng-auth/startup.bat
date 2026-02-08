@@ -1,0 +1,1 @@
+java -jar target\feng-auth.jar -Xmx128m -Xms64m

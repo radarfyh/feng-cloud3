@@ -1,6 +1,6 @@
 package ltd.huntinginfo.feng.common.websocket.config;
 
-import ltd.huntinginfo.feng.common.websocket.custom.PigxSessionKeyGenerator;
+import ltd.huntinginfo.feng.common.websocket.custom.FengSessionKeyGenerator;
 import ltd.huntinginfo.feng.common.websocket.custom.UserAttributeHandshakeInterceptor;
 import ltd.huntinginfo.feng.common.websocket.handler.CustomPlanTextMessageHandler;
 import ltd.huntinginfo.feng.common.websocket.handler.CustomWebSocketHandler;
@@ -41,7 +41,7 @@ public class WebSocketHandlerConfig {
 	@Bean
 	@ConditionalOnMissingBean(SessionKeyGenerator.class)
 	public SessionKeyGenerator sessionKeyGenerator() {
-		return new PigxSessionKeyGenerator();
+		return new FengSessionKeyGenerator();
 	}
 
 	/**

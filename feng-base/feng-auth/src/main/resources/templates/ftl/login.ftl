@@ -9,7 +9,7 @@
     </div>
 
     <form class="form-signin" action="${request.contextPath}/oauth2/form" method="post">
-        <input type="hidden" name="client_id" value="feng">
+        <input type="hidden" name="client_id" value="pig">
         <input type="hidden" name="grant_type" value="password">
         <div class="space-y-6">
             <div class="">

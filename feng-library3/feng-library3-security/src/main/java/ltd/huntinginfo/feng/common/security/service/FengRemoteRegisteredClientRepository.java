@@ -31,7 +31,7 @@ import java.util.Optional;
  * @date 2025/05/31
  */
 @RequiredArgsConstructor
-public class PigRemoteRegisteredClientRepository implements RegisteredClientRepository {
+public class FengRemoteRegisteredClientRepository implements RegisteredClientRepository {
 
 	/**
 	 * 刷新令牌有效期默认 30 天

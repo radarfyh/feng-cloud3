@@ -89,7 +89,7 @@ import lombok.SneakyThrows;
 @RequestMapping
 @RequiredArgsConstructor
 @Tag(description = "oauth", name = "OAuth2 令牌端点控制器管理模块")
-public class PigTokenEndpoint {
+public class FengTokenEndpoint {
 
 	private final HttpMessageConverter<OAuth2AccessTokenResponse> accessTokenHttpResponseConverter = new OAuth2AccessTokenResponseHttpMessageConverter();
 

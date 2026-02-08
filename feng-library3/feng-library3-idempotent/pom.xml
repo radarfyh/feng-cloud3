@@ -22,6 +22,7 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-aop</artifactId>
+			<version>4.0.0-M2</version>
 			<scope>provided</scope>
 		</dependency>
 
@@ -29,6 +30,8 @@
 		<dependency>
 			<groupId>org.redisson</groupId>
 			<artifactId>redisson-spring-boot-starter</artifactId>
+			<version>4.1.0</version>
+			<scope>compile</scope>
 		</dependency>
 
 		<!--servlet 依赖-->

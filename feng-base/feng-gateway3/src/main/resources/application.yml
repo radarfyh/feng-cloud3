@@ -4,13 +4,15 @@ server:
 spring:
   application:
     name: @artifactId@
+  profiles:
+    active: @profiles.active@
   cloud:
     nacos:
-      username: nacos
-      password: Feng2025Cloud      
+      username: @nacos.username@
+      password: @nacos.password@
       discovery:
         server-addr: ${NACOS_HOST:127.0.0.1}:${NACOS_PORT:8848}
-        namespace: feng-${spring.profiles.active}
+        namespace: feng_${spring.profiles.active}
         watch:
           enabled: true
         watch-delay: 1000

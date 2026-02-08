@@ -76,7 +76,7 @@ public class AuthorizationServerConfiguration {
 
 	private final ValidateCodeFilter validateCodeFilter;
 
-	private final FengBootCorsProperties FengBootCorsProperties;
+	private final FengBootCorsProperties fengBootCorsProperties;
 
 	/**
 	 * Authorization Server 配置，仅对 /oauth2/** 的请求有效
@@ -116,7 +116,7 @@ public class AuthorizationServerConfiguration {
 		http.with(new FormIdentityLoginConfigurer(), Customizer.withDefaults());
 
 		// 配置 CORS 跨域资源共享
-		if (Boolean.TRUE.equals(FengBootCorsProperties.getEnabled())) {
+		if (Boolean.TRUE.equals(fengBootCorsProperties.getEnabled())) {
 			http.cors(cors -> cors.configurationSource(corsConfigurationSource()));
 		}
 
@@ -188,16 +188,16 @@ public class AuthorizationServerConfiguration {
 		CorsConfiguration corsConfiguration = new CorsConfiguration();
 
 		// 从配置文件读取允许的源模式
-		FengBootCorsProperties.getAllowedOriginPatterns().forEach(corsConfiguration::addAllowedOriginPattern);
+		fengBootCorsProperties.getAllowedOriginPatterns().forEach(corsConfiguration::addAllowedOriginPattern);
 		// 从配置文件读取允许的请求头
-		FengBootCorsProperties.getAllowedHeaders().forEach(corsConfiguration::addAllowedHeader);
+		fengBootCorsProperties.getAllowedHeaders().forEach(corsConfiguration::addAllowedHeader);
 		// 从配置文件读取允许的HTTP方法
-		FengBootCorsProperties.getAllowedMethods().forEach(corsConfiguration::addAllowedMethod);
+		fengBootCorsProperties.getAllowedMethods().forEach(corsConfiguration::addAllowedMethod);
 		// 从配置文件读取是否允许携带凭证
-		corsConfiguration.setAllowCredentials(FengBootCorsProperties.getAllowCredentials());
+		corsConfiguration.setAllowCredentials(fengBootCorsProperties.getAllowCredentials());
 
 		// 注册CORS配置到指定路径
-		source.registerCorsConfiguration(FengBootCorsProperties.getPathPattern(), corsConfiguration);
+		source.registerCorsConfiguration(fengBootCorsProperties.getPathPattern(), corsConfiguration);
 
 		return source;
 	}
