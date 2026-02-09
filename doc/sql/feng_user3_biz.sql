@@ -7,6 +7,589 @@ SET FOREIGN_KEY_CHECKS = 0;
 
 USE `feng_user3_biz`;
 
+--  1.独立字典表，性别等小记录或者不那么重要的字典放在sys_dict
+
+-- 人员照片类型代码表
+DROP TABLE IF EXISTS `dict_person_photo_type`;
+CREATE TABLE `dict_person_photo_type` (
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '主键id自增',
+  `name` varchar(256) NOT NULL COMMENT '照片类型名称',
+  `code` varchar(32) NOT NULL COMMENT '照片类型代码',
+  `remark` varchar(1024) DEFAULT '-' COMMENT '备注说明',
+  `create_by` varchar(64) DEFAULT NULL COMMENT '创建者',
+  `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `update_by` varchar(64) DEFAULT NULL COMMENT '更新者',
+  `update_time` datetime DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  `del_flag` char(1) DEFAULT '0' COMMENT '逻辑删除标记(0:正常,1:删除)',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `idx_photo_type_code` (`code`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='人员照片类型代码表';
+
+-- 初始化数据（test）
+INSERT INTO `dict_person_photo_type` 
+(`name`, `code`, `create_by`, `update_by`) 
+VALUES
+('人员正面照片', '11', 'admin', 'admin'),
+('人员左侧面照片', '12', 'admin', 'admin'),
+('人员右侧面照片', '13', 'admin', 'admin'),
+('机读身份证照片', '21', 'admin', 'admin');
+
+
+-- 汉语方言代码表
+DROP TABLE IF EXISTS `dict_chinese_dialect`;
+CREATE TABLE `dict_chinese_dialect` (
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '主键id自增',
+  `name` varchar(256) NOT NULL COMMENT '方言名称',
+  `code` varchar(32) NOT NULL COMMENT '方言代码',
+  `remark` varchar(1024) DEFAULT '-' COMMENT '备注说明',
+  `create_by` varchar(64) DEFAULT NULL COMMENT '创建者',
+  `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `update_by` varchar(64) DEFAULT NULL COMMENT '更新者',
+  `update_time` datetime DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  `del_flag` char(1) DEFAULT '0' COMMENT '逻辑删除标记(0:正常,1:删除)',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `idx_dialect_code` (`code`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='汉语方言代码表';
+
+-- 初始化数据（test）
+INSERT INTO `dict_chinese_dialect` (`name`, `code`, `create_by`, `update_by`) VALUES
+('普通话', '00', 'admin', 'admin'),
+('北方方言', '01', 'admin', 'admin'),
+('吴方言', '02', 'admin', 'admin'),
+('湘方言', '03', 'admin', 'admin'),
+('赣方言', '04', 'admin', 'admin'),
+('客家话', '05', 'admin', 'admin'),
+('闽方言', '06', 'admin', 'admin'),
+('粤方言', '07', 'admin', 'admin'),
+('其他方言', '99', 'admin', 'admin');
+
+
+-- 足迹部位代码表
+DROP TABLE IF EXISTS `dict_footprint_position`;
+CREATE TABLE `dict_footprint_position` (
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '主键id自增',
+  `name` varchar(256) NOT NULL COMMENT '足迹部位名称',
+  `code` varchar(32) NOT NULL COMMENT '足迹部位代码',
+  `remark` varchar(1024) DEFAULT '-' COMMENT '备注说明',
+  `create_by` varchar(64) DEFAULT NULL COMMENT '创建者',
+  `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `update_by` varchar(64) DEFAULT NULL COMMENT '更新者',
+  `update_time` datetime DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  `del_flag` char(1) DEFAULT '0' COMMENT '逻辑删除标记(0:正常,1:删除)',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `idx_footprint_position_code` (`code`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='足迹部位代码表';
+
+-- 初始化数据（test）
+INSERT INTO `dict_footprint_position` (`name`, `code`, `create_by`, `update_by`) VALUES
+('左足', '0', 'admin', 'admin'),
+('右足', '1', 'admin', 'admin'),
+('未知', '9', 'admin', 'admin');
+
+-- 足迹类型代码表
+DROP TABLE IF EXISTS `dict_footprint_type`;
+CREATE TABLE `dict_footprint_type` (
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '主键id自增',
+  `name` varchar(256) NOT NULL COMMENT '足迹类型名称',
+  `code` varchar(32) NOT NULL COMMENT '足迹类型代码',
+  `remark` varchar(1024) DEFAULT '-' COMMENT '备注说明',
+  `create_by` varchar(64) DEFAULT NULL COMMENT '创建者',
+  `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `update_by` varchar(64) DEFAULT NULL COMMENT '更新者',
+  `update_time` datetime DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  `del_flag` char(1) DEFAULT '0' COMMENT '逻辑删除标记(0:正常,1:删除)',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `idx_footprint_type_code` (`code`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='足迹类型代码表';
+
+-- 初始化数据（test）
+INSERT INTO `dict_footprint_type` (`name`, `code`, `create_by`, `update_by`) VALUES
+('赤足', '0', 'admin', 'admin'),
+('穿鞋', '1', 'admin', 'admin'),
+('鞋面', '2', 'admin', 'admin'),
+('未知', '9', 'admin', 'admin');
+
+-- 常用证件代码表
+DROP TABLE IF EXISTS `dict_common_certificate`;
+CREATE TABLE `dict_common_certificate` (
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '主键id自增',
+  `name` varchar(256) NOT NULL COMMENT '证件类型名称',
+  `code` varchar(3) NOT NULL COMMENT '证件类型代码',
+  `remark` varchar(1024) DEFAULT '-' COMMENT '备注说明',
+  `create_by` varchar(64) DEFAULT NULL COMMENT '创建者',
+  `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `update_by` varchar(64) DEFAULT NULL COMMENT '更新者',
+  `update_time` datetime DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  `del_flag` char(1) DEFAULT '0' COMMENT '逻辑删除标记(0:正常,1:删除)',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `idx_common_certificate_code` (`code`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='常用证件代码表';
+
+-- 初始化数据（test）
+INSERT INTO `dict_common_certificate` (`name`, `code`, `create_by`, `update_by`) VALUES
+('居民身份证', '111', 'admin', 'admin'),
+('临时居民身份证', '112', 'admin', 'admin'),
+('护照', '414', 'admin', 'admin'),
+('港澳居民来往内地通行证', '113', 'admin', 'admin'),
+('台湾居民来往大陆通行证', '114', 'admin', 'admin');
+
+-- 国籍代码表
+DROP TABLE IF EXISTS `dict_nationality`;
+CREATE TABLE `dict_nationality` (
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '主键id自增',
+  `name` varchar(256) NOT NULL COMMENT '国籍名称',
+  `code` varchar(3) NOT NULL COMMENT '国籍代码',
+  `remark` varchar(1024) DEFAULT '-' COMMENT '备注说明',
+  `create_by` varchar(64) DEFAULT NULL COMMENT '创建者',
+  `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `update_by` varchar(64) DEFAULT NULL COMMENT '更新者',
+  `update_time` datetime DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  `del_flag` char(1) DEFAULT '0' COMMENT '逻辑删除标记(0:正常,1:删除)',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `idx_nationality_code` (`code`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='国籍代码表(GB/T 2659-2000)';
+
+-- 初始化数据（test）
+INSERT INTO `dict_nationality` VALUES (1, '阿富汗  ', '004', '-', NULL, '2025-11-18 15:32:03', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (2, '阿尔巴尼亚    ', '008', '-', NULL, '2025-11-18 15:32:04', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (3, '南极洲  ', '010', '-', NULL, '2025-11-18 15:32:04', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (4, '阿尔及利亚    ', '012', '-', NULL, '2025-11-18 15:32:04', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (5, '美属萨摩亚    ', '016', '-', NULL, '2025-11-18 15:32:04', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (6, '安道尔  ', '020', '-', NULL, '2025-11-18 15:32:04', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (7, '安哥拉  ', '024', '-', NULL, '2025-11-18 15:32:04', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (8, '安提瓜与巴布达  ', '028', '-', NULL, '2025-11-18 15:32:04', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (9, '阿塞拜疆 ', '031', '-', NULL, '2025-11-18 15:32:04', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (10, '阿根廷 ', '032', '-', NULL, '2025-11-18 15:32:04', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (11, '澳大利亚    ', '036', '-', NULL, '2025-11-18 15:32:04', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (12, '奥地利 ', '040', '-', NULL, '2025-11-18 15:32:05', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (13, '巴哈马 ', '044', '-', NULL, '2025-11-18 15:32:05', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (14, '巴林  ', '048', '-', NULL, '2025-11-18 15:32:05', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (15, '孟加拉国    ', '050', '-', NULL, '2025-11-18 15:32:05', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (16, '亚美尼亚    ', '051', '-', NULL, '2025-11-18 15:32:05', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (17, '巴巴多斯    ', '052', '-', NULL, '2025-11-18 15:32:05', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (18, '比利时 ', '056', '-', NULL, '2025-11-18 15:32:05', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (19, '百慕大 ', '060', '-', NULL, '2025-11-18 15:32:05', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (20, '不丹  ', '064', '-', NULL, '2025-11-18 15:32:05', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (21, '玻利维亚    ', '068', '-', NULL, '2025-11-18 15:32:06', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (22, '波黑  ', '070', '-', NULL, '2025-11-18 15:32:06', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (23, '博茨瓦纳    ', '072', '-', NULL, '2025-11-18 15:32:06', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (24, '布维岛 ', '074', '-', NULL, '2025-11-18 15:32:06', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (25, '巴西  ', '076', '-', NULL, '2025-11-18 15:32:06', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (26, '伯利兹 ', '084', '-', NULL, '2025-11-18 15:32:06', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (27, '英属印度洋领地 ', '086', '-', NULL, '2025-11-18 15:32:06', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (28, '所罗门群岛   ', '090', '-', NULL, '2025-11-18 15:32:06', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (29, '英属维尔京群岛 ', '092', '-', NULL, '2025-11-18 15:32:06', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (30, '文莱  ', '096', '-', NULL, '2025-11-18 15:32:07', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (31, '保加利亚    ', '100', '-', NULL, '2025-11-18 15:32:07', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (32, '缅甸  ', '104', '-', NULL, '2025-11-18 15:32:07', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (33, '布隆迪 ', '108', '-', NULL, '2025-11-18 15:32:07', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (34, '白俄罗斯    ', '112', '-', NULL, '2025-11-18 15:32:07', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (35, '柬埔寨 ', '116', '-', NULL, '2025-11-18 15:32:07', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (36, '喀麦隆 ', '120', '-', NULL, '2025-11-18 15:32:07', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (37, '加拿大 ', '124', '-', NULL, '2025-11-18 15:32:07', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (38, '佛得角 ', '132', '-', NULL, '2025-11-18 15:32:07', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (39, '开曼群岛    ', '136', '-', NULL, '2025-11-18 15:32:07', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (40, '中非  ', '140', '-', NULL, '2025-11-18 15:32:08', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (41, '斯里兰卡    ', '144', '-', NULL, '2025-11-18 15:32:08', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (42, '乍得  ', '148', '-', NULL, '2025-11-18 15:32:08', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (43, '智利  ', '152', '-', NULL, '2025-11-18 15:32:08', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (44, '中国  ', '156', '-', NULL, '2025-11-18 15:32:08', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (45, '台湾  ', '158', '-', NULL, '2025-11-18 15:32:08', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (46, '圣诞岛 ', '162', '-', NULL, '2025-11-18 15:32:08', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (47, '科科斯(基林)群岛   ', '166', '-', NULL, '2025-11-18 15:32:08', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (48, '哥伦比亚    ', '170', '-', NULL, '2025-11-18 15:32:08', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (49, '科摩罗 ', '174', '-', NULL, '2025-11-18 15:32:09', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (50, '马约特 ', '175', '-', NULL, '2025-11-18 15:32:09', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (51, '刚果(布)   ', '178', '-', NULL, '2025-11-18 15:32:09', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (52, '刚果(金)   ', '180', '-', NULL, '2025-11-18 15:32:09', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (53, '库克群岛    ', '184', '-', NULL, '2025-11-18 15:32:09', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (54, '哥斯达黎加   ', '188', '-', NULL, '2025-11-18 15:32:09', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (55, '克罗地亚    ', '191', '-', NULL, '2025-11-18 15:32:09', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (56, '古巴  ', '192', '-', NULL, '2025-11-18 15:32:09', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (57, '塞浦路斯    ', '196', '-', NULL, '2025-11-18 15:32:09', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (58, '捷克  ', '203', '-', NULL, '2025-11-18 15:32:09', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (59, '贝宁  ', '204', '-', NULL, '2025-11-18 15:32:09', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (60, '丹麦  ', '208', '-', NULL, '2025-11-18 15:32:10', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (61, '多米尼克    ', '212', '-', NULL, '2025-11-18 15:32:10', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (62, '多米尼加    ', '214', '-', NULL, '2025-11-18 15:32:10', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (63, '厄瓜多尔    ', '218', '-', NULL, '2025-11-18 15:32:10', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (64, '萨尔瓦多    ', '222', '-', NULL, '2025-11-18 15:32:10', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (65, '赤道几内亚   ', '226', '-', NULL, '2025-11-18 15:32:10', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (66, '埃塞俄比亚   ', '231', '-', NULL, '2025-11-18 15:32:10', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (67, '厄立特里亚   ', '232', '-', NULL, '2025-11-18 15:32:10', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (68, '爱沙尼亚    ', '233', '-', NULL, '2025-11-18 15:32:11', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (69, '法罗群岛    ', '234', '-', NULL, '2025-11-18 15:32:11', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (70, '福克兰群岛(马尔维纳斯', '238', '-', NULL, '2025-11-18 15:32:11', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (71, '南乔治亚岛和南桑德韦奇', '239', '-', NULL, '2025-11-18 15:32:11', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (72, '斐济  ', '242', '-', NULL, '2025-11-18 15:32:11', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (73, '芬兰  ', '246', '-', NULL, '2025-11-18 15:32:11', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (74, '法国  ', '250', '-', NULL, '2025-11-18 15:32:11', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (75, '法属圭亚那   ', '254', '-', NULL, '2025-11-18 15:32:11', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (76, '法属波利尼西亚 ', '258', '-', NULL, '2025-11-18 15:32:11', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (77, '法属南部领地  ', '260', '-', NULL, '2025-11-18 15:32:11', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (78, '吉布提 ', '262', '-', NULL, '2025-11-18 15:32:11', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (79, '加蓬  ', '266', '-', NULL, '2025-11-18 15:32:12', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (80, '格鲁吉亚    ', '268', '-', NULL, '2025-11-18 15:32:12', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (81, '冈比亚 ', '270', '-', NULL, '2025-11-18 15:32:12', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (82, '巴勒斯坦    ', '275', '-', NULL, '2025-11-18 15:32:12', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (83, '德国  ', '276', '-', NULL, '2025-11-18 15:32:12', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (84, '加纳  ', '288', '-', NULL, '2025-11-18 15:32:12', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (85, '直布罗陀    ', '292', '-', NULL, '2025-11-18 15:32:12', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (86, '基里巴斯    ', '296', '-', NULL, '2025-11-18 15:32:12', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (87, '希腊  ', '300', '-', NULL, '2025-11-18 15:32:12', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (88, '格陵兰 ', '304', '-', NULL, '2025-11-18 15:32:12', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (89, '格林纳达    ', '308', '-', NULL, '2025-11-18 15:32:12', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (90, '瓜德罗普    ', '312', '-', NULL, '2025-11-18 15:32:13', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (91, '关岛  ', '316', '-', NULL, '2025-11-18 15:32:13', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (92, '危地马拉    ', '320', '-', NULL, '2025-11-18 15:32:13', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (93, '几内亚 ', '324', '-', NULL, '2025-11-18 15:32:13', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (94, '圭亚那 ', '328', '-', NULL, '2025-11-18 15:32:13', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (95, '海地  ', '332', '-', NULL, '2025-11-18 15:32:13', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (96, '赫德岛和麦克唐纳岛   ', '334', '-', NULL, '2025-11-18 15:32:13', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (97, '梵蒂冈 ', '336', '-', NULL, '2025-11-18 15:32:13', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (98, '洪都拉斯    ', '340', '-', NULL, '2025-11-18 15:32:13', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (99, '香港  ', '344', '-', NULL, '2025-11-18 15:32:13', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (100, '匈牙利    ', '348', '-', NULL, '2025-11-18 15:32:14', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (101, '冰岛 ', '352', '-', NULL, '2025-11-18 15:32:14', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (102, '印度 ', '356', '-', NULL, '2025-11-18 15:32:14', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (103, '印度尼西亚  ', '360', '-', NULL, '2025-11-18 15:32:14', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (104, '伊朗 ', '364', '-', NULL, '2025-11-18 15:32:14', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (105, '伊拉克    ', '368', '-', NULL, '2025-11-18 15:32:15', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (106, '爱尔兰    ', '372', '-', NULL, '2025-11-18 15:32:15', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (107, '以色列    ', '376', '-', NULL, '2025-11-18 15:32:15', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (108, '意大利    ', '380', '-', NULL, '2025-11-18 15:32:15', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (109, '科特迪瓦   ', '384', '-', NULL, '2025-11-18 15:32:15', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (110, '牙买加    ', '388', '-', NULL, '2025-11-18 15:32:15', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (111, '日本 ', '392', '-', NULL, '2025-11-18 15:32:15', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (112, '哈萨克斯坦  ', '398', '-', NULL, '2025-11-18 15:32:15', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (113, '约旦 ', '400', '-', NULL, '2025-11-18 15:32:15', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (114, '肯尼亚    ', '404', '-', NULL, '2025-11-18 15:32:16', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (115, '朝鲜 ', '408', '-', NULL, '2025-11-18 15:32:16', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (116, '韩国 ', '410', '-', NULL, '2025-11-18 15:32:16', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (117, '科威特    ', '414', '-', NULL, '2025-11-18 15:32:16', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (118, '吉尔吉斯斯坦 ', '417', '-', NULL, '2025-11-18 15:32:16', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (119, '老挝 ', '418', '-', NULL, '2025-11-18 15:32:16', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (120, '黎巴嫩    ', '422', '-', NULL, '2025-11-18 15:32:16', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (121, '莱索托    ', '426', '-', NULL, '2025-11-18 15:32:16', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (122, '拉脱维亚   ', '428', '-', NULL, '2025-11-18 15:32:16', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (123, '利比里亚   ', '430', '-', NULL, '2025-11-18 15:32:16', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (124, '利比亚    ', '434', '-', NULL, '2025-11-18 15:32:17', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (125, '列支敦士登  ', '438', '-', NULL, '2025-11-18 15:32:17', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (126, '立陶宛    ', '440', '-', NULL, '2025-11-18 15:32:17', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (127, '卢森堡    ', '442', '-', NULL, '2025-11-18 15:32:17', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (128, '澳门 ', '446', '-', NULL, '2025-11-18 15:32:17', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (129, '马达加斯加  ', '450', '-', NULL, '2025-11-18 15:32:17', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (130, '马拉维    ', '454', '-', NULL, '2025-11-18 15:32:17', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (131, '马来西亚   ', '458', '-', NULL, '2025-11-18 15:32:17', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (132, '马尔代夫   ', '462', '-', NULL, '2025-11-18 15:32:17', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (133, '马里 ', '466', '-', NULL, '2025-11-18 15:32:17', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (134, '马耳他    ', '470', '-', NULL, '2025-11-18 15:32:18', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (135, '马提尼克   ', '474', '-', NULL, '2025-11-18 15:32:18', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (136, '毛里塔尼亚  ', '478', '-', NULL, '2025-11-18 15:32:18', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (137, '毛里求斯   ', '480', '-', NULL, '2025-11-18 15:32:18', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (138, '墨西哥    ', '484', '-', NULL, '2025-11-18 15:32:18', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (139, '摩纳哥    ', '492', '-', NULL, '2025-11-18 15:32:18', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (140, '蒙古 ', '496', '-', NULL, '2025-11-18 15:32:18', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (141, '摩尔多瓦   ', '498', '-', NULL, '2025-11-18 15:32:18', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (142, '蒙特塞拉特  ', '500', '-', NULL, '2025-11-18 15:32:18', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (143, '摩洛哥    ', '504', '-', NULL, '2025-11-18 15:32:18', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (144, '莫桑比克   ', '508', '-', NULL, '2025-11-18 15:32:18', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (145, '阿曼 ', '512', '-', NULL, '2025-11-18 15:32:19', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (146, '纳米比亚   ', '516', '-', NULL, '2025-11-18 15:32:19', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (147, '瑙鲁 ', '520', '-', NULL, '2025-11-18 15:32:19', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (148, '尼泊尔    ', '524', '-', NULL, '2025-11-18 15:32:19', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (149, '荷兰 ', '528', '-', NULL, '2025-11-18 15:32:19', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (150, '荷属安的列斯 ', '530', '-', NULL, '2025-11-18 15:32:19', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (151, '阿鲁巴    ', '533', '-', NULL, '2025-11-18 15:32:19', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (152, '新喀里多尼亚 ', '540', '-', NULL, '2025-11-18 15:32:19', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (153, '瓦努阿图   ', '548', '-', NULL, '2025-11-18 15:32:19', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (154, '新西兰    ', '554', '-', NULL, '2025-11-18 15:32:19', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (155, '尼加拉瓜   ', '558', '-', NULL, '2025-11-18 15:32:19', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (156, '尼日尔    ', '562', '-', NULL, '2025-11-18 15:32:20', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (157, '尼日利亚   ', '566', '-', NULL, '2025-11-18 15:32:20', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (158, '纽埃 ', '570', '-', NULL, '2025-11-18 15:32:20', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (159, '诺福克岛   ', '574', '-', NULL, '2025-11-18 15:32:20', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (160, '挪威 ', '578', '-', NULL, '2025-11-18 15:32:20', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (161, '北马里亚纳  ', '580', '-', NULL, '2025-11-18 15:32:20', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (162, '美国本土外小岛屿   ', '581', '-', NULL, '2025-11-18 15:32:20', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (163, '密克罗尼西亚联邦   ', '583', '-', NULL, '2025-11-18 15:32:20', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (164, '马绍尔群岛  ', '584', '-', NULL, '2025-11-18 15:32:20', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (165, '帕劳 ', '585', '-', NULL, '2025-11-18 15:32:20', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (166, '巴基斯坦   ', '586', '-', NULL, '2025-11-18 15:32:21', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (167, '巴拿马    ', '591', '-', NULL, '2025-11-18 15:32:21', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (168, '巴布亚新几内亚    ', '598', '-', NULL, '2025-11-18 15:32:21', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (169, '巴拉圭    ', '600', '-', NULL, '2025-11-18 15:32:21', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (170, '秘鲁 ', '604', '-', NULL, '2025-11-18 15:32:21', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (171, '菲律宾    ', '608', '-', NULL, '2025-11-18 15:32:21', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (172, '皮特凯恩   ', '612', '-', NULL, '2025-11-18 15:32:21', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (173, '波兰 ', '616', '-', NULL, '2025-11-18 15:32:21', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (174, '葡萄牙    ', '620', '-', NULL, '2025-11-18 15:32:21', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (175, '几内亚比绍  ', '624', '-', NULL, '2025-11-18 15:32:21', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (176, '东帝汉    ', '626', '-', NULL, '2025-11-18 15:32:22', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (177, '波多黎各   ', '630', '-', NULL, '2025-11-18 15:32:22', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (178, '卡塔尔    ', '634', '-', NULL, '2025-11-18 15:32:22', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (179, '留尼汪    ', '638', '-', NULL, '2025-11-18 15:32:22', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (180, '罗马尼亚   ', '642', '-', NULL, '2025-11-18 15:32:22', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (181, '俄罗斯联邦  ', '643', '-', NULL, '2025-11-18 15:32:22', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (182, '卢旺达    ', '646', '-', NULL, '2025-11-18 15:32:22', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (183, '圣赫勒拿   ', '654', '-', NULL, '2025-11-18 15:32:22', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (184, '圣基茨和尼维斯    ', '659', '-', NULL, '2025-11-18 15:32:22', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (185, '安圭拉    ', '660', '-', NULL, '2025-11-18 15:32:22', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (186, '圣卢西亚   ', '662', '-', NULL, '2025-11-18 15:32:23', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (187, '圣皮埃尔和密克隆   ', '666', '-', NULL, '2025-11-18 15:32:23', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (188, '圣文森特和格林纳丁斯', '670', '-', NULL, '2025-11-18 15:32:23', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (189, '圣马力诺   ', '674', '-', NULL, '2025-11-18 15:32:23', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (190, '圣多美和普林西比   ', '678', '-', NULL, '2025-11-18 15:32:23', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (191, '沙特阿拉伯  ', '682', '-', NULL, '2025-11-18 15:32:23', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (192, '塞内加尔   ', '686', '-', NULL, '2025-11-18 15:32:23', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (193, '塞舌尔    ', '690', '-', NULL, '2025-11-18 15:32:23', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (194, '塞拉利昂   ', '694', '-', NULL, '2025-11-18 15:32:23', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (195, '新加坡    ', '702', '-', NULL, '2025-11-18 15:32:23', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (196, '斯洛伐克   ', '703', '-', NULL, '2025-11-18 15:32:24', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (197, '越南 ', '704', '-', NULL, '2025-11-18 15:32:24', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (198, '斯洛文尼亚  ', '705', '-', NULL, '2025-11-18 15:32:24', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (199, '索马里    ', '706', '-', NULL, '2025-11-18 15:32:24', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (200, '南非 ', '710', '-', NULL, '2025-11-18 15:32:24', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (201, '津巴布韦   ', '716', '-', NULL, '2025-11-18 15:32:24', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (202, '西班牙    ', '724', '-', NULL, '2025-11-18 15:32:24', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (203, '西撒哈拉   ', '732', '-', NULL, '2025-11-18 15:32:24', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (204, '苏丹 ', '736', '-', NULL, '2025-11-18 15:32:24', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (205, '苏里南    ', '740', '-', NULL, '2025-11-18 15:32:24', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (206, '斯瓦尔巴岛和扬马延岛', '744', '-', NULL, '2025-11-18 15:32:25', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (207, '斯威士兰   ', '748', '-', NULL, '2025-11-18 15:32:25', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (208, '瑞典 ', '752', '-', NULL, '2025-11-18 15:32:25', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (209, '瑞士 ', '756', '-', NULL, '2025-11-18 15:32:25', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (210, '叙利亚    ', '760', '-', NULL, '2025-11-18 15:32:25', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (211, '塔吉克斯坦  ', '762', '-', NULL, '2025-11-18 15:32:25', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (212, '泰国 ', '764', '-', NULL, '2025-11-18 15:32:25', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (213, '多哥 ', '768', '-', NULL, '2025-11-18 15:32:25', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (214, '托克劳    ', '772', '-', NULL, '2025-11-18 15:32:25', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (215, '汤加 ', '776', '-', NULL, '2025-11-18 15:32:25', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (216, '特立尼达和多巴哥   ', '780', '-', NULL, '2025-11-18 15:32:25', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (217, '阿联酋    ', '784', '-', NULL, '2025-11-18 15:32:26', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (218, '突尼斯    ', '788', '-', NULL, '2025-11-18 15:32:26', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (219, '土耳其    ', '792', '-', NULL, '2025-11-18 15:32:26', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (220, '土库曼斯坦  ', '795', '-', NULL, '2025-11-18 15:32:26', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (221, '特克斯和凯科斯群岛  ', '796', '-', NULL, '2025-11-18 15:32:26', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (222, '图瓦卢    ', '798', '-', NULL, '2025-11-18 15:32:26', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (223, '乌干达    ', '800', '-', NULL, '2025-11-18 15:32:26', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (224, '乌克兰    ', '804', '-', NULL, '2025-11-18 15:32:26', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (225, '前南马其顿  ', '807', '-', NULL, '2025-11-18 15:32:26', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (226, '埃及 ', '818', '-', NULL, '2025-11-18 15:32:26', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (227, '英国 ', '826', '-', NULL, '2025-11-18 15:32:27', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (228, '坦桑尼亚   ', '834', '-', NULL, '2025-11-18 15:32:27', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (229, '美国 ', '840', '-', NULL, '2025-11-18 15:32:27', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (230, '美属维尔京群岛    ', '850', '-', NULL, '2025-11-18 15:32:27', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (231, '布基纳法索  ', '854', '-', NULL, '2025-11-18 15:32:27', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (232, '乌拉圭    ', '858', '-', NULL, '2025-11-18 15:32:27', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (233, '乌兹别克斯坦 ', '860', '-', NULL, '2025-11-18 15:32:27', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (234, '委内瑞拉   ', '862', '-', NULL, '2025-11-18 15:32:27', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (235, '瓦利斯和富图纳    ', '876', '-', NULL, '2025-11-18 15:32:27', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (236, '萨摩亚    ', '882', '-', NULL, '2025-11-18 15:32:27', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (237, '也门 ', '887', '-', NULL, '2025-11-18 15:32:28', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (238, '南斯拉夫   ', '891', '-', NULL, '2025-11-18 15:32:28', NULL, NULL, '0');
+INSERT INTO `dict_nationality` VALUES (239, '赞比亚    ', '894', '-', NULL, '2025-11-18 15:32:28', NULL, NULL, '0');
+
+-- 民族代码表
+DROP TABLE IF EXISTS `dict_ethnic_group`;
+CREATE TABLE `dict_ethnic_group` (
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '主键id自增',
+  `name` varchar(256) NOT NULL COMMENT '民族名称',
+  `code` char(2) NOT NULL COMMENT '民族代码',
+  `remark` varchar(1024) DEFAULT '-' COMMENT '备注说明',
+  `create_by` varchar(64) DEFAULT NULL COMMENT '创建者',
+  `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `update_by` varchar(64) DEFAULT NULL COMMENT '更新者',
+  `update_time` datetime DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  `del_flag` char(1) DEFAULT '0' COMMENT '逻辑删除标记(0:正常,1:删除)',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `idx_ethnic_group_code` (`code`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='民族代码表(GB/T 3304-1991)';
+
+-- 初始化数据（test）
+INSERT INTO `dict_ethnic_group` VALUES (1, '1 - 汉族  ', '1', '-', 'admin', '2025-11-18 15:24:11', NULL, '2025-11-18 15:24:48', '0');
+INSERT INTO `dict_ethnic_group` VALUES (2, '2 - 蒙古族 ', '2', '-', 'admin', '2025-11-18 15:24:11', NULL, '2025-11-18 15:24:48', '0');
+INSERT INTO `dict_ethnic_group` VALUES (3, '3 - 回族  ', '3', '-', 'admin', '2025-11-18 15:24:11', NULL, '2025-11-18 15:24:48', '0');
+INSERT INTO `dict_ethnic_group` VALUES (4, '4 - 藏族  ', '4', '-', 'admin', '2025-11-18 15:24:11', NULL, '2025-11-18 15:24:48', '0');
+INSERT INTO `dict_ethnic_group` VALUES (5, '5 - 维吾尔族    ', '5', '-', 'admin', '2025-11-18 15:24:11', NULL, '2025-11-18 15:24:48', '0');
+INSERT INTO `dict_ethnic_group` VALUES (6, '6 - 苗族  ', '6', '-', 'admin', '2025-11-18 15:24:11', NULL, '2025-11-18 15:24:48', '0');
+INSERT INTO `dict_ethnic_group` VALUES (7, '7 - 彝族  ', '7', '-', 'admin', '2025-11-18 15:24:11', NULL, '2025-11-18 15:24:48', '0');
+INSERT INTO `dict_ethnic_group` VALUES (8, '8 - 壮族  ', '8', '-', 'admin', '2025-11-18 15:24:12', NULL, '2025-11-18 15:24:48', '0');
+INSERT INTO `dict_ethnic_group` VALUES (9, '9 - 布依族 ', '9', '-', 'admin', '2025-11-18 15:24:12', NULL, '2025-11-18 15:24:49', '0');
+INSERT INTO `dict_ethnic_group` VALUES (10, '10 - 朝鲜族   ', '10', '-', 'admin', '2025-11-18 15:24:12', NULL, '2025-11-18 15:24:49', '0');
+INSERT INTO `dict_ethnic_group` VALUES (11, '11 - 满族    ', '11', '-', 'admin', '2025-11-18 15:24:12', NULL, '2025-11-18 15:24:49', '0');
+INSERT INTO `dict_ethnic_group` VALUES (12, '12 - 侗族    ', '12', '-', 'admin', '2025-11-18 15:24:12', NULL, '2025-11-18 15:24:49', '0');
+INSERT INTO `dict_ethnic_group` VALUES (13, '13 - 瑶族    ', '13', '-', 'admin', '2025-11-18 15:24:12', NULL, '2025-11-18 15:24:49', '0');
+INSERT INTO `dict_ethnic_group` VALUES (14, '14 - 白族    ', '14', '-', 'admin', '2025-11-18 15:24:12', NULL, '2025-11-18 15:24:49', '0');
+INSERT INTO `dict_ethnic_group` VALUES (15, '15 - 土家族   ', '15', '-', 'admin', '2025-11-18 15:24:12', NULL, '2025-11-18 15:24:49', '0');
+INSERT INTO `dict_ethnic_group` VALUES (16, '16 - 哈尼族   ', '16', '-', 'admin', '2025-11-18 15:24:12', NULL, '2025-11-18 15:24:49', '0');
+INSERT INTO `dict_ethnic_group` VALUES (17, '17 - 哈萨克族  ', '17', '-', 'admin', '2025-11-18 15:24:12', NULL, '2025-11-18 15:24:49', '0');
+INSERT INTO `dict_ethnic_group` VALUES (18, '18 - 傣族    ', '18', '-', 'admin', '2025-11-18 15:24:13', NULL, '2025-11-18 15:24:49', '0');
+INSERT INTO `dict_ethnic_group` VALUES (19, '19 - 黎族    ', '19', '-', 'admin', '2025-11-18 15:24:13', NULL, '2025-11-18 15:24:50', '0');
+INSERT INTO `dict_ethnic_group` VALUES (20, '20 - 傈僳族   ', '20', '-', 'admin', '2025-11-18 15:24:13', NULL, '2025-11-18 15:24:50', '0');
+INSERT INTO `dict_ethnic_group` VALUES (21, '21 - 佤族    ', '21', '-', 'admin', '2025-11-18 15:24:13', NULL, '2025-11-18 15:24:50', '0');
+INSERT INTO `dict_ethnic_group` VALUES (22, '22 - 畲族    ', '22', '-', 'admin', '2025-11-18 15:24:13', NULL, '2025-11-18 15:24:50', '0');
+INSERT INTO `dict_ethnic_group` VALUES (23, '23 - 高山族   ', '23', '-', 'admin', '2025-11-18 15:24:13', NULL, '2025-11-18 15:24:50', '0');
+INSERT INTO `dict_ethnic_group` VALUES (24, '24 - 拉祜族   ', '24', '-', 'admin', '2025-11-18 15:24:14', NULL, '2025-11-18 15:24:50', '0');
+INSERT INTO `dict_ethnic_group` VALUES (25, '25 - 水族    ', '25', '-', 'admin', '2025-11-18 15:24:14', NULL, '2025-11-18 15:24:50', '0');
+INSERT INTO `dict_ethnic_group` VALUES (26, '26 - 东乡族   ', '26', '-', 'admin', '2025-11-18 15:24:14', NULL, '2025-11-18 15:24:50', '0');
+INSERT INTO `dict_ethnic_group` VALUES (27, '27 - 纳西族   ', '27', '-', 'admin', '2025-11-18 15:24:14', NULL, '2025-11-18 15:24:50', '0');
+INSERT INTO `dict_ethnic_group` VALUES (28, '28 - 景颇族   ', '28', '-', 'admin', '2025-11-18 15:24:14', NULL, '2025-11-18 15:24:50', '0');
+INSERT INTO `dict_ethnic_group` VALUES (29, '29 - 柯尔克孜族 ', '29', '-', 'admin', '2025-11-18 15:24:14', NULL, '2025-11-18 15:24:50', '0');
+INSERT INTO `dict_ethnic_group` VALUES (30, '30 - 土族    ', '30', '-', 'admin', '2025-11-18 15:24:14', NULL, '2025-11-18 15:24:51', '0');
+INSERT INTO `dict_ethnic_group` VALUES (31, '31 - 达斡尔族  ', '31', '-', 'admin', '2025-11-18 15:24:14', NULL, '2025-11-18 15:24:51', '0');
+INSERT INTO `dict_ethnic_group` VALUES (32, '32 - 仫佬族   ', '32', '-', 'admin', '2025-11-18 15:24:14', NULL, '2025-11-18 15:24:51', '0');
+INSERT INTO `dict_ethnic_group` VALUES (33, '33 - 羌族    ', '33', '-', 'admin', '2025-11-18 15:24:14', NULL, '2025-11-18 15:24:51', '0');
+INSERT INTO `dict_ethnic_group` VALUES (34, '34 - 布朗族   ', '34', '-', 'admin', '2025-11-18 15:24:14', NULL, '2025-11-18 15:24:51', '0');
+INSERT INTO `dict_ethnic_group` VALUES (35, '35 - 撒拉族   ', '35', '-', 'admin', '2025-11-18 15:24:15', NULL, '2025-11-18 15:24:51', '0');
+INSERT INTO `dict_ethnic_group` VALUES (36, '36 - 毛难族   ', '36', '-', 'admin', '2025-11-18 15:24:15', NULL, '2025-11-18 15:24:51', '0');
+INSERT INTO `dict_ethnic_group` VALUES (37, '37 - 仡佬族   ', '37', '-', 'admin', '2025-11-18 15:24:15', NULL, '2025-11-18 15:24:51', '0');
+INSERT INTO `dict_ethnic_group` VALUES (38, '38 - 锡伯族   ', '38', '-', 'admin', '2025-11-18 15:24:15', NULL, '2025-11-18 15:24:51', '0');
+INSERT INTO `dict_ethnic_group` VALUES (39, '39 - 阿昌族   ', '39', '-', 'admin', '2025-11-18 15:24:15', NULL, '2025-11-18 15:24:51', '0');
+INSERT INTO `dict_ethnic_group` VALUES (40, '40 - 普米族   ', '40', '-', 'admin', '2025-11-18 15:24:15', NULL, '2025-11-18 15:24:52', '0');
+INSERT INTO `dict_ethnic_group` VALUES (41, '41 - 塔吉克族  ', '41', '-', 'admin', '2025-11-18 15:24:15', NULL, '2025-11-18 15:24:52', '0');
+INSERT INTO `dict_ethnic_group` VALUES (42, '42 - 怒族    ', '42', '-', 'admin', '2025-11-18 15:24:15', NULL, '2025-11-18 15:24:52', '0');
+INSERT INTO `dict_ethnic_group` VALUES (43, '43 - 乌孜别克族 ', '43', '-', 'admin', '2025-11-18 15:24:15', NULL, '2025-11-18 15:24:52', '0');
+INSERT INTO `dict_ethnic_group` VALUES (44, '44 - 俄罗斯族  ', '44', '-', 'admin', '2025-11-18 15:24:15', NULL, '2025-11-18 15:24:52', '0');
+INSERT INTO `dict_ethnic_group` VALUES (45, '45 - 鄂温克族  ', '45', '-', 'admin', '2025-11-18 15:24:15', NULL, '2025-11-18 15:24:52', '0');
+INSERT INTO `dict_ethnic_group` VALUES (46, '46 - 德昂族   ', '46', '-', 'admin', '2025-11-18 15:24:16', NULL, '2025-11-18 15:24:52', '0');
+INSERT INTO `dict_ethnic_group` VALUES (47, '47 - 保安族   ', '47', '-', 'admin', '2025-11-18 15:24:16', NULL, '2025-11-18 15:24:52', '0');
+INSERT INTO `dict_ethnic_group` VALUES (48, '48 - 裕固族   ', '48', '-', 'admin', '2025-11-18 15:24:16', NULL, '2025-11-18 15:24:52', '0');
+INSERT INTO `dict_ethnic_group` VALUES (49, '49 - 京族    ', '49', '-', 'admin', '2025-11-18 15:24:16', NULL, '2025-11-18 15:24:52', '0');
+INSERT INTO `dict_ethnic_group` VALUES (50, '50 - 塔塔尔族  ', '50', '-', 'admin', '2025-11-18 15:24:16', NULL, '2025-11-18 15:24:52', '0');
+INSERT INTO `dict_ethnic_group` VALUES (51, '51 - 独龙族   ', '51', '-', 'admin', '2025-11-18 15:24:16', NULL, '2025-11-18 15:24:53', '0');
+INSERT INTO `dict_ethnic_group` VALUES (52, '52 - 鄂伦春族  ', '52', '-', 'admin', '2025-11-18 15:24:16', NULL, '2025-11-18 15:24:53', '0');
+INSERT INTO `dict_ethnic_group` VALUES (53, '53 - 赫哲族   ', '53', '-', 'admin', '2025-11-18 15:24:16', NULL, '2025-11-18 15:24:53', '0');
+INSERT INTO `dict_ethnic_group` VALUES (54, '54 - 门巴族   ', '54', '-', 'admin', '2025-11-18 15:24:16', NULL, '2025-11-18 15:24:53', '0');
+INSERT INTO `dict_ethnic_group` VALUES (55, '55 - 珞巴族   ', '55', '-', 'admin', '2025-11-18 15:24:16', NULL, NULL, '0');
+INSERT INTO `dict_ethnic_group` VALUES (56, '56 - 基诺族   ', '56', '-', 'admin', '2025-11-18 15:24:17', NULL, NULL, '0');
+INSERT INTO `dict_ethnic_group` VALUES (57, '66 - 其他    ', '66', '-', 'admin', '2025-11-18 15:24:17', NULL, NULL, '0');
+INSERT INTO `dict_ethnic_group` VALUES (58, '99 - 外籍人士  ', '99', '-', 'admin', '2025-11-18 15:24:17', NULL, NULL, '0');
+
+-- 行政区划代码表 初始记录见dict_administrative_division.sql
+DROP TABLE IF EXISTS `dict_administrative_division`;
+CREATE TABLE `dict_administrative_division` (
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '主键id自增',
+  `name` varchar(256) NOT NULL COMMENT '行政区划名称',
+  `code` varchar(6) NOT NULL COMMENT '行政区划代码',
+  `level` tinyint(1) NOT NULL COMMENT '行政级别(1:省级,2:市级,3:县级)',
+  `parent_code` varchar(6) DEFAULT NULL COMMENT '上级行政区划代码',
+  `remark` varchar(1024) DEFAULT '-' COMMENT '备注说明',
+  `create_by` varchar(64) DEFAULT NULL COMMENT '创建者',
+  `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `update_by` varchar(64) DEFAULT NULL COMMENT '更新者',
+  `update_time` datetime DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  `del_flag` char(1) DEFAULT '0' COMMENT '逻辑删除标记(0:正常,1:删除)',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `idx_division_code` (`code`),
+  KEY `idx_division_parent` (`parent_code`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='行政区划代码表(GB/T 2260-2013)';
+
+-- 政府机关代码
+DROP TABLE IF EXISTS `gov_agency`;
+CREATE TABLE `gov_agency` (
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '主键id自增',
+  `name` varchar(256) NOT NULL COMMENT '机构名称',
+  `code` varchar(12) NOT NULL COMMENT '机构代码',
+  `parent_code` varchar(12) DEFAULT NULL COMMENT '上级机构代码',
+  `level` tinyint(1) NOT NULL COMMENT '机构级别',
+  `remark` varchar(1024) DEFAULT '-' COMMENT '备注说明',
+  `create_by` varchar(64) DEFAULT NULL COMMENT '创建者',
+  `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `update_by` varchar(64) DEFAULT NULL COMMENT '更新者',
+  `update_time` datetime DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  `del_flag` char(1) DEFAULT '0' COMMENT '逻辑删除标记(0:正常,1:删除)',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `idx_police_agency_code` (`code`),
+  KEY `idx_police_agency_parent` (`parent_code`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='政府机关代码表';
+
+-- 统一机构信息表
+DROP TABLE IF EXISTS `unique_org`;
+CREATE TABLE `unique_org` (
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '主键id自增',
+  `org_id` varchar(64) NOT NULL COMMENT '统一机构编号',
+  `org_name` varchar(256) NOT NULL COMMENT '统一机构名称',
+  `org_code` varchar(64) NOT NULL COMMENT '统一机构代码',
+  `sname` varchar(128) DEFAULT NULL COMMENT '简称',
+  `fname` varchar(512) DEFAULT NULL COMMENT '全称',
+  `division_code` varchar(64) DEFAULT NULL COMMENT '区域代码',
+  `parent_id` varchar(64) DEFAULT NULL COMMENT '上级机构编号',
+  `address` varchar(512) DEFAULT NULL COMMENT '地址',
+  `office_tel` varchar(32) DEFAULT NULL COMMENT '办公电话',
+  `email` varchar(128) DEFAULT NULL COMMENT '电子邮件',
+  `order_id` varchar(64) DEFAULT NULL COMMENT '排序Id',
+  `create_by` varchar(64) DEFAULT NULL COMMENT '创建者',
+  `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `update_by` varchar(64) DEFAULT NULL COMMENT '更新者',
+  `update_time` datetime DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  `del_flag` char(1) DEFAULT '0' COMMENT '逻辑删除标记(0:正常,1:删除)',
+  PRIMARY KEY (`id`),
+  KEY `idx_org_code` (`org_code`),
+  KEY `idx_org_parent` (`parent_id`),
+  KEY `idx_org_region` (`division_code`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='统一机构信息表';
+
+-- 统一用户信息表
+DROP TABLE IF EXISTS `unique_user`;
+CREATE TABLE `unique_user` (
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '主键id自增',
+  `app_key` varchar(64) DEFAULT NULL COMMENT '应用代码',
+  `login_id` varchar(64) DEFAULT NULL COMMENT '用户账号',
+  `nickname` varchar(128) DEFAULT NULL COMMENT '用户昵称',
+  `name` varchar(128) DEFAULT NULL COMMENT '用户姓名',
+  `type` char(1) NOT NULL COMMENT '用户类型(0-个人用户 1-单位用户 2-其他)',
+  `unique_roles` varchar(1024) DEFAULT NULL COMMENT '用户拥有的公共角色以及在当前应用下拥有的角色，多个角色逗号隔开',
+  `id_card` varchar(18) DEFAULT NULL COMMENT '身份证号',
+  `division_code` varchar(64) DEFAULT NULL COMMENT '区域代码',
+  `agency_code` varchar(64) DEFAULT NULL COMMENT '所属单位代码',
+  `unique_org_code` varchar(64) DEFAULT NULL COMMENT '所属机构代码',
+  `email` varchar(128) DEFAULT NULL COMMENT '用户邮箱',
+  `mobile` varchar(128) DEFAULT NULL COMMENT '手机号码',
+  `sex` int(3) DEFAULT NULL COMMENT '用户性别',
+  `avatar` varchar(128) DEFAULT NULL COMMENT '用户头像',
+  `login_ip` varchar(128) DEFAULT NULL COMMENT '最后登录IP',
+  `access_token` varchar(64) NOT NULL COMMENT '访问令牌',
+  `refresh_token` varchar(64) DEFAULT NULL COMMENT '刷新令牌',
+  `expires_time` datetime DEFAULT NULL COMMENT 'token到期时间',
+  `login_date` datetime DEFAULT NULL COMMENT '最后登录时间',
+  `create_by` varchar(64) DEFAULT NULL COMMENT '创建者',
+  `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `update_by` varchar(64) DEFAULT NULL COMMENT '更新者',
+  `update_time` datetime DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  `del_flag` char(1) DEFAULT '0' COMMENT '逻辑删除标记(0:正常,1:删除)',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `idx_username` (`login_id`),
+  KEY `idx_user_type` (`type`),
+  KEY `idx_user_region` (`division_code`),
+  KEY `idx_id_card` (`id_card`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='统一用户信息表';
+
+-- 统一角色信息表
+DROP TABLE IF EXISTS `unique_role`;
+CREATE TABLE `unique_role` (
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '主键id自增',
+  `role_id` varchar(64) NOT NULL COMMENT '统一角色编号',
+  `name` varchar(128) NOT NULL COMMENT '角色名称',
+  `code` varchar(64) DEFAULT NULL COMMENT '角色代码',
+  `sort` int(11) NOT NULL COMMENT '显示顺序',
+  `status` int(2) NOT NULL COMMENT '状态(0-禁用 1-启用)',
+  `type` int(2) NOT NULL COMMENT '角色类型(参见dict_item -- RoleType)',
+  `remark` varchar(512) DEFAULT NULL COMMENT '备注',
+  `create_by` varchar(64) DEFAULT NULL COMMENT '创建者',
+  `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `update_by` varchar(64) DEFAULT NULL COMMENT '更新者',
+  `update_time` datetime DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  `del_flag` char(1) DEFAULT '0' COMMENT '逻辑删除标记(0:正常,1:删除)',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `idx_role_name` (`name`),
+  UNIQUE KEY `idx_role_code` (`code`),
+  KEY `idx_role_type` (`type`),
+  KEY `idx_role_status` (`status`),
+  KEY `idx_role_sort` (`sort`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='统一角色信息表';
+
+-- 2. 系统表
 
 -- ----------------------------
 -- Table structure for sys_dept
@@ -726,6 +1309,7 @@ CREATE TABLE `sys_job_log` (
 ) ENGINE=InnoDB  COMMENT='定时任务执行日志表';
 
 
+-- 3. Quartz表
 --
 -- Quartz seems to work best with the driver mm.mysql-2.0.7-bin.jar
 --

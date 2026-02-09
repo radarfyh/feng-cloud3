@@ -56,7 +56,7 @@ import org.springframework.web.servlet.ModelAndView;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import ltd.huntinginfo.feng.admin.api.entity.SysOauthClientDetails;
 import ltd.huntinginfo.feng.admin.api.feign.RemoteClientDetailsService;
-import ltd.huntinginfo.feng.admin.api.vo.TokenVo;
+import ltd.huntinginfo.feng.admin.api.vo.dict.TokenVo;
 import ltd.huntinginfo.feng.auth.support.handler.FengAuthenticationFailureEventHandler;
 import ltd.huntinginfo.feng.common.core.constant.CacheConstants;
 import ltd.huntinginfo.feng.common.core.constant.CommonConstants;
