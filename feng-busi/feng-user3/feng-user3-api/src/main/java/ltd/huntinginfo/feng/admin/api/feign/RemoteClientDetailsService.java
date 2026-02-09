@@ -33,7 +33,7 @@ import org.springframework.web.bind.annotation.PathVariable;
  * @author lengleng
  * @date 2025/05/30
  */
-@FeignClient(contextId = "remoteClientDetailsService", value = ServiceNameConstants.UPMS_SERVICE)
+@FeignClient(contextId = "remoteClientDetailsService", value = ServiceNameConstants.USER3_SERVICE)
 public interface RemoteClientDetailsService {
 
 	/**

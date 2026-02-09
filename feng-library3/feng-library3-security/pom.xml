@@ -40,7 +40,7 @@
             <groupId>cn.hutool</groupId>
             <artifactId>hutool-extra</artifactId>
         </dependency>
-        <!--UPMS API-->
+        <!--USER3 API-->
         <dependency>
             <groupId>ltd.huntinginfo</groupId>
             <artifactId>feng-user3-api</artifactId>

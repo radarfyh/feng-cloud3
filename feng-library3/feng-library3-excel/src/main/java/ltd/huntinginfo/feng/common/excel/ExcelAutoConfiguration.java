@@ -58,7 +58,7 @@ public class ExcelAutoConfiguration {
 	private String getBaseUrl() {
 		// 根据当前架构模式，组装URL
 		if (SpringContextHolder.isMicro()) {
-			return String.format("http://%s", ServiceNameConstants.UPMS_SERVICE);
+			return String.format("http://%s", ServiceNameConstants.USER3_SERVICE);
 		}
 		else {
 			return String.format("http://%s", SpringContextHolder.getEnvironment()

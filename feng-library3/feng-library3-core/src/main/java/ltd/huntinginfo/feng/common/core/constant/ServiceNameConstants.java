@@ -28,8 +28,8 @@ public interface ServiceNameConstants {
 	String AUTH_SERVICE = "feng-auth";
 
 	/**
-	 * UPMS模块
+	 * USER3模块
 	 */
-	String UPMS_SERVICE = "feng-user3-biz";
+	String USER3_SERVICE = "feng-user3-biz";
 
 }

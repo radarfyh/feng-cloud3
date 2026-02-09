@@ -24,7 +24,7 @@
 	<description>feng cloud 统一消息中心业务处理模块</description>
 
 	<dependencies>
-		<!--upms api、model 模块 -->
+		<!--center api、model 模块 -->
 		<dependency>
 			<groupId>ltd.huntinginfo</groupId>
 			<artifactId>feng-message-center-api</artifactId>

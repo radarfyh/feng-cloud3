@@ -33,7 +33,7 @@ import org.springframework.web.bind.annotation.RequestBody;
  * @author lengleng
  * @date 2025/05/30
  */
-@FeignClient(contextId = "remoteLogService", value = ServiceNameConstants.UPMS_SERVICE)
+@FeignClient(contextId = "remoteLogService", value = ServiceNameConstants.USER3_SERVICE)
 public interface RemoteLogService {
 
 	/**

@@ -45,7 +45,7 @@
 			<groupId>ltd.huntinginfo</groupId>
 			<artifactId>feng-library3-feign</artifactId>
 		</dependency>
-		<!--upms api、model 模块-->
+		<!--user3 api、model 模块-->
 		<dependency>
 			<groupId>ltd.huntinginfo</groupId>
 			<artifactId>feng-user3-api</artifactId>

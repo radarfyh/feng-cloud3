@@ -34,7 +34,7 @@ import org.springframework.web.bind.annotation.GetMapping;
  * @author lengleng
  * @date 2025/05/30
  */
-@FeignClient(contextId = "remoteUserService", value = ServiceNameConstants.UPMS_SERVICE)
+@FeignClient(contextId = "remoteUserService", value = ServiceNameConstants.USER3_SERVICE)
 public interface RemoteUserService {
 
 	/**

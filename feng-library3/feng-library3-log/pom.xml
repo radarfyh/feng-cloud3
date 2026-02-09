@@ -44,7 +44,7 @@
             <groupId>cn.hutool</groupId>
             <artifactId>hutool-http</artifactId>
         </dependency>
-        <!--UPMS接口模块-->
+        <!--USER3接口模块-->
         <dependency>
             <groupId>ltd.huntinginfo</groupId>
             <artifactId>feng-user3-api</artifactId>

@@ -16,7 +16,7 @@ import java.util.List;
  * @author lengleng
  * @date 2025/05/30
  */
-@FeignClient(contextId = "remoteDictService", value = ServiceNameConstants.UPMS_SERVICE)
+@FeignClient(contextId = "remoteDictService", value = ServiceNameConstants.USER3_SERVICE)
 public interface RemoteDictService {
 
 	/**
