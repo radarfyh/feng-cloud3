@@ -35,7 +35,7 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
 
-import jakarta.annotation.PostConstruct;
+import javax.annotation.PostConstruct;
 import java.time.ZoneId;
 
 /**
@@ -65,11 +65,24 @@ public class ConsoleWebConfig {
     @Bean
     public CorsFilter corsFilter() {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowCredentials(true);
-        config.addAllowedHeader("*");
-        config.setMaxAge(18000L);
-        config.addAllowedMethod("*");
-        config.addAllowedOriginPattern("*");
+        ConsoleCorsConfig corsConfig = new ConsoleCorsConfig();
+        config.setAllowCredentials(corsConfig.isAllowCredentials());
+        if (corsConfig.getAllowedHeaders().isEmpty()) {
+            config.addAllowedHeader("*");
+        } else {
+            config.setAllowedHeaders(corsConfig.getAllowedHeaders());
+        }
+        config.setMaxAge(corsConfig.getMaxAge());
+        if (corsConfig.getAllowedMethods().isEmpty()) {
+            config.addAllowedMethod("*");
+        } else {
+            config.setAllowedMethods(corsConfig.getAllowedMethods());
+        }
+        if (corsConfig.getAllowedOrigins().isEmpty()) {
+            config.addAllowedOriginPattern("*");
+        } else {
+            config.setAllowedOrigins(corsConfig.getAllowedOrigins());
+        }
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);
         return new CorsFilter(source);

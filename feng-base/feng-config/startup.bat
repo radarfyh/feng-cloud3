@@ -1,1 +1,1 @@
-java -jar target\feng-config-3.4.6.jar -Xmx256m -Xms128m
+java -jar target\feng-config-3.4.9.jar -Xmx256m -Xms128m

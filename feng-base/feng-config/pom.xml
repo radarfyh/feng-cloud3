@@ -33,6 +33,7 @@
         <spring-boot.version>${project.version}</spring-boot.version>
         <spring-boot-admin.version>${project.version}</spring-boot-admin.version>
         <derby.version>10.14.2.0</derby.version>
+        <mcp.version>0.14.1</mcp.version>
     </properties>    
     <dependencies>
         <dependency>
@@ -96,7 +97,10 @@
             <artifactId>derby</artifactId>
             <version>${derby.version}</version>
         </dependency>
-                    
+        <dependency>
+            <groupId>io.modelcontextprotocol.sdk</groupId>
+            <artifactId>mcp</artifactId>
+        </dependency>
         <!-- log -->
         <!-- log4j通过slf4j来代理 -->
         <dependency>
@@ -170,6 +174,12 @@
                 <groupId>org.apache.tomcat</groupId>
                 <artifactId>tomcat-annotations-api</artifactId>
                 <version>${tomcat.version}</version>
+            </dependency>
+            <!-- MCP -->
+            <dependency>
+                <groupId>io.modelcontextprotocol.sdk</groupId>
+                <artifactId>mcp</artifactId>
+                <version>${mcp.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>    

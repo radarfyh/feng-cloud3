@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package com.alibaba.nacos.console.handler.impl.inner;
+package com.alibaba.nacos.console.handler.ai;
 
-import com.alibaba.nacos.sys.env.Constants;
+import com.alibaba.nacos.ai.config.AiEnabledFilter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 
 import java.lang.annotation.Documented;
@@ -33,7 +33,7 @@ import java.lang.annotation.Target;
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-@ConditionalOnProperty(value = Constants.NACOS_DEPLOYMENT_TYPE, havingValue = Constants.NACOS_DEPLOYMENT_TYPE_MERGED, matchIfMissing = true)
-public @interface EnabledInnerHandler {
+@ConditionalOnProperty(value = AiEnabledFilter.AI_ENABLED_KEY, havingValue = "true", matchIfMissing = true)
+public @interface EnabledAiHandler {
 
 }
