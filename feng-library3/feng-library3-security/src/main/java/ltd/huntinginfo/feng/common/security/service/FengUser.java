@@ -49,15 +49,15 @@ public class FengUser extends User implements OAuth2AuthenticatedPrincipal {
 	 * 用户ID
 	 */
 	@Getter
-	@JsonSerialize(using = ToStringSerializer.class)
-	private final Long id;
+//	@JsonSerialize(using = ToStringSerializer.class)
+	private final String id;
 
 	/**
 	 * 部门ID
 	 */
 	@Getter
-	@JsonSerialize(using = ToStringSerializer.class)
-	private final Long deptId;
+//	@JsonSerialize(using = ToStringSerializer.class)
+	private final String deptId;
 
 	/**
 	 * 手机号
@@ -65,7 +65,7 @@ public class FengUser extends User implements OAuth2AuthenticatedPrincipal {
 	@Getter
 	private final String phone;
 
-	public FengUser(Long id, Long deptId, String username, String password, String phone, boolean enabled,
+	public FengUser(String id, String deptId, String username, String password, String phone, boolean enabled,
 			boolean accountNonExpired, boolean credentialsNonExpired, boolean accountNonLocked,
 			Collection<? extends GrantedAuthority> authorities) {
 		super(username, password, enabled, accountNonExpired, credentialsNonExpired, accountNonLocked, authorities);

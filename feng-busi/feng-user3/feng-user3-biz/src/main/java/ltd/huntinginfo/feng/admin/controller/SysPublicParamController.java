@@ -92,7 +92,7 @@ public class SysPublicParamController {
 	 */
 	@Operation(description = "通过id查询公共参数", summary = "通过id查询公共参数")
 	@GetMapping("/details/{publicId}")
-	public R getById(@PathVariable("publicId") Long publicId) {
+	public R getById(@PathVariable("publicId") String publicId) {
 		return R.ok(sysPublicParamService.getById(publicId));
 	}
 
@@ -142,7 +142,7 @@ public class SysPublicParamController {
 	@SysLog("删除公共参数")
 	@HasPermission("sys_syspublicparam_del")
 	@Operation(description = "删除公共参数", summary = "删除公共参数")
-	public R removeById(@RequestBody Long[] ids) {
+	public R removeById(@RequestBody String[] ids) {
 		return R.ok(sysPublicParamService.removeParamByIds(ids));
 	}
 

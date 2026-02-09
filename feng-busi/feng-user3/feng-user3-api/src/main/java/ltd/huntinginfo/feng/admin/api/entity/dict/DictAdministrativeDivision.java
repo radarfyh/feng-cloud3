@@ -18,8 +18,8 @@ public class DictAdministrativeDivision implements Serializable {
 	/**
      * 主键id自增
      */
-    @TableId(type = IdType.AUTO)
-    private Integer id;
+    @TableId(type = IdType.ASSIGN_UUID)
+    private String id;
 
     /**
      * 行政区划名称

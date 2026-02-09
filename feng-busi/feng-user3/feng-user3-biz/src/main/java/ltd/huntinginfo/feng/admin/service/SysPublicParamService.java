@@ -48,7 +48,7 @@ public interface SysPublicParamService extends IService<SysPublicParam> {
 	 * @param publicIds 参数ID数组
 	 * @return 删除结果
 	 */
-	R removeParamByIds(Long[] publicIds);
+	R removeParamByIds(String[] publicIds);
 
 	/**
 	 * 同步参数缓存

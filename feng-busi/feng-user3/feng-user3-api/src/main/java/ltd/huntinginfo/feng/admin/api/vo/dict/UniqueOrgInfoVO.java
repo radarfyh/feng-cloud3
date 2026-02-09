@@ -15,7 +15,7 @@ public class UniqueOrgInfoVO implements Serializable {
 
     @Schema(description = "主键ID", 
            example = "1")
-    private Integer id;
+    private String id;
 
     @Schema(description = "机构编号", 
            example = "ORG001")

@@ -44,7 +44,7 @@ public interface SysRoleService extends IService<SysRole> {
 	 * @param userId 用户ID
 	 * @return 角色信息列表
 	 */
-	List<SysRole> listRolesByUserId(Long userId);
+	List<SysRole> listRolesByUserId(String userId);
 
 	/**
 	 * 根据角色ID列表查询角色信息
@@ -52,14 +52,14 @@ public interface SysRoleService extends IService<SysRole> {
 	 * @param key 缓存键值
 	 * @return 查询到的角色列表
 	 */
-	List<SysRole> listRolesByRoleIds(List<Long> roleIdList, String key);
+	List<SysRole> listRolesByRoleIds(List<String> roleIdList, String key);
 
 	/**
 	 * 通过角色ID数组删除角色
 	 * @param ids 要删除的角色ID数组
 	 * @return 删除是否成功
 	 */
-	Boolean removeRoleByIds(Long[] ids);
+	Boolean removeRoleByIds(String[] ids);
 
 	/**
 	 * 更新角色菜单列表

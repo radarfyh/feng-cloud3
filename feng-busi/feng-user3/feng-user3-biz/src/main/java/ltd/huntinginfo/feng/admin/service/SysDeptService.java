@@ -41,14 +41,14 @@ public interface SysDeptService extends IService<SysDept> {
 	 * @param deptName 部门名称
 	 * @return 部门树结构
 	 */
-	List<Tree<Long>> getDeptTree(String deptName);
+	List<Tree<String>> getDeptTree(String deptName);
 
 	/**
 	 * 根据部门ID删除部门
 	 * @param id 要删除的部门ID
 	 * @return 删除操作是否成功，成功返回true，失败返回false
 	 */
-	Boolean removeDeptById(Long id);
+	Boolean removeDeptById(String id);
 
 	/**
 	 * 导出部门Excel数据列表
@@ -69,6 +69,6 @@ public interface SysDeptService extends IService<SysDept> {
 	 * @param deptId 部门ID
 	 * @return 后代部门列表，如果不存在则返回空列表
 	 */
-	List<SysDept> listDescendants(Long deptId);
+	List<SysDept> listDescendants(String deptId);
 
 }

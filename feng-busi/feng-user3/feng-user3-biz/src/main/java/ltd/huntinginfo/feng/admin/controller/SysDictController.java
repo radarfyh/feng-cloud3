@@ -71,7 +71,7 @@ public class SysDictController {
 	 */
 	@GetMapping("/details/{id}")
 	@Operation(summary = "通过ID查询字典信息", description = "通过ID查询字典信息")
-	public R getById(@PathVariable Long id) {
+	public R getById(@PathVariable String id) {
 		return R.ok(sysDictService.getById(id));
 	}
 
@@ -125,7 +125,7 @@ public class SysDictController {
 	@PreAuthorize("@pms.hasPermission('sys_dict_del')")
 	@Operation(summary = "删除字典并清除字典缓存", description = "删除字典并清除字典缓存")
 	@CacheEvict(value = CacheConstants.DICT_DETAILS, allEntries = true)
-	public R removeById(@RequestBody Long[] ids) {
+	public R removeById(@RequestBody String[] ids) {
 		return R.ok(sysDictService.removeDictByIds(ids));
 	}
 
@@ -175,7 +175,7 @@ public class SysDictController {
 	 */
 	@GetMapping("/item/details/{id}")
 	@Operation(summary = "通过id查询字典项详情", description = "通过id查询字典项详情")
-	public R getDictItemById(@PathVariable("id") Long id) {
+	public R getDictItemById(@PathVariable("id") String id) {
 		return R.ok(sysDictItemService.getById(id));
 	}
 
@@ -223,7 +223,7 @@ public class SysDictController {
 	@SysLog("通过id删除字典项")
 	@DeleteMapping("/item/{id}")
 	@Operation(summary = "通过id删除字典项", description = "通过id删除字典项")
-	public R removeDictItemById(@PathVariable Long id) {
+	public R removeDictItemById(@PathVariable String id) {
 		return sysDictItemService.removeDictItem(id);
 	}
 

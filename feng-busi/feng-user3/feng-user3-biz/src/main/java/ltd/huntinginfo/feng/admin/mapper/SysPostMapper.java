@@ -37,6 +37,6 @@ public interface SysPostMapper extends BaseMapper<SysPost> {
 	 * @param userId 用户id
 	 * @return 岗位信息
 	 */
-	List<SysPost> listPostsByUserId(Long userId);
+	List<SysPost> listPostsByUserId(String userId);
 
 }

@@ -15,9 +15,9 @@ import java.util.Date;
 public class UniqueUserInfoDTO implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    @Schema(description = "主键ID（自增）", 
+    @Schema(description = "主键UUID", 
            example = "1")
-    private Integer id;
+    private String id;
 
     @Schema(description = "用户账号", 
            example = "admin")

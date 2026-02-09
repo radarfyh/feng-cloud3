@@ -36,6 +36,6 @@ public interface SysRoleMenuService extends IService<SysRoleMenu> {
 	 * @param menuIds 菜单ID字符串，以逗号分隔
 	 * @return 更新是否成功
 	 */
-	Boolean saveRoleMenus(Long roleId, String menuIds);
+	Boolean saveRoleMenus(String roleId, String menuIds);
 
 }

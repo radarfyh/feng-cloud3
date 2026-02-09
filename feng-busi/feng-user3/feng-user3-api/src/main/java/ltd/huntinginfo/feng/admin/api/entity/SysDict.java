@@ -40,9 +40,9 @@ public class SysDict extends Model<SysDict> {
 	/**
 	 * 编号
 	 */
-	@TableId(type = IdType.ASSIGN_ID)
+	@TableId(type = IdType.ASSIGN_UUID)
 	@Schema(description = "字典编号")
-	private Long id;
+	private String id;
 
 	/**
 	 * 类型

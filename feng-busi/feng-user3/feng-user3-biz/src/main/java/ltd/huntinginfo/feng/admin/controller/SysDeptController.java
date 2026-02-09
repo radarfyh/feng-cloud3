@@ -61,7 +61,7 @@ public class SysDeptController {
 	 */
 	@GetMapping("/{id}")
 	@Operation(summary = "通过ID查询部门信息", description = "通过ID查询部门信息")
-	public R getById(@PathVariable Long id) {
+	public R getById(@PathVariable String id) {
 		return R.ok(sysDeptService.getById(id));
 	}
 
@@ -108,7 +108,7 @@ public class SysDeptController {
 	@DeleteMapping("/{id}")
 	@HasPermission("sys_dept_del")
 	@Operation(summary = "根据ID删除部门", description = "根据ID删除部门")
-	public R removeById(@PathVariable Long id) {
+	public R removeById(@PathVariable String id) {
 		return R.ok(sysDeptService.removeDeptById(id));
 	}
 
@@ -133,7 +133,7 @@ public class SysDeptController {
 	 */
 	@GetMapping(value = "/getDescendantList/{deptId}")
 	@Operation(summary = "获取部门子级列表", description = "获取部门子级列表")
-	public R getDescendantList(@PathVariable Long deptId) {
+	public R getDescendantList(@PathVariable String deptId) {
 		return R.ok(sysDeptService.listDescendants(deptId));
 	}
 

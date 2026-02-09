@@ -46,10 +46,10 @@ public class SysLog implements Serializable {
 	/**
 	 * 编号
 	 */
-	@TableId(type = IdType.ASSIGN_ID)
+	@TableId(type = IdType.ASSIGN_UUID)
 	@ExcelProperty("日志编号")
 	@Schema(description = "日志编号")
-	private Long id;
+	private String id;
 
 	/**
 	 * 日志类型

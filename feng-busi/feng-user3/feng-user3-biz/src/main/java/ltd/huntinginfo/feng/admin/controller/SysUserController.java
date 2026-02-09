@@ -98,7 +98,7 @@ public class SysUserController {
 	 */
 	@GetMapping("/details/{id}")
 	@Operation(summary = "通过ID查询用户信息", description = "通过ID查询用户信息")
-	public R user(@PathVariable Long id) {
+	public R user(@PathVariable String id) {
 		return R.ok(userService.getUserById(id));
 	}
 
@@ -124,7 +124,7 @@ public class SysUserController {
 	@DeleteMapping
 	@HasPermission("sys_user_del")
 	@Operation(summary = "根据ID删除用户", description = "根据ID删除用户")
-	public R userDel(@RequestBody Long[] ids) {
+	public R userDel(@RequestBody String[] ids) {
 		return R.ok(userService.removeUserByIds(ids));
 	}
 

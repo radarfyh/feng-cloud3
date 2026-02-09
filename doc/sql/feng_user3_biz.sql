@@ -1,3 +1,10 @@
+-- =============================================
+-- 数据库：feng_user3_biz
+-- 描述：用户中心数据库脚本
+-- mysql版本：8.4.7
+-- 创建时间：2026-01-29
+-- =============================================
+
 DROP DATABASE IF EXISTS `feng_user3_biz`;
 
 CREATE DATABASE  `feng_user3_biz` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
@@ -12,7 +19,7 @@ USE `feng_user3_biz`;
 -- 人员照片类型代码表
 DROP TABLE IF EXISTS `dict_person_photo_type`;
 CREATE TABLE `dict_person_photo_type` (
-  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '主键id自增',
+  `id` varchar(64) NOT NULL DEFAULT (UUID()) COMMENT '主键UUID' ,
   `name` varchar(256) NOT NULL COMMENT '照片类型名称',
   `code` varchar(32) NOT NULL COMMENT '照片类型代码',
   `remark` varchar(1024) DEFAULT '-' COMMENT '备注说明',
@@ -38,7 +45,7 @@ VALUES
 -- 汉语方言代码表
 DROP TABLE IF EXISTS `dict_chinese_dialect`;
 CREATE TABLE `dict_chinese_dialect` (
-  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '主键id自增',
+  `id` varchar(64) NOT NULL DEFAULT (UUID()) COMMENT '主键UUID',
   `name` varchar(256) NOT NULL COMMENT '方言名称',
   `code` varchar(32) NOT NULL COMMENT '方言代码',
   `remark` varchar(1024) DEFAULT '-' COMMENT '备注说明',
@@ -67,7 +74,7 @@ INSERT INTO `dict_chinese_dialect` (`name`, `code`, `create_by`, `update_by`) VA
 -- 足迹部位代码表
 DROP TABLE IF EXISTS `dict_footprint_position`;
 CREATE TABLE `dict_footprint_position` (
-  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '主键id自增',
+  `id` varchar(64) NOT NULL DEFAULT (UUID()) COMMENT '主键UUID',
   `name` varchar(256) NOT NULL COMMENT '足迹部位名称',
   `code` varchar(32) NOT NULL COMMENT '足迹部位代码',
   `remark` varchar(1024) DEFAULT '-' COMMENT '备注说明',
@@ -89,7 +96,7 @@ INSERT INTO `dict_footprint_position` (`name`, `code`, `create_by`, `update_by`)
 -- 足迹类型代码表
 DROP TABLE IF EXISTS `dict_footprint_type`;
 CREATE TABLE `dict_footprint_type` (
-  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '主键id自增',
+  `id` varchar(64) NOT NULL DEFAULT (UUID()) COMMENT '主键UUID',
   `name` varchar(256) NOT NULL COMMENT '足迹类型名称',
   `code` varchar(32) NOT NULL COMMENT '足迹类型代码',
   `remark` varchar(1024) DEFAULT '-' COMMENT '备注说明',
@@ -112,7 +119,7 @@ INSERT INTO `dict_footprint_type` (`name`, `code`, `create_by`, `update_by`) VAL
 -- 常用证件代码表
 DROP TABLE IF EXISTS `dict_common_certificate`;
 CREATE TABLE `dict_common_certificate` (
-  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '主键id自增',
+  `id` varchar(64) NOT NULL DEFAULT (UUID()) COMMENT '主键UUID',
   `name` varchar(256) NOT NULL COMMENT '证件类型名称',
   `code` varchar(3) NOT NULL COMMENT '证件类型代码',
   `remark` varchar(1024) DEFAULT '-' COMMENT '备注说明',
@@ -136,7 +143,7 @@ INSERT INTO `dict_common_certificate` (`name`, `code`, `create_by`, `update_by`)
 -- 国籍代码表
 DROP TABLE IF EXISTS `dict_nationality`;
 CREATE TABLE `dict_nationality` (
-  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '主键id自增',
+  `id` varchar(64) NOT NULL DEFAULT (UUID()) COMMENT '主键UUID',
   `name` varchar(256) NOT NULL COMMENT '国籍名称',
   `code` varchar(3) NOT NULL COMMENT '国籍代码',
   `remark` varchar(1024) DEFAULT '-' COMMENT '备注说明',
@@ -393,7 +400,7 @@ INSERT INTO `dict_nationality` VALUES (239, '赞比亚    ', '894', '-', NULL, '
 -- 民族代码表
 DROP TABLE IF EXISTS `dict_ethnic_group`;
 CREATE TABLE `dict_ethnic_group` (
-  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '主键id自增',
+  `id` varchar(64) NOT NULL DEFAULT (UUID()) COMMENT '主键UUID',
   `name` varchar(256) NOT NULL COMMENT '民族名称',
   `code` char(2) NOT NULL COMMENT '民族代码',
   `remark` varchar(1024) DEFAULT '-' COMMENT '备注说明',
@@ -469,7 +476,7 @@ INSERT INTO `dict_ethnic_group` VALUES (58, '99 - 外籍人士  ', '99', '-', 'a
 -- 行政区划代码表 初始记录见dict_administrative_division.sql
 DROP TABLE IF EXISTS `dict_administrative_division`;
 CREATE TABLE `dict_administrative_division` (
-  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '主键id自增',
+  `id` varchar(64) NOT NULL DEFAULT (UUID()) COMMENT '主键UUID',
   `name` varchar(256) NOT NULL COMMENT '行政区划名称',
   `code` varchar(6) NOT NULL COMMENT '行政区划代码',
   `level` tinyint(1) NOT NULL COMMENT '行政级别(1:省级,2:市级,3:县级)',
@@ -488,7 +495,7 @@ CREATE TABLE `dict_administrative_division` (
 -- 机关代码 （政府单位、民间组织等）
 DROP TABLE IF EXISTS `gov_agency`;
 CREATE TABLE `gov_agency` (
-  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '主键id自增',
+  `id` varchar(64) NOT NULL COMMENT '主键UUID',
   `name` varchar(256) NOT NULL COMMENT '机构名称',
   `code` varchar(12) NOT NULL COMMENT '机构代码',
   `parent_code` varchar(12) DEFAULT NULL COMMENT '上级机构代码',
@@ -507,7 +514,7 @@ CREATE TABLE `gov_agency` (
 -- 统一机构信息表，对接统一认证中心
 DROP TABLE IF EXISTS `unique_org`;
 CREATE TABLE `unique_org` (
-  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '主键id自增',
+  `id` varchar(64) NOT NULL DEFAULT (UUID()) COMMENT '主键UUID',
   `org_id` varchar(64) NOT NULL COMMENT '统一机构编号',
   `org_name` varchar(256) NOT NULL COMMENT '统一机构名称',
   `org_code` varchar(64) NOT NULL COMMENT '统一机构代码',
@@ -533,7 +540,7 @@ CREATE TABLE `unique_org` (
 -- 统一用户信息表，对接统一认证中心
 DROP TABLE IF EXISTS `unique_user`;
 CREATE TABLE `unique_user` (
-  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '主键id自增',
+  `id` varchar(64) NOT NULL DEFAULT (UUID()) COMMENT '主键UUID',
   `app_key` varchar(64) DEFAULT NULL COMMENT '应用代码',
   `login_id` varchar(64) DEFAULT NULL COMMENT '用户账号',
   `nickname` varchar(128) DEFAULT NULL COMMENT '用户昵称',
@@ -568,7 +575,7 @@ CREATE TABLE `unique_user` (
 -- 统一角色信息表，对接统一认证中心
 DROP TABLE IF EXISTS `unique_role`;
 CREATE TABLE `unique_role` (
-  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '主键id自增',
+  `id` varchar(64) NOT NULL DEFAULT (UUID()) COMMENT '主键UUID',
   `role_id` varchar(64) NOT NULL COMMENT '统一角色编号',
   `name` varchar(128) NOT NULL COMMENT '角色名称',
   `code` varchar(64) DEFAULT NULL COMMENT '角色代码',
@@ -596,7 +603,7 @@ CREATE TABLE `unique_role` (
 -- ----------------------------
 DROP TABLE IF EXISTS `sys_dept`;
 CREATE TABLE `sys_dept` (
-  `dept_id` bigint NOT NULL COMMENT '部门ID',
+  `dept_id` varchar(64) NOT NULL DEFAULT (UUID()) COMMENT '部门ID',
   `name` varchar(50)  DEFAULT NULL COMMENT '部门名称',
   `sort_order` int NOT NULL DEFAULT '0' COMMENT '排序',
   `create_by` varchar(64) DEFAULT NULL COMMENT '创建人',
@@ -633,7 +640,7 @@ COMMIT;
 -- ----------------------------
 DROP TABLE IF EXISTS `sys_dict`;
 CREATE TABLE `sys_dict` (
-  `id` bigint NOT NULL COMMENT '编号',
+  `id` varchar(64) NOT NULL DEFAULT (UUID()) COMMENT '编号',
   `dict_type` varchar(100)  DEFAULT NULL COMMENT '字典类型',
   `description` varchar(100)  DEFAULT NULL COMMENT '描述',
   `create_by` varchar(64) DEFAULT NULL COMMENT '创建人',
@@ -685,8 +692,8 @@ COMMIT;
 -- ----------------------------
 DROP TABLE IF EXISTS `sys_dict_item`;
 CREATE TABLE `sys_dict_item` (
-  `id` bigint NOT NULL COMMENT '编号',
-  `dict_id` bigint NOT NULL COMMENT '字典ID',
+  `id` varchar(64) NOT NULL DEFAULT (UUID()) COMMENT '编号',
+  `dict_id` varchar(64) NOT NULL COMMENT '字典ID',
   `item_value` varchar(100)  DEFAULT NULL COMMENT '字典项值',
   `label` varchar(100)  DEFAULT NULL COMMENT '字典项名称',
   `dict_type` varchar(100)  DEFAULT NULL COMMENT '字典类型',
@@ -800,7 +807,7 @@ COMMIT;
 -- ----------------------------
 DROP TABLE IF EXISTS `sys_file`;
 CREATE TABLE `sys_file` (
-  `id` bigint NOT NULL COMMENT '编号',
+  `id` varchar(64) NOT NULL DEFAULT (UUID()) COMMENT '编号',
   `file_name` varchar(100)  DEFAULT NULL COMMENT '文件名',
   `bucket_name` varchar(200)  DEFAULT NULL COMMENT '文件存储桶名称',
   `original` varchar(100)  DEFAULT NULL COMMENT '原始文件名',
@@ -825,7 +832,7 @@ COMMIT;
 -- ----------------------------
 DROP TABLE IF EXISTS `sys_log`;
 CREATE TABLE `sys_log` (
-  `id` bigint NOT NULL COMMENT '编号',
+  `id` varchar(64) NOT NULL DEFAULT (UUID()) COMMENT '编号',
   `log_type` char(1)  DEFAULT '0' COMMENT '日志类型',
   `title` varchar(255)  DEFAULT NULL COMMENT '日志标题',
   `service_id` varchar(32)  DEFAULT NULL COMMENT '服务ID',
@@ -853,12 +860,12 @@ CREATE TABLE `sys_log` (
 -- ----------------------------
 DROP TABLE IF EXISTS `sys_menu`;
 CREATE TABLE `sys_menu` (
-  `menu_id` bigint NOT NULL COMMENT '菜单ID',
+  `menu_id` varchar(64) NOT NULL DEFAULT (UUID()) COMMENT '菜单ID',
   `name` varchar(32)  DEFAULT NULL COMMENT '菜单名称',
   `en_name` varchar(128)  DEFAULT NULL COMMENT '英文名称',
   `permission` varchar(32)  DEFAULT NULL COMMENT '权限标识',
   `path` varchar(128)  DEFAULT NULL COMMENT '路由路径',
-  `parent_id` bigint DEFAULT NULL COMMENT '父菜单ID',
+  `parent_id` varchar(64) DEFAULT NULL COMMENT '父菜单ID',
   `icon` varchar(64)  DEFAULT NULL COMMENT '菜单图标',
   `visible` char(1)  DEFAULT '1' COMMENT '是否可见，0隐藏，1显示',
   `sort_order` int DEFAULT '1' COMMENT '排序值，越小越靠前',
@@ -963,7 +970,7 @@ COMMIT;
 -- ----------------------------
 DROP TABLE IF EXISTS `sys_oauth_client_details`;
 CREATE TABLE `sys_oauth_client_details` (
-  `id` bigint NOT NULL COMMENT 'ID',
+  `id` varchar(64) NOT NULL DEFAULT (UUID()) COMMENT 'ID',
   `client_id` varchar(32)  NOT NULL COMMENT '客户端ID',
   `resource_ids` varchar(256)  DEFAULT NULL COMMENT '资源ID集合',
   `client_secret` varchar(256)  DEFAULT NULL COMMENT '客户端秘钥',
@@ -1001,7 +1008,7 @@ COMMIT;
 -- ----------------------------
 DROP TABLE IF EXISTS `sys_post`;
 CREATE TABLE `sys_post` (
-  `post_id` bigint NOT NULL COMMENT '岗位ID',
+  `post_id` varchar(64) NOT NULL DEFAULT (UUID()) COMMENT '岗位ID',
   `post_code` varchar(64)  NOT NULL COMMENT '岗位编码',
   `post_name` varchar(50)  NOT NULL COMMENT '岗位名称',
   `post_sort` int NOT NULL COMMENT '岗位排序',
@@ -1026,7 +1033,7 @@ COMMIT;
 -- ----------------------------
 DROP TABLE IF EXISTS `sys_public_param`;
 CREATE TABLE `sys_public_param` (
-  `public_id` bigint NOT NULL COMMENT '编号',
+  `public_id` varchar(64) NOT NULL DEFAULT (UUID()) COMMENT '编号',
   `public_name` varchar(128)  DEFAULT NULL COMMENT '名称',
   `public_key` varchar(128)  DEFAULT NULL COMMENT '键',
   `public_value` varchar(128)  DEFAULT NULL COMMENT '值',
@@ -1062,7 +1069,7 @@ COMMIT;
 -- ----------------------------
 DROP TABLE IF EXISTS `sys_role`;
 CREATE TABLE `sys_role` (
-  `role_id` bigint NOT NULL COMMENT '角色ID',
+  `role_id` varchar(64) NOT NULL DEFAULT (UUID()) COMMENT '角色ID',
   `role_name` varchar(64)  DEFAULT NULL COMMENT '角色名称',
   `role_code` varchar(64)  DEFAULT NULL COMMENT '角色编码',
   `role_desc` varchar(255)  DEFAULT NULL COMMENT '角色描述',
@@ -1088,8 +1095,8 @@ COMMIT;
 -- ----------------------------
 DROP TABLE IF EXISTS `sys_role_menu`;
 CREATE TABLE `sys_role_menu` (
-  `role_id` bigint NOT NULL COMMENT '角色ID',
-  `menu_id` bigint NOT NULL COMMENT '菜单ID',
+  `role_id` varchar(64) NOT NULL COMMENT '角色ID',
+  `menu_id` varchar(64) NOT NULL COMMENT '菜单ID',
   PRIMARY KEY (`role_id`,`menu_id`) USING BTREE
 ) ENGINE=InnoDB  COMMENT='角色菜单表';
 
@@ -1186,7 +1193,7 @@ COMMIT;
 -- ----------------------------
 DROP TABLE IF EXISTS `sys_user`;
 CREATE TABLE `sys_user` (
-  `user_id` bigint NOT NULL COMMENT '用户ID',
+  `user_id` varchar(64) NOT NULL DEFAULT (UUID()) COMMENT '用户ID',
   `username` varchar(64)  DEFAULT NULL COMMENT '用户名',
   `password` varchar(255)  DEFAULT NULL COMMENT '密码',
   `salt` varchar(255)  DEFAULT NULL COMMENT '盐值',
@@ -1195,7 +1202,7 @@ CREATE TABLE `sys_user` (
   `nickname` varchar(64)  DEFAULT NULL COMMENT '昵称',
   `name` varchar(64)  DEFAULT NULL COMMENT '姓名',
   `email` varchar(128)  DEFAULT NULL COMMENT '邮箱地址',
-  `dept_id` bigint DEFAULT NULL COMMENT '所属部门ID',
+  `dept_id` varchar(64) DEFAULT NULL COMMENT '所属部门ID',
   `create_by` varchar(64) DEFAULT NULL COMMENT '创建人',
   `update_by` varchar(64) DEFAULT NULL COMMENT '修改人',
   `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
@@ -1225,8 +1232,8 @@ COMMIT;
 -- ----------------------------
 DROP TABLE IF EXISTS `sys_user_post`;
 CREATE TABLE `sys_user_post` (
-  `user_id` bigint NOT NULL COMMENT '用户ID',
-  `post_id` bigint NOT NULL COMMENT '岗位ID',
+  `user_id` varchar(64) NOT NULL COMMENT '用户ID',
+  `post_id` varchar(64) NOT NULL COMMENT '岗位ID',
   PRIMARY KEY (`user_id`,`post_id`) USING BTREE
 ) ENGINE=InnoDB  ROW_FORMAT=DYNAMIC COMMENT='用户与岗位关联表';
 
@@ -1242,8 +1249,8 @@ COMMIT;
 -- ----------------------------
 DROP TABLE IF EXISTS `sys_user_role`;
 CREATE TABLE `sys_user_role` (
-  `user_id` bigint NOT NULL COMMENT '用户ID',
-  `role_id` bigint NOT NULL COMMENT '角色ID',
+  `user_id` varchar(64) NOT NULL COMMENT '用户ID',
+  `role_id` varchar(64) NOT NULL COMMENT '角色ID',
   PRIMARY KEY (`user_id`,`role_id`) USING BTREE
 ) ENGINE=InnoDB  COMMENT='用户角色表';
 
@@ -1260,7 +1267,7 @@ COMMIT;
 -- ----------------------------
 DROP TABLE IF EXISTS `sys_job`;
 CREATE TABLE `sys_job` (
-  `job_id` bigint NOT NULL COMMENT '任务id',
+  `job_id` varchar(64) NOT NULL DEFAULT (UUID()) COMMENT '任务id',
   `job_name` varchar(64) NOT NULL COMMENT '任务名称',
   `job_group` varchar(64) NOT NULL COMMENT '任务组名',
   `job_order` char(1) DEFAULT '1' COMMENT '组内执行顺利，值越大执行优先级越高，最大值9，最小值1',
@@ -1289,8 +1296,8 @@ CREATE TABLE `sys_job` (
 -- ----------------------------
 DROP TABLE IF EXISTS `sys_job_log`;
 CREATE TABLE `sys_job_log` (
-  `job_log_id` bigint NOT NULL COMMENT '任务日志ID',
-  `job_id` bigint NOT NULL COMMENT '任务id',
+  `job_log_id` varchar(64) NOT NULL DEFAULT (UUID()) COMMENT '任务日志ID',
+  `job_id` varchar(64) NOT NULL COMMENT '任务id',
   `job_name` varchar(64)  DEFAULT NULL COMMENT '任务名称',
   `job_group` varchar(64)  DEFAULT NULL COMMENT '任务组名',
   `job_order` char(1)  DEFAULT NULL COMMENT '组内执行顺利，值越大执行优先级越高，最大值9，最小值1',

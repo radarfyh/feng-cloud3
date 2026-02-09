@@ -68,7 +68,7 @@ public class SysMenuController {
 	 */
 	@GetMapping
 	@Operation(summary = "获取当前用户的树形菜单集合", description = "获取当前用户的树形菜单集合")
-	public R getUserMenu(String type, Long parentId) {
+	public R getUserMenu(String type, String parentId) {
 		// 获取符合条件的菜单
 		Set<SysMenu> all = new HashSet<>();
 		SecurityUtils.getRoles().forEach(roleId -> all.addAll(sysMenuService.findMenuByRoleId(roleId)));
@@ -84,7 +84,7 @@ public class SysMenuController {
 	 */
 	@GetMapping(value = "/tree")
 	@Operation(summary = "获取树形菜单集合", description = "获取树形菜单集合")
-	public R getMenuTree(Long parentId, String menuName, String type) {
+	public R getMenuTree(String parentId, String menuName, String type) {
 		return R.ok(sysMenuService.getMenuTree(parentId, menuName, type));
 	}
 
@@ -95,7 +95,7 @@ public class SysMenuController {
 	 */
 	@GetMapping("/tree/{roleId}")
 	@Operation(summary = "根据角色ID获取菜单树", description = "根据角色ID获取菜单树")
-	public R getRoleTree(@PathVariable Long roleId) {
+	public R getRoleTree(@PathVariable String roleId) {
 		return R.ok(sysMenuService.findMenuByRoleId(roleId).stream().map(SysMenu::getMenuId).toList());
 	}
 
@@ -106,7 +106,7 @@ public class SysMenuController {
 	 */
 	@GetMapping("/{id}")
 	@Operation(summary = "通过ID查询菜单的详细信息", description = "通过ID查询菜单的详细信息")
-	public R getById(@PathVariable Long id) {
+	public R getById(@PathVariable String id) {
 		return R.ok(sysMenuService.getById(id));
 	}
 
@@ -133,7 +133,7 @@ public class SysMenuController {
 	@DeleteMapping("/{id}")
 	@HasPermission("sys_menu_del")
 	@Operation(summary = "根据菜单ID删除菜单", description = "根据菜单ID删除菜单")
-	public R removeById(@PathVariable Long id) {
+	public R removeById(@PathVariable String id) {
 		return sysMenuService.removeMenuById(id);
 	}
 

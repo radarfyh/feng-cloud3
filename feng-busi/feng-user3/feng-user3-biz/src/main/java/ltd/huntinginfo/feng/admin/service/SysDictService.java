@@ -33,7 +33,7 @@ public interface SysDictService extends IService<SysDict> {
 	 * @param ids 要删除的字典ID数组
 	 * @return 操作结果
 	 */
-	R removeDictByIds(Long[] ids);
+	R removeDictByIds(String[] ids);
 
 	/**
 	 * 更新字典

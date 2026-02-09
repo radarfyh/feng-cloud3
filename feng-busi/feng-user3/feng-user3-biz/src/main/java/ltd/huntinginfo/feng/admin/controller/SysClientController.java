@@ -110,7 +110,7 @@ public class SysClientController {
 	@DeleteMapping
 	@HasPermission("sys_client_del")
 	@Operation(summary = "根据ID列表批量删除终端", description = "根据ID列表批量删除终端")
-	public R removeById(@RequestBody Long[] ids) {
+	public R removeById(@RequestBody String[] ids) {
 		clientDetailsService.removeBatchByIds(CollUtil.toList(ids));
 		return R.ok();
 	}

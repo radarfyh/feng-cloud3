@@ -54,6 +54,6 @@ public interface SysFileService extends IService<SysFile> {
 	 * @param id 文件ID
 	 * @return 删除是否成功，文件不存在时返回false
 	 */
-	Boolean removeFile(Long id);
+	Boolean removeFile(String id);
 
 }

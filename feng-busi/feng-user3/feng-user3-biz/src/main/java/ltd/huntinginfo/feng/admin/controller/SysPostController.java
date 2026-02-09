@@ -87,7 +87,7 @@ public class SysPostController {
 	@HasPermission("sys_post_view")
 	@GetMapping("/details/{postId}")
 	@Operation(description = "通过id查询岗位信息", summary = "通过id查询岗位信息")
-	public R getById(@PathVariable("postId") Long postId) {
+	public R getById(@PathVariable("postId") String postId) {
 		return R.ok(sysPostService.getById(postId));
 	}
 
@@ -138,7 +138,7 @@ public class SysPostController {
 	@SysLog("通过id删除岗位信息表")
 	@HasPermission("sys_post_del")
 	@Operation(description = "通过id删除岗位信息表", summary = "通过id删除岗位信息表")
-	public R removeById(@RequestBody Long[] ids) {
+	public R removeById(@RequestBody String[] ids) {
 		return R.ok(sysPostService.removeBatchByIds(CollUtil.toList(ids)));
 	}
 

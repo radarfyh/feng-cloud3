@@ -46,9 +46,9 @@ public class SysDept extends Model<SysDept> {
 
 	private static final long serialVersionUID = 1L;
 
-	@TableId(value = "dept_id", type = IdType.ASSIGN_ID)
+	@TableId(value = "dept_id", type = IdType.ASSIGN_UUID)
 	@Schema(description = "部门id")
-	private Long deptId;
+	private String deptId;
 
 	/**
 	 * 部门名称
@@ -96,7 +96,7 @@ public class SysDept extends Model<SysDept> {
 	 * 父级部门id
 	 */
 	@Schema(description = "父级部门id")
-	private Long parentId;
+	private String parentId;
 
 	/**
 	 * 是否删除 1：已删除 0：正常

@@ -44,18 +44,18 @@ public class UserDTO extends SysUser {
 	 * 角色ID
 	 */
 	@Schema(description = "角色id集合")
-	private List<Long> role;
+	private List<String> role;
 
 	/**
 	 * 部门id
 	 */
 	@Schema(description = "部门id")
-	private Long deptId;
+	private String deptId;
 
 	/**
 	 * 岗位ID
 	 */
-	private List<Long> post;
+	private List<String> post;
 
 	/**
 	 * 新密码

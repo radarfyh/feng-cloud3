@@ -19,6 +19,7 @@
 
 package ltd.huntinginfo.feng.admin.service.impl;
 
+import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -164,7 +165,8 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
 	 */
 	@Override
 	public IPage getUsersWithRolePage(Page page, UserDTO userDTO) {
-		return baseMapper.getUsersPage(page, userDTO);
+		IPage result = baseMapper.getUsersPage(page, userDTO);
+		return result;
 	}
 
 	/**
@@ -173,10 +175,11 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
 	 * @return 用户信息VO对象
 	 */
 	@Override
-	public UserVO getUserById(Long id) {
-		UserDTO query = new UserDTO();
-		query.setUserId(id);
-		return baseMapper.getUser(query);
+	public UserVO getUserById(String id) {
+		SysUser user = baseMapper.selectById(id);
+		UserVO vo = new UserVO();
+		BeanUtils.copyProperties(user, vo);
+		return vo;
 	}
 
 	/**
@@ -187,8 +190,8 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
 	 */
 	@Override
 	@Transactional(rollbackFor = Exception.class)
-	public Boolean removeUserByIds(Long[] ids) {
-		List<Long> idList = CollUtil.toList(ids);
+	public Boolean removeUserByIds(String[] ids) {
+		List<String> idList = CollUtil.toList(ids);
 		// 删除 spring cache
 		Cache cache = cacheManager.getCache(CacheConstants.USER_DETAILS);
 		baseMapper.selectByIds(idList).forEach(user -> cache.evictIfPresent(user.getUsername()));
@@ -376,10 +379,10 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
 		// 根据部门名称查询部门ID
 		userDTO.setDeptId(deptOptional.get().getDeptId());
 		// 插入岗位名称
-		List<Long> postIdList = postCollList.stream().map(SysPost::getPostId).toList();
+		List<String> postIdList = postCollList.stream().map(SysPost::getPostId).toList();
 		userDTO.setPost(postIdList);
 		// 根据角色名称查询角色ID
-		List<Long> roleIdList = roleCollList.stream().map(SysRole::getRoleId).toList();
+		List<String> roleIdList = roleCollList.stream().map(SysRole::getRoleId).toList();
 		userDTO.setRole(roleIdList);
 		// 插入用户
 		this.saveUser(userDTO);

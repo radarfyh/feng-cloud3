@@ -49,9 +49,9 @@ public class SysMenu extends Model<SysMenu> {
 	/**
 	 * 菜单ID
 	 */
-	@TableId(value = "menu_id", type = IdType.ASSIGN_ID)
+	@TableId(value = "menu_id", type = IdType.ASSIGN_UUID)
 	@Schema(description = "菜单id")
-	private Long menuId;
+	private String menuId;
 
 	/**
 	 * 菜单名称
@@ -77,7 +77,7 @@ public class SysMenu extends Model<SysMenu> {
 	 */
 	@NotNull(message = "菜单父ID不能为空")
 	@Schema(description = "菜单父id")
-	private Long parentId;
+	private String parentId;
 
 	/**
 	 * 图标

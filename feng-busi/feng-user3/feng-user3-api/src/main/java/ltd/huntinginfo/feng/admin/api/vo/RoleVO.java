@@ -31,7 +31,7 @@ public class RoleVO {
 	/**
 	 * 角色id
 	 */
-	private Long roleId;
+	private String roleId;
 
 	/**
 	 * 菜单列表

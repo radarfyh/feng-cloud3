@@ -43,12 +43,12 @@ public class SysDeptRelation extends Model<SysDeptRelation> {
 	 * 祖先节点
 	 */
 	@Schema(description = "祖先节点")
-	private Long ancestor;
+	private String ancestor;
 
 	/**
 	 * 后代节点
 	 */
 	@Schema(description = "后代节点")
-	private Long descendant;
+	private String descendant;
 
 }

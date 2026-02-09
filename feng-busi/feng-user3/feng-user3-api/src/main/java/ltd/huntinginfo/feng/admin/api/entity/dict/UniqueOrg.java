@@ -22,11 +22,11 @@ import java.util.Date;
 public class UniqueOrg extends Model<UniqueOrg> implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    @TableId(type = IdType.AUTO)
-    @Schema(description = "主键ID（自增）", 
+    @TableId(type = IdType.ASSIGN_UUID)
+    @Schema(description = "主键UUID", 
            example = "1",
            requiredMode = RequiredMode.REQUIRED)
-    private Integer id;
+    private String id;
 
     @Schema(description = "机构编号", 
            example = "ORG001",

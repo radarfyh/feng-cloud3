@@ -22,11 +22,11 @@ import java.util.Date;
 public class UniqueRole extends Model<UniqueRole> implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    @TableId(type = IdType.AUTO)
-    @Schema(description = "主键ID（自增）", 
+    @TableId(type = IdType.ASSIGN_UUID)
+    @Schema(description = "主键UUID", 
            example = "1",
            requiredMode = RequiredMode.REQUIRED)
-    private Integer id;
+    private String id;
 
     @Schema(description = "统一角色编号", 
            example = "ROLE001",

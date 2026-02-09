@@ -44,9 +44,9 @@ public class SysPost extends Model<SysPost> {
 	/**
 	 * 岗位ID
 	 */
-	@TableId(value = "post_id", type = IdType.ASSIGN_ID)
+	@TableId(value = "post_id", type = IdType.ASSIGN_UUID)
 	@Schema(description = "岗位ID")
-	private Long postId;
+	private String postId;
 
 	/**
 	 * 岗位编码

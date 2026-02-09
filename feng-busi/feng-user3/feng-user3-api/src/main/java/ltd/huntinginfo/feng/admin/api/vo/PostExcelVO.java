@@ -34,7 +34,7 @@ public class PostExcelVO implements Serializable {
 	 * 主键ID
 	 */
 	@ExcelProperty("岗位编号")
-	private Long postId;
+	private String postId;
 
 	/**
 	 * 岗位名称

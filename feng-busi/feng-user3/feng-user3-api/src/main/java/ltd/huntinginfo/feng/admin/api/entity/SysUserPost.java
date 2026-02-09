@@ -38,12 +38,12 @@ public class SysUserPost extends Model<SysUserPost> {
 	 * 用户ID
 	 */
 	@Schema(description = "用户id")
-	private Long userId;
+	private String userId;
 
 	/**
 	 * 岗位ID
 	 */
 	@Schema(description = "岗位id")
-	private Long postId;
+	private String postId;
 
 }

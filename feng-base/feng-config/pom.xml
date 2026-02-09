@@ -19,23 +19,34 @@
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.4.9</version>
+        <groupId>ltd.huntinginfo</groupId>
+        <artifactId>feng-base</artifactId>
+        <version>${revision}</version>
     </parent>
+    
     <artifactId>feng-config</artifactId>
     <packaging>jar</packaging>
     <name>feng-config</name>
     <description>NACOS注册和配置中心</description>
+    
     <properties>
         <nacos.version>3.1.1</nacos.version>
         <tomcat.version>10.1.39</tomcat.version>
-        <spring-boot.version>${project.version}</spring-boot.version>
-        <spring-boot-admin.version>${project.version}</spring-boot-admin.version>
+        <spring-boot.version>3.4.9</spring-boot.version>
+        <spring-boot-admin.version>3.4.7</spring-boot-admin.version>
         <derby.version>10.14.2.0</derby.version>
         <mcp.version>0.14.1</mcp.version>
-    </properties>    
+    </properties>   
+     
     <dependencies>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>de.codecentric</groupId>
+            <artifactId>spring-boot-admin-starter-client</artifactId>
+        </dependency>
         <dependency>
             <groupId>com.alibaba.nacos</groupId>
             <artifactId>nacos-config</artifactId>
@@ -180,6 +191,12 @@
                 <groupId>io.modelcontextprotocol.sdk</groupId>
                 <artifactId>mcp</artifactId>
                 <version>${mcp.version}</version>
+            </dependency>
+            
+            <dependency>
+                <groupId>de.codecentric</groupId>
+                <artifactId>spring-boot-admin-starter-client</artifactId>
+                <version>${spring-boot-admin.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>    

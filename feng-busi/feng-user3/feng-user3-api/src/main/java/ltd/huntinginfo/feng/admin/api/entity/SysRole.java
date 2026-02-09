@@ -43,9 +43,9 @@ public class SysRole extends Model<SysRole> {
 
 	private static final long serialVersionUID = 1L;
 
-	@TableId(value = "role_id", type = IdType.ASSIGN_ID)
+	@TableId(value = "role_id", type = IdType.ASSIGN_UUID)
 	@Schema(description = "角色编号")
-	private Long roleId;
+	private String roleId;
 
 	@NotBlank(message = "角色名称不能为空")
 	@Schema(description = "角色名称")

@@ -15,9 +15,9 @@ import java.util.Date;
 public class UniqueUserInfoVO implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    @Schema(description = "主键ID（自增）", 
+    @Schema(description = "主键ID", 
            example = "1")
-    private Integer id;
+    private String id;
 
     @Schema(description = "应用代码")
     private String appKey;

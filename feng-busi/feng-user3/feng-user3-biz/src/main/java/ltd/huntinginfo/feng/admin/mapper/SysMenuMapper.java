@@ -41,6 +41,6 @@ public interface SysMenuMapper extends BaseMapper<SysMenu> {
 	 * @param roleId 角色ID
 	 * @return
 	 */
-	List<SysMenu> listMenusByRoleId(Long roleId);
+	List<SysMenu> listMenusByRoleId(String roleId);
 
 }

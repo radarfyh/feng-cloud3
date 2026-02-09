@@ -41,15 +41,15 @@ public class SysDictItem extends Model<SysDictItem> {
 	/**
 	 * 编号
 	 */
-	@TableId(type = IdType.ASSIGN_ID)
+	@TableId(type = IdType.ASSIGN_UUID)
 	@Schema(description = "字典项id")
-	private Long id;
+	private String id;
 
 	/**
 	 * 所属字典类id
 	 */
 	@Schema(description = "所属字典类id")
-	private Long dictId;
+	private String dictId;
 
 	/**
 	 * 数据值

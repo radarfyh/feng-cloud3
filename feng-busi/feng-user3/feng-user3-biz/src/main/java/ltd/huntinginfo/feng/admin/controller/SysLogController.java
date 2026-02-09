@@ -74,7 +74,7 @@ public class SysLogController {
 	@DeleteMapping
 	@HasPermission("sys_log_del")
 	@Operation(summary = "批量删除日志", description = "批量删除日志")
-	public R removeByIds(@RequestBody Long[] ids) {
+	public R removeByIds(@RequestBody String[] ids) {
 		return R.ok(sysLogService.removeBatchByIds(CollUtil.toList(ids)));
 	}
 

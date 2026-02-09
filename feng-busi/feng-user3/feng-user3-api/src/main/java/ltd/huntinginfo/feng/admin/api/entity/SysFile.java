@@ -45,9 +45,9 @@ public class SysFile extends Model<SysFile> {
 	/**
 	 * 编号
 	 */
-	@TableId(type = IdType.ASSIGN_ID)
+	@TableId(type = IdType.ASSIGN_UUID)
 	@Schema(description = "文件编号")
-	private Long id;
+	private String id;
 
 	/**
 	 * 文件名

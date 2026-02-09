@@ -43,9 +43,9 @@ public class SysOauthClientDetails extends Model<SysOauthClientDetails> {
 
 	private static final long serialVersionUID = 1L;
 
-	@TableId(value = "id", type = IdType.ASSIGN_ID)
+	@TableId(value = "id", type = IdType.ASSIGN_UUID)
 	@Schema(description = "id")
-	private Long id;
+	private String id;
 
 	/**
 	 * 客户端ID

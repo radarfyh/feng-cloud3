@@ -33,7 +33,7 @@ public class RoleExcelVO implements Serializable {
 	 * 主键ID
 	 */
 	@ExcelProperty("角色编号")
-	private Long roleId;
+	private String roleId;
 
 	/**
 	 * 角色名称

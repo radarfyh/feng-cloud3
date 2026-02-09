@@ -63,7 +63,7 @@ public interface SysUserService extends IService<SysUser> {
 	 * @param ids 用户
 	 * @return boolean
 	 */
-	Boolean removeUserByIds(Long[] ids);
+	Boolean removeUserByIds(String[] ids);
 
 	/**
 	 * 更新当前用户基本信息
@@ -84,7 +84,7 @@ public interface SysUserService extends IService<SysUser> {
 	 * @param id 用户ID
 	 * @return 用户信息
 	 */
-	UserVO getUserById(Long id);
+	UserVO getUserById(String id);
 
 	/**
 	 * 保存用户信息

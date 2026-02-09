@@ -68,7 +68,7 @@ public class SysRoleController {
 	 */
 	@GetMapping("/details/{id}")
 	@Operation(summary = "通过ID查询角色信息", description = "通过ID查询角色信息")
-	public R getById(@PathVariable Long id) {
+	public R getById(@PathVariable String id) {
 		return R.ok(sysRoleService.getById(id));
 	}
 
@@ -121,7 +121,7 @@ public class SysRoleController {
 	@HasPermission("sys_role_del")
 	@Operation(summary = "根据ID数组删除角色", description = "根据ID数组删除角色")
 	@CacheEvict(value = CacheConstants.ROLE_DETAILS, allEntries = true)
-	public R removeById(@RequestBody Long[] ids) {
+	public R removeById(@RequestBody String[] ids) {
 		return R.ok(sysRoleService.removeRoleByIds(ids));
 	}
 
@@ -168,7 +168,7 @@ public class SysRoleController {
 	 */
 	@PostMapping("/getRoleList")
 	@Operation(summary = "通过角色ID列表查询角色信息", description = "通过角色ID列表查询角色信息")
-	public R getRoleList(@RequestBody List<Long> roleIdList) {
+	public R getRoleList(@RequestBody List<String> roleIdList) {
 		return R.ok(sysRoleService.listRolesByRoleIds(roleIdList, CollUtil.join(roleIdList, StrUtil.UNDERLINE)));
 	}
 

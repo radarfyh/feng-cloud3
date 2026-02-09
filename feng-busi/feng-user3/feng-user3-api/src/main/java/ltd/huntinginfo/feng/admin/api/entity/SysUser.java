@@ -44,9 +44,9 @@ public class SysUser implements Serializable {
 	/**
 	 * 主键ID
 	 */
-	@TableId(value = "user_id", type = IdType.ASSIGN_ID)
+	@TableId(value = "user_id", type = IdType.ASSIGN_UUID)
 	@Schema(description = "主键id")
-	private Long userId;
+	private String userId;
 
 	/**
 	 * 用户名
@@ -125,7 +125,7 @@ public class SysUser implements Serializable {
 	 * 部门ID
 	 */
 	@Schema(description = "用户所属部门id")
-	private Long deptId;
+	private String deptId;
 
 	/**
 	 * 微信openid

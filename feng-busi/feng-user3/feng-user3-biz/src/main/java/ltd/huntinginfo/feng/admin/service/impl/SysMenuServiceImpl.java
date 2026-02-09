@@ -75,7 +75,7 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
 	 */
 	@Override
 	@Cacheable(value = CacheConstants.MENU_DETAILS, key = "#roleId", unless = "#result.isEmpty()")
-	public List<SysMenu> findMenuByRoleId(Long roleId) {
+	public List<SysMenu> findMenuByRoleId(String roleId) {
 		return baseMapper.listMenusByRoleId(roleId);
 	}
 
@@ -88,7 +88,7 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
 	@Override
 	@Transactional(rollbackFor = Exception.class)
 	@CacheEvict(value = CacheConstants.MENU_DETAILS, allEntries = true)
-	public R removeMenuById(Long id) {
+	public R removeMenuById(String id) {
 		// 查询父节点为当前节点的节点
 		List<SysMenu> menuList = this.list(Wrappers.<SysMenu>query().lambda().eq(SysMenu::getParentId, id));
 		if (CollUtil.isNotEmpty(menuList)) {
@@ -119,10 +119,10 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
 	 * @return 菜单树结构列表，模糊查询时返回平铺列表
 	 */
 	@Override
-	public List<Tree<Long>> getMenuTree(Long parentId, String menuName, String type) {
-		Long parent = parentId == null ? CommonConstants.MENU_TREE_ROOT_ID : parentId;
+	public List<Tree<String>> getMenuTree(String parentId, String menuName, String type) {
+		String parent = StrUtil.isBlank(parentId) ? CommonConstants.MENU_TREE_ROOT_ID : parentId;
 
-		List<TreeNode<Long>> collect = baseMapper
+		List<TreeNode<String>> collect = baseMapper
 			.selectList(Wrappers.<SysMenu>lambdaQuery()
 				.like(StrUtil.isNotBlank(menuName), SysMenu::getName, menuName)
 				.eq(StrUtil.isNotBlank(type), SysMenu::getMenuType, type)
@@ -134,7 +134,7 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
 		// 模糊查询 不组装树结构 直接返回 表格方便编辑
 		if (StrUtil.isNotBlank(menuName)) {
 			return collect.stream().map(node -> {
-				Tree<Long> tree = new Tree<>();
+				Tree<String> tree = new Tree<>();
 				tree.putAll(node.getExtra());
 				BeanUtils.copyProperties(node, tree);
 				return tree;
@@ -152,10 +152,10 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
 	 * @return 构建好的菜单树形结构列表
 	 */
 	@Override
-	public List<Tree<Long>> filterMenu(Set<SysMenu> all, String type, Long parentId) {
-		List<TreeNode<Long>> collect = all.stream().filter(menuTypePredicate(type)).map(getNodeFunction()).toList();
+	public List<Tree<String>> filterMenu(Set<SysMenu> all, String type, String parentId) {
+		List<TreeNode<String>> collect = all.stream().filter(menuTypePredicate(type)).map(getNodeFunction()).toList();
 
-		Long parent = parentId == null ? CommonConstants.MENU_TREE_ROOT_ID : parentId;
+		String parent = StrUtil.isBlank(parentId) ? CommonConstants.MENU_TREE_ROOT_ID : parentId;
 		return TreeUtil.build(collect, parent);
 	}
 
@@ -164,9 +164,9 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
 	 * @return 转换函数，将SysMenu对象转换为TreeNode<Long>对象
 	 */
 	@NotNull
-	private Function<SysMenu, TreeNode<Long>> getNodeFunction() {
+	private Function<SysMenu, TreeNode<String>> getNodeFunction() {
 		return menu -> {
-			TreeNode<Long> node = new TreeNode<>();
+			TreeNode<String> node = new TreeNode<>();
 			node.setId(menu.getMenuId());
 			node.setName(menu.getName());
 			node.setParentId(menu.getParentId());

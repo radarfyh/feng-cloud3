@@ -19,7 +19,7 @@ public class SysLogDTO {
 	/**
 	 * 编号
 	 */
-	private Long id;
+	private String id;
 
 	/**
 	 * 日志类型

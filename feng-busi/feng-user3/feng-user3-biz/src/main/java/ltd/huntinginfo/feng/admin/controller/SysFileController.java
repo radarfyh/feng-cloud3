@@ -80,8 +80,8 @@ public class SysFileController {
 	@DeleteMapping
 	@HasPermission("sys_file_del")
 	@Operation(summary = "通过id删除文件管理", description = "通过id删除文件管理")
-	public R removeById(@RequestBody Long[] ids) {
-		for (Long id : ids) {
+	public R removeById(@RequestBody String[] ids) {
+		for (String id : ids) {
 			sysFileService.removeFile(id);
 		}
 		return R.ok();

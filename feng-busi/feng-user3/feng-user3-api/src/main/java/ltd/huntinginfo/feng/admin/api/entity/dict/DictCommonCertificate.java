@@ -18,8 +18,8 @@ public class DictCommonCertificate implements Serializable {
     /**
      * 主键id自增
      */
-    @TableId(type = IdType.AUTO)
-    private Integer id;
+    @TableId(type = IdType.ASSIGN_UUID)
+    private String id;
 
     /**
      * 证件类型名称
