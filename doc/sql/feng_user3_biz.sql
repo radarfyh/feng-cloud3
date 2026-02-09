@@ -485,7 +485,7 @@ CREATE TABLE `dict_administrative_division` (
   KEY `idx_division_parent` (`parent_code`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='行政区划代码表(GB/T 2260-2013)';
 
--- 政府机关代码
+-- 机关代码 （政府单位、民间组织等）
 DROP TABLE IF EXISTS `gov_agency`;
 CREATE TABLE `gov_agency` (
   `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '主键id自增',
@@ -502,9 +502,9 @@ CREATE TABLE `gov_agency` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `idx_police_agency_code` (`code`),
   KEY `idx_police_agency_parent` (`parent_code`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='政府机关代码表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='机关代码表（政府单位、民间组织等）';
 
--- 统一机构信息表
+-- 统一机构信息表，对接统一认证中心
 DROP TABLE IF EXISTS `unique_org`;
 CREATE TABLE `unique_org` (
   `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '主键id自增',
@@ -530,7 +530,7 @@ CREATE TABLE `unique_org` (
   KEY `idx_org_region` (`division_code`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='统一机构信息表';
 
--- 统一用户信息表
+-- 统一用户信息表，对接统一认证中心
 DROP TABLE IF EXISTS `unique_user`;
 CREATE TABLE `unique_user` (
   `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '主键id自增',
@@ -565,7 +565,7 @@ CREATE TABLE `unique_user` (
   KEY `idx_id_card` (`id_card`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='统一用户信息表';
 
--- 统一角色信息表
+-- 统一角色信息表，对接统一认证中心
 DROP TABLE IF EXISTS `unique_role`;
 CREATE TABLE `unique_role` (
   `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '主键id自增',

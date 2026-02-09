@@ -31,8 +31,8 @@
         <module>feng-library3-websocket</module>
         <module>feng-library3-security</module>
         <module>feng-library3-log</module>
-        <!-- <module>feng-library3-rabbitmq</module> -->
-        <!-- <module>feng-library3-kafka</module> -->
+        <module>feng-library3-rabbitmq</module>
+        <module>feng-library3-kafka</module>
         <!-- <module>feng-library3-agent</module> -->
 
     </modules>

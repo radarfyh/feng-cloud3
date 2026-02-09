@@ -10,7 +10,7 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * 政府机关代码表实体类
+ * 机关代码表实体类（政府单位、民间组织等）
  */
 @Data
 @TableName("gov_agency")

@@ -18,7 +18,7 @@
     
     <modules>
         <!-- <module>feng-ai</module> -->
-        <!-- <module>feng-msg</module> -->
+        <module>feng-message-center</module>
         <module>feng-user3</module>
 
     </modules>
