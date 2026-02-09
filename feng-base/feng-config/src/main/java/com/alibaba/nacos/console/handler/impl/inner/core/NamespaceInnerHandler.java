@@ -71,11 +71,7 @@ public class NamespaceInnerHandler implements NamespaceHandler {
     
     @Override
     public Boolean checkNamespaceIdExist(String namespaceId) {
-        try {
-            return namespaceOperationService.isNamespaceExist(namespaceId);
-        } catch (NacosApiException e) {
-            return true;
-        }
+    	return namespaceOperationService.namespaceExists(namespaceId);
     }
 }
 

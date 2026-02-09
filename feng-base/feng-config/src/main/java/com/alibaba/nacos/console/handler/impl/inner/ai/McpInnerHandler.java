@@ -64,7 +64,7 @@ public class McpInnerHandler implements McpHandler {
     public void updateMcpServer(String namespaceId, boolean isPublish, McpServerBasicInfo serverSpecification,
             McpToolSpecification toolSpecification, McpEndpointSpec endpointSpecification) throws NacosException {
         mcpServerOperationService.updateMcpServer(namespaceId, isPublish, serverSpecification, toolSpecification,
-                endpointSpecification);
+                endpointSpecification, true);
     }
     
     @Override
