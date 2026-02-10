@@ -1,0 +1,43 @@
+package ltd.huntinginfo.feng.center.api.vo;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
+import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.Data;
+import java.time.LocalDateTime;
+
+@Data
+@Schema(description = "消息统计VO")
+public class MessageStatisticsVO {
+    
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @Schema(description = "统计开始时间")
+    private LocalDateTime startTime;
+    
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @Schema(description = "统计结束时间")
+    private LocalDateTime endTime;
+    
+    @Schema(description = "应用标识")
+    private String appKey;
+    
+    @Schema(description = "消息总数")
+    private Integer totalCount;
+    
+    @Schema(description = "成功消息数")
+    private Integer successCount;
+    
+    @Schema(description = "失败消息数")
+    private Integer failedCount;
+    
+    @Schema(description = "总接收人数")
+    private Integer totalReceivers;
+    
+    @Schema(description = "总已读人数")
+    private Integer totalRead;
+    
+    @Schema(description = "成功率")
+    private Double successRate;
+    
+    @Schema(description = "平均阅读率")
+    private Double readRate;
+}

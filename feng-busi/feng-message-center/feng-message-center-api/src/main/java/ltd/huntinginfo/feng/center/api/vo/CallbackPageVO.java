@@ -1,0 +1,57 @@
+package ltd.huntinginfo.feng.center.api.vo;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
+import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.Data;
+import java.time.LocalDateTime;
+
+@Data
+@Schema(description = "回调记录分页VO")
+public class CallbackPageVO {
+    
+    @Schema(description = "回调记录ID")
+    private String id;
+    
+    @Schema(description = "消息ID")
+    private String msgId;
+    
+    @Schema(description = "接收者ID")
+    private String receiverId;
+    
+    @Schema(description = "回调地址")
+    private String callbackUrl;
+    
+    @Schema(description = "状态")
+    private String status;
+    
+    @Schema(description = "HTTP状态码")
+    private Integer httpStatus;
+    
+    @Schema(description = "响应内容")
+    private String responseBody;
+    
+    @Schema(description = "错误信息")
+    private String errorMessage;
+    
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @Schema(description = "创建时间")
+    private LocalDateTime createTime;
+    
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @Schema(description = "发送时间")
+    private LocalDateTime sendTime;
+    
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @Schema(description = "响应时间")
+    private LocalDateTime responseTime;
+    
+    @Schema(description = "耗时(ms)")
+    private Integer costTime;
+    
+    @Schema(description = "重试次数")
+    private Integer retryCount;
+    
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @Schema(description = "下次重试时间")
+    private LocalDateTime nextRetryTime;
+}

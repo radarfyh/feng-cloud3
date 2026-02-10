@@ -18,7 +18,7 @@ package ltd.huntinginfo.feng.common.mybatis;
 
 import com.baomidou.mybatisplus.extension.plugins.MybatisPlusInterceptor;
 import ltd.huntinginfo.feng.common.mybatis.config.MybatisPlusMetaObjectHandler;
-import ltd.huntinginfo.feng.common.mybatis.plugins.PigPaginationInnerInterceptor;
+import ltd.huntinginfo.feng.common.mybatis.plugins.FengPaginationInnerInterceptor;
 import ltd.huntinginfo.feng.common.mybatis.resolver.SqlFilterArgumentResolver;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -54,7 +54,7 @@ public class MybatisAutoConfiguration implements WebMvcConfigurer {
 	@Bean
 	public MybatisPlusInterceptor mybatisPlusInterceptor() {
 		MybatisPlusInterceptor interceptor = new MybatisPlusInterceptor();
-		interceptor.addInnerInterceptor(new PigPaginationInnerInterceptor());
+		interceptor.addInnerInterceptor(new FengPaginationInnerInterceptor());
 		return interceptor;
 	}
 

@@ -28,7 +28,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = false)
-public class PigPaginationInnerInterceptor extends PaginationInnerInterceptor {
+public class FengPaginationInnerInterceptor extends PaginationInnerInterceptor {
 
 	/**
 	 * 数据库类型
@@ -44,12 +44,16 @@ public class PigPaginationInnerInterceptor extends PaginationInnerInterceptor {
 	 */
 	private IDialect dialect;
 
-	public PigPaginationInnerInterceptor(DbType dbType) {
+	public FengPaginationInnerInterceptor(DbType dbType) {
 		this.dbType = dbType;
+		this.maxLimit = 1000L;
+		this.setOverflow(true);
 	}
 
-	public PigPaginationInnerInterceptor(IDialect dialect) {
+	public FengPaginationInnerInterceptor(IDialect dialect) {
 		this.dialect = dialect;
+		this.maxLimit = 1000L;
+		this.setOverflow(true);
 	}
 
 	/**
@@ -69,6 +73,11 @@ public class PigPaginationInnerInterceptor extends PaginationInnerInterceptor {
 		if (null != page && page.getSize() < 0) {
 			page.setSize(0);
 		}
+		// 如果单页最大记录数大于1000，那么设置为1000
+		if (null != page && page.getSize() > 1000L) {
+			page.setSize(1000);
+		}
+		
 		super.beforeQuery(executor, ms, page, rowBounds, resultHandler, boundSql);
 	}
 

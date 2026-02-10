@@ -1,4 +1,4 @@
-package ltd.huntinginfo.feng.center.api.entity;
+package ltd.huntinginfo.feng.agent.api.vo;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
