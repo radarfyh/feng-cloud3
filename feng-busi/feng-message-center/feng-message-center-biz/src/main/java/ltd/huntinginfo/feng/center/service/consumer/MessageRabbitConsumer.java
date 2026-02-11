@@ -1,4 +1,4 @@
-package ltd.huntinginfo.feng.center.service.rabbitmq;
+package ltd.huntinginfo.feng.center.service.consumer;
 
 import ltd.huntinginfo.feng.common.rabbitmq.constant.RabbitMessageEvent;
 import ltd.huntinginfo.feng.common.rabbitmq.dto.RabbitMessage;
