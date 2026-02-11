@@ -261,7 +261,7 @@ COMMENT='广播信息筒表 - 存储广播消息的分发记录，采用读扩�
 -- 2. 采用UPSERT（INSERT ... ON DUPLICATE KEY UPDATE）方式，确保同一接收者对同一广播的状态更新是幂等的。
 -- 3. 接收状态 (`receive_status`) 由平台推送逻辑更新，阅读状态 (`read_status`) 由业务系统回执触发更新，两者独立。
 -- 4. 记录变更后，将异步触发更新 `ump_msg_broadcast` 表中的汇总统计字段（如 `read_count`），保证数据最终一致性。
--- 分区建议：初期可不分区。当单广播接收者预期超百万或总数据量极大时，可评估启用 `PARTITION BY HASH(broadcast_id)`。
+-- 分区建议：初期可不分区。当单广播接收者预期超百万或总数据量极大时，可启用 `PARTITION BY HASH(broadcast_id)`。
 DROP TABLE IF EXISTS `ump_broadcast_receive_record`;
 CREATE TABLE `ump_broadcast_receive_record` (
   -- 使用复合主键，契合“广播-接收者”的核心查询模式，避免二级索引回表
@@ -285,7 +285,7 @@ CREATE TABLE `ump_broadcast_receive_record` (
   KEY `idx_broadcast_status` (`broadcast_id`, `read_status`, `receive_status`) COMMENT '统计特定广播的已读/未读清单'
   
   -- 分区策略：按广播ID哈希，均匀分布数据
-  -- PARTITION BY HASH(broadcast_id) PARTITIONS 16 -- 请根据实际数据量评估是否开启
+  -- PARTITION BY HASH(broadcast_id) PARTITIONS 16 -- 根据实际数据量评估是否开启
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci 
 COMMENT='广播消息接收记录表 - 记录重要广播消息的精准送达与阅读状态，用于关键消息审计';
 

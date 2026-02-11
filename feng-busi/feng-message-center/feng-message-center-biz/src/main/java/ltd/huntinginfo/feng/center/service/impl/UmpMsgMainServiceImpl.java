@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import ltd.huntinginfo.feng.center.api.entity.UmpMsgMain;
 import ltd.huntinginfo.feng.center.mapper.UmpMsgMainMapper;
 import ltd.huntinginfo.feng.center.service.UmpMsgMainService;
+import ltd.huntinginfo.feng.common.rabbitmq.service.RabbitMqService;
 import ltd.huntinginfo.feng.center.api.dto.MessageSendDTO;
 import ltd.huntinginfo.feng.center.api.dto.MessageQueryDTO;
 import ltd.huntinginfo.feng.center.api.vo.MessageDetailVO;
@@ -32,6 +33,7 @@ import java.util.stream.Collectors;
 public class UmpMsgMainServiceImpl extends ServiceImpl<UmpMsgMainMapper, UmpMsgMain> implements UmpMsgMainService {
 
     private final UmpMsgMainMapper umpMsgMainMapper;
+    private final RabbitMqService rabbitMqService;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
