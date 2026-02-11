@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import ltd.huntinginfo.feng.admin.api.dto.dict.UniqueOrgInfoDTO;
 import ltd.huntinginfo.feng.admin.api.entity.dict.UniqueOrg;
 import ltd.huntinginfo.feng.admin.api.vo.dict.UniqueOrgInfoVO;
+import ltd.huntinginfo.feng.admin.api.vo.dict.UniqueOrgTreeVO;
 
 import java.util.List;
 
@@ -16,7 +17,7 @@ public interface UniqueOrgService extends BaseDictService<UniqueOrg> {
     /**
      * 根据ID查询机构详情
      */
-    UniqueOrgInfoVO getById(Integer id);
+    UniqueOrgInfoVO getById(String id);
 
     /**
      * 分页查询机构列表
@@ -27,6 +28,11 @@ public interface UniqueOrgService extends BaseDictService<UniqueOrg> {
      * 查询机构列表
      */
     List<UniqueOrgInfoVO> list(UniqueOrgInfoDTO uniqueOrgInfo);
+    
+    /**
+     * 查询机构树
+     */
+    List<UniqueOrgTreeVO> getOrgTree();
 
     /**
      * 新增机构信息
@@ -46,5 +52,5 @@ public interface UniqueOrgService extends BaseDictService<UniqueOrg> {
     /**
      * 删除机构信息
      */
-    boolean removeById(Integer id);
+    boolean removeById(String id);
 }

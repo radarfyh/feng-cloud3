@@ -16,10 +16,12 @@ import org.springframework.stereotype.Service;
 import ltd.huntinginfo.feng.admin.api.dto.dict.UniqueOrgInfoDTO;
 import ltd.huntinginfo.feng.admin.api.entity.dict.UniqueOrg;
 import ltd.huntinginfo.feng.admin.api.vo.dict.UniqueOrgInfoVO;
+import ltd.huntinginfo.feng.admin.api.vo.dict.UniqueOrgTreeVO;
 import ltd.huntinginfo.feng.admin.mapper.dict.UniqueOrgMapper;
 import ltd.huntinginfo.feng.admin.service.dict.UniqueOrgService;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -29,7 +31,7 @@ public class UniqueOrgServiceImpl
     implements UniqueOrgService {
 
     @Override
-    public UniqueOrgInfoVO getById(Integer id) {
+    public UniqueOrgInfoVO getById(String id) {
         return convertToVo(super.getById(id));
     }
 
@@ -48,7 +50,51 @@ public class UniqueOrgServiceImpl
                 .map(this::convertToVo)
                 .collect(Collectors.toList());
     }
+    
+    @Override
+    public List<UniqueOrgTreeVO> getOrgTree() {
+        List<UniqueOrg> allList = this.getAllValidItems();
+        return buildTree(allList);
+    }
 
+    private List<UniqueOrgTreeVO> buildTree(List<UniqueOrg> list) {
+
+        // 1. 转 VO
+        List<UniqueOrgTreeVO> voList = list.stream().map(item -> {
+            UniqueOrgTreeVO vo = new UniqueOrgTreeVO();
+            vo.setId(item.getId());
+            vo.setOrgId(item.getOrgId());
+            vo.setOrgName(item.getOrgName());
+            vo.setOrgCode(item.getOrgCode());
+            vo.setParentId(item.getParentId());
+            vo.setOrderId(item.getOrderId());
+            return vo;
+        }).toList();
+
+        // 2. 按 parentId 分组
+        var groupMap = voList.stream()
+                .collect(Collectors.groupingBy(
+                        vo -> vo.getParentId() == null ? "ROOT" : vo.getParentId()
+                ));
+
+        // 3. 递归构建
+        List<UniqueOrgTreeVO> roots = groupMap.get("ROOT");
+        if (roots != null) {
+            roots.forEach(root -> fillChildren(root, groupMap));
+            return roots;
+        }
+        return List.of();
+    }
+
+    private void fillChildren(UniqueOrgTreeVO parent,
+                              Map<String, List<UniqueOrgTreeVO>> groupMap) {
+        List<UniqueOrgTreeVO> children = groupMap.get(parent.getId());
+        if (children != null && !children.isEmpty()) {
+            parent.setChildren(children);
+            children.forEach(child -> fillChildren(child, groupMap));
+        }
+    }
+    
     @Override
     public boolean save(UniqueOrgInfoDTO uniqueOrgInfo) {
     	
@@ -66,7 +112,7 @@ public class UniqueOrgServiceImpl
     }
 
     @Override
-    public boolean removeById(Integer id) {
+    public boolean removeById(String id) {
         return super.removeById(id);
     }
 

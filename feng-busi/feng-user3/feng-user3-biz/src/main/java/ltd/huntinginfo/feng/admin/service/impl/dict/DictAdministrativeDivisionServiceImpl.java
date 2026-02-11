@@ -1,11 +1,15 @@
 package ltd.huntinginfo.feng.admin.service.impl.dict;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.extern.slf4j.Slf4j;
+import ltd.huntinginfo.feng.admin.api.entity.SysDept;
 import ltd.huntinginfo.feng.admin.api.entity.dict.DictAdministrativeDivision;
+import ltd.huntinginfo.feng.admin.api.entity.dict.UniqueUser;
 import ltd.huntinginfo.feng.admin.mapper.dict.DictAdministrativeDivisionMapper;
 import ltd.huntinginfo.feng.admin.service.dict.DictAdministrativeDivisionService;
+import ltd.huntinginfo.feng.admin.service.dict.UniqueUserService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheConfig;
@@ -15,8 +19,11 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import jakarta.annotation.PostConstruct;
 
@@ -26,6 +33,9 @@ import jakarta.annotation.PostConstruct;
 public class DictAdministrativeDivisionServiceImpl 
     extends ServiceImpl<DictAdministrativeDivisionMapper, DictAdministrativeDivision> 
     implements DictAdministrativeDivisionService {
+	
+	@Autowired
+	private UniqueUserService uniqueUserService;
 
     @Autowired
     private RedisTemplate<String, Object> redisTemplate;
@@ -71,6 +81,47 @@ public class DictAdministrativeDivisionServiceImpl
         wrapper.orderByAsc("code");
         return baseMapper.selectList(wrapper);
     }
+    
+    @Override
+    @Cacheable(key = "'tree'")
+    public List<DictAdministrativeDivision> getDivisionTree() {
+        List<DictAdministrativeDivision> all = this.getAllValidItems();
+
+        if (CollectionUtils.isEmpty(all)) {
+            return List.of();
+        }
+
+        // 按 parentCode 分组
+        Map<String, List<DictAdministrativeDivision>> groupMap =
+                all.stream().collect(
+                    Collectors.groupingBy(
+                        d -> d.getParentCode() == null ? "ROOT" : d.getParentCode()
+                    )
+                );
+
+        // 省级作为根节点（level = 1）
+        List<DictAdministrativeDivision> roots =
+                all.stream()
+                   .filter(d -> d.getLevel() != null && d.getLevel() == 1)
+                   .collect(Collectors.toList());
+
+        roots.forEach(root -> buildTree(root, groupMap));
+        return roots;
+    }
+
+    private void buildTree(
+            DictAdministrativeDivision parent,
+            Map<String, List<DictAdministrativeDivision>> groupMap) {
+
+        List<DictAdministrativeDivision> children =
+                groupMap.get(parent.getCode());
+
+        if (!CollectionUtils.isEmpty(children)) {
+            parent.setChildren(children);
+            children.forEach(child -> buildTree(child, groupMap));
+        }
+    }
+
 
     @Override
     @CacheEvict(allEntries = true)
@@ -128,4 +179,45 @@ public class DictAdministrativeDivisionServiceImpl
             redisTemplate.delete(lockKey);
         }
     }
+
+	@Override
+	public List<Map<String, Object>> listAreasByCodes(List<String> areaCodes) {
+		QueryWrapper<DictAdministrativeDivision> wrapper = new QueryWrapper<>();
+		wrapper.in("code", areaCodes)
+		       .orderByAsc("code");
+
+        List<DictAdministrativeDivision> ret = baseMapper.selectList(wrapper);
+        return ret.stream()
+	            .map(this::convertToMap)
+	            .toList();
+	}
+	
+	private Map<String, Object> convertToMap(DictAdministrativeDivision area) {
+	    Map<String, Object> map = new HashMap<>(8);
+	    map.put("id", area.getId());
+	    map.put("name", area.getName());
+	    map.put("code", area.getCode());
+	    map.put("level", area.getLevel());
+	    map.put("parentCode", area.getParentCode());
+	    map.put("createTime", area.getCreateTime());
+	    map.put("updateTime", area.getUpdateTime());
+	    return map;
+	}
+	
+	@Override
+	public List<Map<String, Object>> listUsersByArea(Map<String, Object> query) {
+	    String areaCode = query.get("areaCode").toString();
+	    List<UniqueUser> users = uniqueUserService.list(
+	        Wrappers.<UniqueUser>lambdaQuery()
+	                .eq(UniqueUser::getDivisionCode, areaCode)
+	    );
+	    return users.stream().map(user -> {
+	        Map<String, Object> map = new HashMap<>();
+	        map.put("id", user.getId());
+	        map.put("name", user.getName());
+	        map.put("userId", user.getSysUserId());
+	        map.put("orgCode", user.getOrgCode());
+	        return map;
+	    }).toList();
+	}
 }

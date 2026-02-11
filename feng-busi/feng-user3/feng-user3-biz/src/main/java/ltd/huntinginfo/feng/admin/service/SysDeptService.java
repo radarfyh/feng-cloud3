@@ -27,6 +27,7 @@ import ltd.huntinginfo.feng.common.core.util.R;
 import org.springframework.validation.BindingResult;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * 部门管理服务接口
@@ -70,5 +71,13 @@ public interface SysDeptService extends IService<SysDept> {
 	 * @return 后代部门列表，如果不存在则返回空列表
 	 */
 	List<SysDept> listDescendants(String deptId);
+	
+    /** ========= Feign 专用 ========= */
+
+    Map<String, Object> getDeptMapById(String id);
+
+    List<Map<String, Object>> listDeptMapsByIds(List<String> deptIds);
+
+    List<Map<String, Object>> listDescendantDeptMaps(String deptId);
 
 }

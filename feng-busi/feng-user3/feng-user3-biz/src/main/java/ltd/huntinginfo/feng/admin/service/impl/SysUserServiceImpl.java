@@ -29,7 +29,15 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import ltd.huntinginfo.feng.admin.api.dto.RegisterUserDTO;
 import ltd.huntinginfo.feng.admin.api.dto.UserDTO;
 import ltd.huntinginfo.feng.admin.api.dto.UserInfo;
-import ltd.huntinginfo.feng.admin.api.entity.*;
+import ltd.huntinginfo.feng.admin.api.entity.SysDept;
+import ltd.huntinginfo.feng.admin.api.entity.SysMenu;
+import ltd.huntinginfo.feng.admin.api.entity.SysPost;
+import ltd.huntinginfo.feng.admin.api.entity.SysRole;
+import ltd.huntinginfo.feng.admin.api.entity.SysUser;
+import ltd.huntinginfo.feng.admin.api.entity.SysUserPost;
+import ltd.huntinginfo.feng.admin.api.entity.SysUserRole;
+import ltd.huntinginfo.feng.admin.api.entity.dict.UniqueRole;
+import ltd.huntinginfo.feng.admin.api.entity.dict.UniqueUser;
 import ltd.huntinginfo.feng.admin.api.util.ParamResolver;
 import ltd.huntinginfo.feng.admin.api.vo.UserExcelVO;
 import ltd.huntinginfo.feng.admin.api.vo.UserVO;
@@ -37,6 +45,7 @@ import ltd.huntinginfo.feng.admin.mapper.SysUserMapper;
 import ltd.huntinginfo.feng.admin.mapper.SysUserPostMapper;
 import ltd.huntinginfo.feng.admin.mapper.SysUserRoleMapper;
 import ltd.huntinginfo.feng.admin.service.*;
+import ltd.huntinginfo.feng.admin.service.dict.UniqueRoleService;
 import ltd.huntinginfo.feng.common.core.constant.CacheConstants;
 import ltd.huntinginfo.feng.common.core.constant.CommonConstants;
 import ltd.huntinginfo.feng.common.core.exception.ErrorCodes;
@@ -86,6 +95,8 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
 	private final SysUserPostMapper sysUserPostMapper;
 
 	private final CacheManager cacheManager;
+	
+    private final UniqueRoleService uniqueRoleService;
 
 	/**
 	 * 保存用户信息
@@ -476,5 +487,4 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
 			return R.ok();
 		}
 	}
-
 }

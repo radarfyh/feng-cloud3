@@ -218,5 +218,44 @@ public class SysDeptServiceImpl extends ServiceImpl<SysDeptMapper, SysDept> impl
 			recursiveDept(allDeptList, sysDept.getDeptId(), resDeptList);
 		});
 	}
+	
+	
+	@Override
+	public Map<String, Object> getDeptMapById(String id) {
+	    SysDept dept = this.getById(id);
+	    return dept == null ? null : convertToMap(dept);
+	}
+	
+	@Override
+	public List<Map<String, Object>> listDeptMapsByIds(List<String> deptIds) {
+	    if (CollUtil.isEmpty(deptIds)) {
+	        return List.of();
+	    }
+
+	    return this.listByIds(deptIds)
+	            .stream()
+	            .map(this::convertToMap)
+	            .toList();
+	}
+	
+	@Override
+	public List<Map<String, Object>> listDescendantDeptMaps(String deptId) {
+	    return this.listDescendants(deptId)
+	            .stream()
+	            .map(this::convertToMap)
+	            .toList();
+	}
+	
+	private Map<String, Object> convertToMap(SysDept dept) {
+	    Map<String, Object> map = new HashMap<>(8);
+	    map.put("deptId", dept.getDeptId());
+	    map.put("name", dept.getName());
+	    map.put("parentId", dept.getParentId());
+	    map.put("sortOrder", dept.getSortOrder());
+	    map.put("createTime", dept.getCreateTime());
+	    map.put("updateTime", dept.getUpdateTime());
+	    return map;
+	}
+
 
 }

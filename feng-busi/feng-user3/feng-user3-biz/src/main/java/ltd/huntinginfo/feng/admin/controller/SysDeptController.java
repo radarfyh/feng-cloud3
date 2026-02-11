@@ -1,32 +1,17 @@
-/*
- *
- *      Copyright (c) 2018-2025, lengleng All rights reserved.
- *
- *  Redistribution and use in source and binary forms, with or without
- *  modification, are permitted provided that the following conditions are met:
- *
- * Redistributions of source code must retain the above copyright notice,
- *  this list of conditions and the following disclaimer.
- *  Redistributions in binary form must reproduce the above copyright
- *  notice, this list of conditions and the following disclaimer in the
- *  documentation and/or other materials provided with the distribution.
- *  Neither the name of the developer nor the names of its
- *  contributors may be used to endorse or promote products derived from
- *  this software without specific prior written permission.
- *  Author: lengleng
- *
- */
-
 package ltd.huntinginfo.feng.admin.controller;
 
 import ltd.huntinginfo.feng.admin.api.entity.SysDept;
 import ltd.huntinginfo.feng.admin.api.vo.DeptExcelVo;
 import ltd.huntinginfo.feng.admin.service.SysDeptService;
 import ltd.huntinginfo.feng.common.core.util.R;
+import ltd.huntinginfo.feng.common.feign.annotation.NoToken;
 import ltd.huntinginfo.feng.common.log.annotation.SysLog;
 import ltd.huntinginfo.feng.common.security.annotation.HasPermission;
+import ltd.huntinginfo.feng.common.security.annotation.Inner;
+
 import com.pig4cloud.plugin.excel.annotation.RequestExcel;
 import com.pig4cloud.plugin.excel.annotation.ResponseExcel;
+
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -37,13 +22,13 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import cn.hutool.core.lang.tree.Tree;
 
 /**
  * 部门管理前端控制器
- *
- * @author lengleng
- * @date 2025/05/30
  */
 @RestController
 @AllArgsConstructor
@@ -160,4 +145,34 @@ public class SysDeptController {
 		return sysDeptService.importDept(excelVOList, bindingResult);
 	}
 
+	@Inner
+	@GetMapping("/{id}")
+	public R<Map<String, Object>> getDeptById(@PathVariable String id) {
+	    return R.ok(sysDeptService.getDeptMapById(id));
+	}
+
+	@Inner
+	@PostMapping("/listByIds")
+	public R<List<Map<String, Object>>> listByIds(@RequestBody List<String> deptIds) {
+	    return R.ok(sysDeptService.listDeptMapsByIds(deptIds));
+	}
+	
+	@Inner
+	@GetMapping("/treeForFeign")
+	public R<List<Map<String, Object>>> getDeptTreeForFeign(
+			@RequestParam(required = false) String deptName) {
+	    List<Tree<String>> treeList = sysDeptService.getDeptTree(deptName);
+	    List<Map<String, Object>> result = treeList.stream()
+	            .map(tree -> (Map<String, Object>)new HashMap<String, Object>(tree))
+	            .toList();
+
+	    return R.ok(result);
+	}
+
+	
+	@Inner
+	@GetMapping("/getDescendantListForFeign/{deptId}")
+	public R<List<Map<String, Object>>> getDescendantListForFeign(@PathVariable String deptId) {
+	    return R.ok(sysDeptService.listDescendantDeptMaps(deptId));
+	}
 }

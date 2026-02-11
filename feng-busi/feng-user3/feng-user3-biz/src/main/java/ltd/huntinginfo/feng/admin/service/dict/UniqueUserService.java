@@ -16,7 +16,7 @@ public interface UniqueUserService extends BaseDictService<UniqueUser> {
     /**
      * 根据ID查询用户详情
      */
-    UniqueUserInfoVO getById(Integer id);
+    UniqueUserInfoVO getUserById(String id);
 
     /**
      * 分页查询用户列表
@@ -46,5 +46,12 @@ public interface UniqueUserService extends BaseDictService<UniqueUser> {
     /**
      * 删除用户信息
      */
-    boolean removeById(Integer id);
+    boolean removeById(String id);
+    
+    /**
+     * 为员工开通系统登录账号
+     * @param uniqueUserId 员工ID
+     * @return 是否成功
+     */
+    boolean enableLoginUser(String uniqueUserId);
 }
