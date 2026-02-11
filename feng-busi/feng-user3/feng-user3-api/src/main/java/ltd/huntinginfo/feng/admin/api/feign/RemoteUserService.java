@@ -24,19 +24,22 @@ import ltd.huntinginfo.feng.admin.api.dto.UserInfo;
 import ltd.huntinginfo.feng.common.core.constant.ServiceNameConstants;
 import ltd.huntinginfo.feng.common.core.util.R;
 import ltd.huntinginfo.feng.common.feign.annotation.NoToken;
+
+import java.util.List;
+import java.util.Map;
+
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.cloud.openfeign.SpringQueryMap;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 
 /**
- * 远程用户服务接口：提供用户信息查询功能
- *
- * @author lengleng
- * @date 2025/05/30
+ * 用户服务Feign客户端
  */
 @FeignClient(contextId = "remoteUserService", value = ServiceNameConstants.USER3_SERVICE)
 public interface RemoteUserService {
-
 	/**
 	 * (未登录状态调用，需要加 @NoToken) 通过用户名查询用户、角色信息
 	 * @param user 用户查询对象
@@ -45,5 +48,28 @@ public interface RemoteUserService {
 	@NoToken
 	@GetMapping("/user/info/query")
 	R<UserInfo> info(@SpringQueryMap UserDTO user);
+	
+    @NoToken
+    @GetMapping("/user/details/{id}")
+    R<Map<String, Object>> getUserById(@PathVariable String id);
 
+    @NoToken
+    @GetMapping("/user/details")
+    R<Map<String, Object>> getUserByQuery(@RequestBody Map<String, Object> query);
+
+    @NoToken
+    @PostMapping("/user/list-by-ids")
+    R<List<Map<String, Object>>> listUsersByIds(@RequestBody List<String> userIds);
+
+    @NoToken
+    @PostMapping("/user/list-by-dept")
+    R<List<Map<String, Object>>> listUsersByDept(@RequestBody Map<String, Object> query);
+
+    @NoToken
+    @PostMapping("/user/list-by-org")
+    R<List<Map<String, Object>>> listUsersByOrg(@RequestBody Map<String, Object> query);
+
+    @NoToken
+    @PostMapping("/user/list-by-area")
+    R<List<Map<String, Object>>> listUsersByArea(@RequestBody Map<String, Object> query);
 }

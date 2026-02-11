@@ -7,29 +7,45 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.util.StrUtil;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import ltd.huntinginfo.feng.admin.api.dto.dict.UniqueUserInfoDTO;
+import ltd.huntinginfo.feng.admin.api.entity.SysUser;
+import ltd.huntinginfo.feng.admin.api.entity.SysUserRole;
+import ltd.huntinginfo.feng.admin.api.entity.dict.UniqueRole;
 import ltd.huntinginfo.feng.admin.api.entity.dict.UniqueUser;
 import ltd.huntinginfo.feng.admin.api.vo.dict.UniqueUserInfoVO;
 import ltd.huntinginfo.feng.admin.mapper.dict.UniqueUserMapper;
+import ltd.huntinginfo.feng.admin.service.SysUserRoleService;
+import ltd.huntinginfo.feng.admin.service.SysUserService;
+import ltd.huntinginfo.feng.admin.service.dict.UniqueRoleService;
 import ltd.huntinginfo.feng.admin.service.dict.UniqueUserService;
+import ltd.huntinginfo.feng.common.core.constant.CommonConstants;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Slf4j
 @Service
-public class UniqueUserInfoServiceImpl 
+@AllArgsConstructor
+public class UniqueUserServiceImpl 
     extends ServiceImpl<UniqueUserMapper, UniqueUser> 
     implements UniqueUserService {
-
+	
+    private final SysUserService sysUserService;
+    private final SysUserRoleService sysUserRoleService;
+    private final UniqueRoleService uniqueRoleService;
+    
     @Override
-    public UniqueUserInfoVO getById(Integer id) {
+    public UniqueUserInfoVO getUserById(String id) {
         return convertToVo(super.getById(id));
     }
 
@@ -65,7 +81,7 @@ public class UniqueUserInfoServiceImpl
     }
 
     @Override
-    public boolean removeById(Integer id) {
+    public boolean removeById(String id) {
         return super.removeById(id);
     }
 
@@ -151,7 +167,62 @@ public class UniqueUserInfoServiceImpl
 	@Override
     @CacheEvict(allEntries = true)
 	public void refreshCache() {
-		log.info("刷新统一用户信息缓存");
-		
+		log.info("刷新统一用户信息缓存");		
 	}
+	
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public boolean enableLoginUser(String uniqueUserId) {
+
+        UniqueUser uniqueUser = this.getById(uniqueUserId);
+        if (uniqueUser == null) {
+            throw new IllegalArgumentException("员工不存在");
+        }
+
+        // 1. 判断是否已开通过
+        SysUser exist = sysUserService.getOne(
+                Wrappers.<SysUser>lambdaQuery()
+                        .eq(SysUser::getUsername, uniqueUser.getMobile()),
+                false
+        );
+        if (exist != null) {
+            throw new IllegalStateException("该员工已开通登录账号");
+        }
+
+        // 2. 创建 SysUser
+        SysUser sysUser = new SysUser();
+        sysUser.setUsername(uniqueUser.getMobile());
+        sysUser.setPhone(uniqueUser.getMobile());
+        sysUser.setName(uniqueUser.getName());
+        sysUser.setNickname(uniqueUser.getName());
+        sysUser.setDelFlag(CommonConstants.STATUS_NORMAL);
+        sysUser.setLockFlag(CommonConstants.STATUS_NORMAL);
+
+        // 默认密码 = 手机号或者123456
+        String password = StrUtil.isBlank(uniqueUser.getMobile()) ? "123456" : uniqueUser.getMobile(); 
+        sysUser.setPassword(
+                new BCryptPasswordEncoder().encode(password)
+        );
+
+        sysUserService.save(sysUser);
+
+        // 3. 赋默认角色，若统一认证中心角色含有ADMIN，则为管理员（内置角色：1），否则为普通用户（内置角色:2）
+        List<UniqueRole> roles = uniqueRoleService.list(
+                Wrappers.<UniqueRole>lambdaQuery()
+                        .like(UniqueRole::getCode, "ADMIN")
+        );
+        String defaultRoleId = roles.isEmpty() ? "2" : "1";
+        
+        SysUserRole userRole = new SysUserRole();
+        userRole.setUserId(sysUser.getUserId());
+        userRole.setRoleId(defaultRoleId);
+        sysUserRoleService.save(userRole);
+
+        // 4. 回写 UniqueUser
+        uniqueUser.setSysUserId(sysUser.getUserId());
+        uniqueUser.setSysRoleId(defaultRoleId);
+        this.updateById(uniqueUser);
+
+        return true;
+    }
 }

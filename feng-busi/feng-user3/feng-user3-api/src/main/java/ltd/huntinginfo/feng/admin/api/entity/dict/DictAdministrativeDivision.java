@@ -6,6 +6,7 @@ import lombok.Data;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 
 /**
  * 行政区划代码表实体类(GB/T 2260-2013)
@@ -40,6 +41,12 @@ public class DictAdministrativeDivision implements Serializable {
      * 上级行政区划代码
      */
     private String parentCode;
+    
+    /**
+     * 子级行政区划（非数据库字段）
+     */
+    @TableField(exist = false)
+    private List<DictAdministrativeDivision> children;
 
     /**
      * 备注说明

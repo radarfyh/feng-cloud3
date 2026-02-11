@@ -32,10 +32,14 @@ public class UniqueUser extends Model<UniqueUser> implements Serializable {
     @Schema(description = "应用代码")
     private String appKey;
     
-    @Schema(description = "用户账号", 
+    @Schema(description = "用户账号，统一认证系统中的账号", 
            example = "admin",
            requiredMode = RequiredMode.REQUIRED)
     private String loginId;
+    
+    @Schema(description = "用户记录ID，统一消息中心账号的ID，开通时回写", 
+            example = "1")
+    private String sysUserId;
 
     @Schema(description = "用户昵称", 
            example = "系统管理员")
@@ -50,13 +54,17 @@ public class UniqueUser extends Model<UniqueUser> implements Serializable {
            requiredMode = RequiredMode.REQUIRED)
     private String type;
     
-    @Schema(description = "用户拥有的公共角色以及在当前应用下拥有的角色，多个角色逗号隔开", 
+    @Schema(description = "统一认证系统用户拥有的公共角色以及在当前应用下拥有的角色，多个角色逗号隔开", 
             example = "app_admin,common")
     private String uniqueRoles;
     
-    @Schema(description = "角色列表")
+    @Schema(description = "统一认证系统用户角色列表")
     @TableField(exist = false)
     private List<UniqueRole> uniqueRoleLists;
+    
+    @Schema(description = "用户角色记录ID，统一消息中心角色的ID，开通时回写", 
+            example = "1")
+    private String sysRoleId;
 
     @Schema(description = "身份证号", 
            example = "330102199001011234")

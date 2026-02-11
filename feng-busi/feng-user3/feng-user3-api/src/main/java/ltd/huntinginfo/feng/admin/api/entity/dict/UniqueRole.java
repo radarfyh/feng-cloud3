@@ -28,17 +28,17 @@ public class UniqueRole extends Model<UniqueRole> implements Serializable {
            requiredMode = RequiredMode.REQUIRED)
     private String id;
 
-    @Schema(description = "统一角色编号", 
+    @Schema(description = "统一认证中心角色编号", 
            example = "ROLE001",
            requiredMode = RequiredMode.REQUIRED)
     private String roleId;
 
-    @Schema(description = "角色名称", 
+    @Schema(description = "统一认证中心角色名称", 
            example = "系统管理员",
            requiredMode = RequiredMode.REQUIRED)
     private String name;
 
-    @Schema(description = "角色代码", 
+    @Schema(description = "统一认证中心角色代码", 
            example = "admin")
     private String code;
 
