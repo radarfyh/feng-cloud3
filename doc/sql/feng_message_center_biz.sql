@@ -108,6 +108,7 @@ COMMENT='应用权限表 - 管理API访问权限';
 DROP TABLE IF EXISTS `ump_msg_main`;
 CREATE TABLE `ump_msg_main` (
   `id` varchar(32) NOT NULL COMMENT '消息ID(UUID)',
+	`partition_key` int NOT NULL DEFAULT (YEAR(CURRENT_DATE) * 100 + MONTH(CURRENT_DATE)) COMMENT '分区键：YYYYMM格式，如202501',
   `msg_code` varchar(50) DEFAULT NULL COMMENT '消息编码(xxbm)',
   `msg_type` varchar(20) NOT NULL DEFAULT 'NOTICE' COMMENT '消息类型:NOTICE-通知 ALERT-提醒 BIZ-业务 AGENT-代理',
   
@@ -154,8 +155,8 @@ CREATE TABLE `ump_msg_main` (
   `received_count` int DEFAULT 0 COMMENT '已接收人数',
   `read_count` int DEFAULT 0 COMMENT '已读人数',
   
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `uk_msg_code` (`msg_code`),
+  PRIMARY KEY (`id`,`partition_key`),
+  KEY `idx_msg_code` (`msg_code`),
   KEY `idx_sender_app` (`sender_app_key`),
   KEY `idx_agent` (`agent_app_key`, `agent_msg_id`),
   KEY `idx_msg_type` (`msg_type`),
@@ -165,14 +166,15 @@ CREATE TABLE `ump_msg_main` (
   KEY `idx_priority` (`priority`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci 
 COMMENT='消息主表 - 存储所有消息的核心元数据，支持消息状态流转和统计'
-PARTITION BY RANGE (YEAR(create_time) * 100 + MONTH(create_time))
+PARTITION BY RANGE (`partition_key`)
 (
-    PARTITION p202501 VALUES LESS THAN (202502),
-    PARTITION p202502 VALUES LESS THAN (202503),
-    PARTITION p202503 VALUES LESS THAN (202504),
-    PARTITION p202504 VALUES LESS THAN (202505),
-    PARTITION p_future VALUES LESS THAN MAXVALUE
-);
+    PARTITION p2026 VALUES LESS THAN (202701),
+    PARTITION p2027 VALUES LESS THAN (202801),
+    PARTITION p2028 VALUES LESS THAN (202901),
+    PARTITION p2029 VALUES LESS THAN (203001),
+    PARTITION p_future VALUES LESS THAN  (204001)
+)
+;
 
 -- 收件箱表
 -- 作用：存储个人或小范围消息的分发记录，采用写扩散模式
@@ -620,7 +622,7 @@ CREATE TABLE `ump_system_log` (
   -- 时间
   `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   
-  PRIMARY KEY (`id`),
+  PRIMARY KEY (`id`, `create_time`),
   KEY `idx_log_type` (`log_type`),
   KEY `idx_log_level` (`log_level`),
   KEY `idx_app_key` (`app_key`),
@@ -629,13 +631,13 @@ CREATE TABLE `ump_system_log` (
   KEY `idx_auth_status` (`auth_status`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci 
 COMMENT='系统日志表 - 合并认证日志和操作日志，统一记录系统行为'
-PARTITION BY RANGE (YEAR(create_time) * 100 + MONTH(create_time))
+PARTITION BY RANGE (YEAR(`create_time`) * 100 + MONTH(`create_time`))
 (
-    PARTITION p202501 VALUES LESS THAN (202502),
-    PARTITION p202502 VALUES LESS THAN (202503),
-    PARTITION p202503 VALUES LESS THAN (202504),
-    PARTITION p202504 VALUES LESS THAN (202505),
-    PARTITION p_future VALUES LESS THAN MAXVALUE
+    PARTITION p2026 VALUES LESS THAN (202701),
+    PARTITION p2027 VALUES LESS THAN (202801),
+    PARTITION p2028 VALUES LESS THAN (202901),
+    PARTITION p2029 VALUES LESS THAN (203001),
+    PARTITION p_future VALUES LESS THAN  (204001)
 );
 
 -- ----------------------------

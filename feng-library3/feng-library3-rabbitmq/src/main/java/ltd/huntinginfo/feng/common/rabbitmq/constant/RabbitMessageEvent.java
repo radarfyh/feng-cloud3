@@ -27,4 +27,9 @@ public class RabbitMessageEvent {
     
     // 重试次数
     public static final int MAX_RETRY_COUNT = 5;
+    
+    // 延迟消息配置
+    public static final String EXCHANGE_DELAYED = "delayed.exchange";
+    public static final String QUEUE_DELAYED_MESSAGE = "queue.delayed.message";
+    public static final String ROUTING_KEY_DELAYED = "delayed.routing.key";
 }

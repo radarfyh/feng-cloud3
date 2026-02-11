@@ -1,6 +1,10 @@
 package ltd.huntinginfo.feng.common.rabbitmq.config;
 
 import ltd.huntinginfo.feng.common.rabbitmq.constant.RabbitMessageEvent;
+
+import java.util.HashMap;
+import java.util.Map;
+
 import org.springframework.amqp.core.*;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -112,5 +116,37 @@ public class RabbitQueueConfig {
         return BindingBuilder.bind(messageExpireQueue)
                 .to(messageExchange)
                 .with(RabbitMessageEvent.ROUTING_KEY_MESSAGE_EXPIRE);
+    }
+    
+    /**
+     * 延迟消息交换器（自定义交换器类型）
+     */
+    @Bean
+    public CustomExchange delayedMessageExchange() {
+        Map<String, Object> args = new HashMap<>();
+        args.put("x-delayed-type", "direct");
+        return new CustomExchange("delayed.exchange", "x-delayed-message", true, false, args);
+    }
+
+    /**
+     * 延迟消息队列
+     */
+    @Bean
+    public Queue delayedMessageQueue() {
+        return QueueBuilder.durable("queue.delayed.message")
+                .ttl(24 * 60 * 60 * 1000)
+                .maxLength(5000)
+                .build();
+    }
+
+    /**
+     * 绑定延迟消息队列
+     */
+    @Bean
+    public Binding delayedMessageBinding(Queue delayedMessageQueue, CustomExchange delayedMessageExchange) {
+        return BindingBuilder.bind(delayedMessageQueue)
+                .to(delayedMessageExchange)
+                .with("delayed.routing.key")
+                .noargs();
     }
 }

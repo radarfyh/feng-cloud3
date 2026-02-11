@@ -92,7 +92,9 @@ public class RabbitMqService {
             amqpMessage.getMessageProperties().setHeader("business-type", message.getBusinessType());
             amqpMessage.getMessageProperties().setHeader("send-time", LocalDateTime.now().toString());
             amqpMessage.getMessageProperties().setHeader("retry-count", message.getRetryCount());
-            amqpMessage.getMessageProperties().setDelay((int) delayMillis);
+            
+            // 设置延迟时间（RabbitMQ延迟消息插件需要的头信息）
+            amqpMessage.getMessageProperties().setHeader("x-delay", delayMillis);
             
             // 设置消息持久化
             amqpMessage.getMessageProperties().setDeliveryMode(MessageProperties.DEFAULT_DELIVERY_MODE);
@@ -107,6 +109,20 @@ public class RabbitMqService {
                     message.getMessageId(), exchange, routingKey, e);
             throw new RuntimeException("延迟消息发送失败", e);
         }
+    }
+    
+    /**
+     * 发送到延迟交换器
+     *
+     * @param payload 消息内容
+     * @param delayMillis 延迟毫秒数
+     */
+    public <T> void sendToDelayedExchange(T payload, long delayMillis) {
+        RabbitMessage<T> message = RabbitMessage.create("DELAYED_MESSAGE", payload);
+        
+        sendDelayedMessage(RabbitMessageEvent.EXCHANGE_DELAYED, 
+                          RabbitMessageEvent.ROUTING_KEY_DELAYED, 
+                          message, delayMillis);
     }
     
     /**

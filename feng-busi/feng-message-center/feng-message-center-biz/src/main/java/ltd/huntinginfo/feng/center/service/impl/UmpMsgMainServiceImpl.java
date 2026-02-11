@@ -6,12 +6,13 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import ltd.huntinginfo.feng.center.api.entity.UmpMsgMain;
 import ltd.huntinginfo.feng.center.mapper.UmpMsgMainMapper;
 import ltd.huntinginfo.feng.center.service.UmpMsgMainService;
-import ltd.huntinginfo.feng.common.rabbitmq.service.RabbitMqService;
 import ltd.huntinginfo.feng.center.api.dto.MessageSendDTO;
 import ltd.huntinginfo.feng.center.api.dto.MessageQueryDTO;
 import ltd.huntinginfo.feng.center.api.vo.MessageDetailVO;
 import ltd.huntinginfo.feng.center.api.vo.MessagePageVO;
 import ltd.huntinginfo.feng.center.api.vo.MessageStatisticsVO;
+import ltd.huntinginfo.feng.common.rabbitmq.dto.RabbitMessage;
+import ltd.huntinginfo.feng.common.rabbitmq.service.RabbitMqService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
@@ -50,8 +51,8 @@ public class UmpMsgMainServiceImpl extends ServiceImpl<UmpMsgMainMapper, UmpMsgM
         if (save(message)) {
             log.info("消息创建成功，消息ID: {}, 消息编码: {}", message.getId(), message.getMsgCode());
             
-            // 异步发布消息事件到MQ
-            publishMessageEvent(message);
+            // 异步发布消息事件到RabbitMQ
+            publishMessageCreatedEvent(message);
             
             return message.getId();
         } else {
@@ -82,8 +83,8 @@ public class UmpMsgMainServiceImpl extends ServiceImpl<UmpMsgMainMapper, UmpMsgM
         if (save(message)) {
             log.info("代理消息创建成功，消息ID: {}, 代理消息ID: {}", message.getId(), agentMsgId);
             
-            // 异步发布消息事件到MQ
-            publishMessageEvent(message);
+            // 异步发布消息事件到RabbitMQ
+            publishMessageCreatedEvent(message);
             
             return message.getId();
         } else {
@@ -210,6 +211,8 @@ public class UmpMsgMainServiceImpl extends ServiceImpl<UmpMsgMainMapper, UmpMsgM
             return false;
         }
 
+        String oldStatus = message.getStatus();
+        
         // 更新状态
         message.setStatus(status);
         message.setUpdateTime(LocalDateTime.now());
@@ -233,10 +236,10 @@ public class UmpMsgMainServiceImpl extends ServiceImpl<UmpMsgMainMapper, UmpMsgM
         boolean success = updateById(message);
         if (success) {
             log.info("消息状态更新成功，消息ID: {}, 旧状态: {}, 新状态: {}", 
-                    msgId, message.getStatus(), status);
+                    msgId, oldStatus, status);
             
-            // 异步触发状态变更事件
-            triggerStatusChangeEvent(msgId, status);
+            // 异步发布状态变更事件到RabbitMQ
+            publishMessageStatusUpdatedEvent(msgId, oldStatus, status, message);
         }
 
         return success;
@@ -255,8 +258,8 @@ public class UmpMsgMainServiceImpl extends ServiceImpl<UmpMsgMainMapper, UmpMsgM
         if (updatedCount > 0) {
             log.info("批量更新消息状态成功，数量: {}, 目标状态: {}", updatedCount, status);
             
-            // 异步触发状态变更事件
-            triggerBatchStatusChangeEvent(msgIds, status);
+            // 异步发布批量状态变更事件到RabbitMQ
+            publishBatchStatusChangeEvent(msgIds, status);
         }
 
         return updatedCount;
@@ -271,7 +274,12 @@ public class UmpMsgMainServiceImpl extends ServiceImpl<UmpMsgMainMapper, UmpMsgM
     @Override
     @Transactional(rollbackFor = Exception.class)
     public boolean markAsDistributed(String msgId) {
-        return updateMessageStatus(msgId, "DISTRIBUTED");
+        boolean success = updateMessageStatus(msgId, "DISTRIBUTED");
+        if (success) {
+            // 触发消息分发事件
+            publishMessageDistributedEvent(msgId);
+        }
+        return success;
     }
 
     @Override
@@ -312,6 +320,9 @@ public class UmpMsgMainServiceImpl extends ServiceImpl<UmpMsgMainMapper, UmpMsgM
 
         int updatedCount = batchUpdateMessageStatus(expiredMsgIds, "EXPIRED");
         log.info("已处理过期消息数量: {}", updatedCount);
+        
+        // 发布过期事件
+        publishMessageExpiredEvent(expiredMessages);
         
         return updatedCount;
     }
@@ -457,23 +468,151 @@ public class UmpMsgMainServiceImpl extends ServiceImpl<UmpMsgMainMapper, UmpMsgM
         return "MSG-" + timestamp + "-" + random;
     }
 
-    private void publishMessageEvent(UmpMsgMain message) {
-        // 异步发布消息事件到MQ
-        // 实际实现需要集成消息队列
-        log.debug("发布消息事件，消息ID: {}", message.getId());
-        // TODO: 集成消息队列发布事件
+    // ============ RabbitMQ事件发布方法 ============
+
+    private void publishMessageCreatedEvent(UmpMsgMain message) {
+        try {
+            // 构建消息创建事件数据
+            Map<String, Object> eventData = new HashMap<>();
+            eventData.put("messageId", message.getId());
+            eventData.put("msgCode", message.getMsgCode());
+            eventData.put("title", message.getTitle());
+            eventData.put("msgType", message.getMsgType());
+            eventData.put("priority", message.getPriority());
+            eventData.put("senderAppKey", message.getSenderAppKey());
+            eventData.put("senderId", message.getSenderId());
+            eventData.put("receiverCount", message.getReceiverCount());
+            eventData.put("receiverType", message.getReceiverType());
+            eventData.put("receiverScope", message.getReceiverScope());
+            eventData.put("pushMode", message.getPushMode());
+            eventData.put("expireTime", message.getExpireTime());
+            eventData.put("agentAppKey", message.getAgentAppKey());
+            eventData.put("agentMsgId", message.getAgentMsgId());
+            eventData.put("createTime", message.getCreateTime());
+            
+            // 发送消息创建事件
+            rabbitMqService.sendMessageCreatedEvent(eventData);
+            
+            log.debug("消息创建事件发布成功，消息ID: {}, 消息编码: {}", 
+                    message.getId(), message.getMsgCode());
+        } catch (Exception e) {
+            log.error("消息创建事件发布失败，消息ID: {}", message.getId(), e);
+            // 记录错误但不影响主业务流程
+        }
     }
 
-    private void triggerStatusChangeEvent(String msgId, String status) {
-        // 异步触发状态变更事件
-        log.debug("触发状态变更事件，消息ID: {}, 新状态: {}", msgId, status);
-        // TODO: 集成消息队列发布状态变更事件
+    private void publishMessageStatusUpdatedEvent(String msgId, String oldStatus, 
+                                                 String newStatus, UmpMsgMain message) {
+        try {
+            // 构建状态变更事件数据
+            Map<String, Object> eventData = new HashMap<>();
+            eventData.put("messageId", msgId);
+            eventData.put("oldStatus", oldStatus);
+            eventData.put("newStatus", newStatus);
+            eventData.put("updateTime", LocalDateTime.now());
+            
+            if (message != null) {
+                eventData.put("msgCode", message.getMsgCode());
+                eventData.put("senderAppKey", message.getSenderAppKey());
+                eventData.put("sendTime", message.getSendTime());
+                eventData.put("distributeTime", message.getDistributeTime());
+                eventData.put("completeTime", message.getCompleteTime());
+            }
+            
+            // 发送状态变更事件
+            rabbitMqService.sendMessageStatusUpdatedEvent(eventData);
+            
+            log.debug("消息状态变更事件发布成功，消息ID: {}, 状态: {} -> {}", 
+                    msgId, oldStatus, newStatus);
+        } catch (Exception e) {
+            log.error("消息状态变更事件发布失败，消息ID: {}", msgId, e);
+            // 记录错误但不影响主业务流程
+        }
     }
 
-    private void triggerBatchStatusChangeEvent(List<String> msgIds, String status) {
-        // 异步触发批量状态变更事件
-        log.debug("触发批量状态变更事件，消息数量: {}, 新状态: {}", msgIds.size(), status);
-        // TODO: 集成消息队列发布批量状态变更事件
+    private void publishMessageDistributedEvent(String msgId) {
+        try {
+            UmpMsgMain message = getById(msgId);
+            if (message == null) {
+                log.warn("消息不存在，无法发布分发事件，消息ID: {}", msgId);
+                return;
+            }
+            
+            // 构建分发事件数据
+            Map<String, Object> eventData = new HashMap<>();
+            eventData.put("messageId", msgId);
+            eventData.put("msgCode", message.getMsgCode());
+            eventData.put("title", message.getTitle());
+            eventData.put("receiverCount", message.getReceiverCount());
+            eventData.put("receiverType", message.getReceiverType());
+            eventData.put("receiverScope", message.getReceiverScope());
+            eventData.put("distributeTime", message.getDistributeTime());
+            eventData.put("senderAppKey", message.getSenderAppKey());
+            
+            // 发送分发事件
+            rabbitMqService.sendMessageDistributedEvent(eventData);
+            
+            log.debug("消息分发事件发布成功，消息ID: {}, 接收者数量: {}", 
+                    msgId, message.getReceiverCount());
+        } catch (Exception e) {
+            log.error("消息分发事件发布失败，消息ID: {}", msgId, e);
+            // 记录错误但不影响主业务流程
+        }
+    }
+
+    private void publishMessageExpiredEvent(List<UmpMsgMain> expiredMessages) {
+        if (CollectionUtils.isEmpty(expiredMessages)) {
+            return;
+        }
+        
+        try {
+            // 构建过期事件数据
+            List<Map<String, Object>> expiredList = expiredMessages.stream()
+                    .map(message -> {
+                        Map<String, Object> data = new HashMap<>();
+                        data.put("messageId", message.getId());
+                        data.put("msgCode", message.getMsgCode());
+                        data.put("title", message.getTitle());
+                        data.put("senderAppKey", message.getSenderAppKey());
+                        data.put("createTime", message.getCreateTime());
+                        data.put("expireTime", message.getExpireTime());
+                        data.put("status", message.getStatus());
+                        return data;
+                    })
+                    .collect(Collectors.toList());
+            
+            // 发送过期事件
+            rabbitMqService.sendMessageExpiredEvent(expiredList);
+            
+            log.debug("消息过期事件发布成功，数量: {}", expiredMessages.size());
+        } catch (Exception e) {
+            log.error("消息过期事件发布失败", e);
+            // 记录错误但不影响主业务流程
+        }
+    }
+
+    private void publishBatchStatusChangeEvent(List<String> msgIds, String status) {
+        if (CollectionUtils.isEmpty(msgIds)) {
+            return;
+        }
+        
+        try {
+            // 构建批量状态变更事件数据
+            Map<String, Object> eventData = new HashMap<>();
+            eventData.put("messageIds", msgIds);
+            eventData.put("newStatus", status);
+            eventData.put("updateTime", LocalDateTime.now());
+            eventData.put("count", msgIds.size());
+            
+            // 发送批量状态变更事件
+            rabbitMqService.sendMessageStatusUpdatedEvent(eventData);
+            
+            log.debug("批量消息状态变更事件发布成功，数量: {}, 状态: {}", 
+                    msgIds.size(), status);
+        } catch (Exception e) {
+            log.error("批量消息状态变更事件发布失败", e);
+            // 记录错误但不影响主业务流程
+        }
     }
 
     private MessageDetailVO convertToDetailVO(UmpMsgMain message) {
@@ -493,16 +632,5 @@ public class UmpMsgMainServiceImpl extends ServiceImpl<UmpMsgMainMapper, UmpMsgM
         }
         
         return vo;
-    }
-
-    private String getSortField(String sortField) {
-        // 映射前端排序字段到数据库字段
-        Map<String, String> fieldMap = new HashMap<>();
-        fieldMap.put("createTime", "create_time");
-        fieldMap.put("sendTime", "send_time");
-        fieldMap.put("priority", "priority");
-        fieldMap.put("title", "title");
-        
-        return fieldMap.getOrDefault(sortField, "create_time");
     }
 }
