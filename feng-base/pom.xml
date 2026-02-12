@@ -20,7 +20,7 @@
         <module>feng-config</module>
         <module>feng-gateway3</module>
         <module>feng-auth</module>
-        <module>feng-register</module>
+        <!--<module>feng-register</module>-->
         <module>feng-monitor</module>
         <module>feng-quartz</module>
         <module>feng-codegen</module>

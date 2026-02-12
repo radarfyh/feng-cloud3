@@ -25,6 +25,7 @@ import ltd.huntinginfo.feng.common.swagger.annotation.EnableFengDoc;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
+import org.springframework.scheduling.annotation.EnableAsync;
 
 /**
  * 用户统一管理系统
@@ -37,6 +38,7 @@ import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 @EnableFengResourceServer
 @EnableDiscoveryClient
 @SpringBootApplication
+@EnableAsync  // 启用异步支持
 public class FengCenterApplication {
 
 	public static void main(String[] args) {

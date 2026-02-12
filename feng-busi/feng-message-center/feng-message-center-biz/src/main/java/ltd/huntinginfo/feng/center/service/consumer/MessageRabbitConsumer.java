@@ -1,238 +1,192 @@
 package ltd.huntinginfo.feng.center.service.consumer;
 
-import ltd.huntinginfo.feng.common.rabbitmq.constant.RabbitMessageEvent;
-import ltd.huntinginfo.feng.common.rabbitmq.dto.RabbitMessage;
+import ltd.huntinginfo.feng.center.service.processor.MessageDistributionProcessor;
+import ltd.huntinginfo.feng.common.core.mq.MqMessageEventConstants;
+import ltd.huntinginfo.feng.common.core.mq.consumer.MqMessageConsumer;
+import ltd.huntinginfo.feng.common.core.mq.dto.MqMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
 
 /**
- * RabbitMQ消息消费者
+ * RabbitMQ 消息消费者
+ * <p>
+ * 职责：监听各业务队列，将消息转换为业务对象，调用对应的业务处理器。
+ * 不包含任何业务逻辑，所有业务处理委托给 {@link MessageDistributionProcessor}。
+ * </p>
+ *
+ * @author feng-cloud3
+ * @since 2026-02-12
  */
 @Slf4j
 @Service
+@ConditionalOnProperty(name = MqMessageEventConstants.ConfigKeys.MQ_TYPE, havingValue = "rabbitmq")
 @RequiredArgsConstructor
-public class MessageRabbitConsumer {
-    
+public class MessageRabbitConsumer implements MqMessageConsumer {
+
+    private final MessageDistributionProcessor messageDistributionProcessor;
+
+    // ==================== 消息状态事件监听（与 ump_msg_main.status 一一对应） ====================
+
     /**
-     * 监听消息创建事件
+     * 监听【消息已接收】事件（RECEIVED）
+     * 对应队列：MqMessageEventConstants.Queues.MESSAGE_RECEIVED
      */
-    @RabbitListener(queues = RabbitMessageEvent.QUEUE_MESSAGE_CREATED)
-    public void handleMessageCreated(RabbitMessage<Map<String, Object>> rabbitMessage) {
-        try {
-            Map<String, Object> messageData = rabbitMessage.getPayload();
-            String messageId = (String) messageData.get("messageId");
-            String msgCode = (String) messageData.get("msgCode");
-            
-            log.info("接收到消息创建事件，消息ID: {}, 消息编码: {}, 重试次数: {}", 
-                    messageId, msgCode, rabbitMessage.getRetryCount());
-            
-            // 处理消息创建后的业务逻辑
-            processMessageCreated(messageData);
-            
-        } catch (Exception e) {
-            log.error("处理消息创建事件失败", e);
-            // 这里可以实现重试逻辑或死信队列处理
-            throw e; // 抛出异常让RabbitMQ重试
-        }
+    @Override
+    @RabbitListener(queues = MqMessageEventConstants.Queues.MESSAGE_RECEIVED)
+    public void handleMessageReceived(MqMessage<Map<String, Object>> MqMessage) {
+        String messageId = extractMessageId(MqMessage);
+        log.info("接收到消息已接收事件，消息ID: {}, 重试次数: {}", messageId, MqMessage.getRetryCount());
+
+        // 调用处理器：执行消息接收后的业务逻辑（如创建分发任务）
+        messageDistributionProcessor.handleMessageReceived(messageId, MqMessage.getPayload());
     }
-    
+
     /**
-     * 监听消息状态更新事件
+     * 监听【消息已分发】事件（DISTRIBUTED）
+     * 对应队列：MqMessageEventConstants.Queues.MESSAGE_DISTRIBUTED
      */
-    @RabbitListener(queues = RabbitMessageEvent.QUEUE_MESSAGE_STATUS)
-    public void handleMessageStatusUpdated(RabbitMessage<Map<String, Object>> rabbitMessage) {
-        try {
-            Map<String, Object> statusData = rabbitMessage.getPayload();
-            String messageId = (String) statusData.get("messageId");
-            String oldStatus = (String) statusData.get("oldStatus");
-            String newStatus = (String) statusData.get("newStatus");
-            
-            log.info("接收到消息状态更新事件，消息ID: {}, 状态: {} -> {}, 重试次数: {}", 
-                    messageId, oldStatus, newStatus, rabbitMessage.getRetryCount());
-            
-            // 处理消息状态更新后的业务逻辑
-            processMessageStatusUpdated(statusData);
-            
-        } catch (Exception e) {
-            log.error("处理消息状态更新事件失败", e);
-            throw e; // 抛出异常让RabbitMQ重试
-        }
+    @Override
+    @RabbitListener(queues = MqMessageEventConstants.Queues.MESSAGE_DISTRIBUTED)
+    public void handleMessageDistributed(MqMessage<Map<String, Object>> MqMessage) {
+        String messageId = extractMessageId(MqMessage);
+        log.info("接收到消息已分发事件，消息ID: {}, 重试次数: {}", messageId, MqMessage.getRetryCount());
+
+        messageDistributionProcessor.handleMessageDistributed(messageId, MqMessage.getPayload());
     }
-    
+
     /**
-     * 监听消息分发事件
+     * 监听【消息已发送】事件（SENT）
+     * 对应队列：MqMessageEventConstants.Queues.MESSAGE_SENT
      */
-    @RabbitListener(queues = RabbitMessageEvent.QUEUE_MESSAGE_DISTRIBUTE)
-    public void handleMessageDistributed(RabbitMessage<Map<String, Object>> rabbitMessage) {
-        try {
-            Map<String, Object> distributeData = rabbitMessage.getPayload();
-            String messageId = (String) distributeData.get("messageId");
-            Integer receiverCount = (Integer) distributeData.get("receiverCount");
-            
-            log.info("接收到消息分发事件，消息ID: {}, 接收者数量: {}, 重试次数: {}", 
-                    messageId, receiverCount, rabbitMessage.getRetryCount());
-            
-            // 处理消息分发后的业务逻辑
-            processMessageDistributed(distributeData);
-            
-        } catch (Exception e) {
-            log.error("处理消息分发事件失败", e);
-            throw e; // 抛出异常让RabbitMQ重试
-        }
+    @Override
+    @RabbitListener(queues = MqMessageEventConstants.Queues.MESSAGE_SENT)
+    public void handleMessageSent(MqMessage<Map<String, Object>> MqMessage) {
+        String messageId = extractMessageId(MqMessage);
+        log.info("接收到消息已发送事件，消息ID: {}, 重试次数: {}", messageId, MqMessage.getRetryCount());
+
+        messageDistributionProcessor.handleMessageSent(messageId, MqMessage.getPayload());
     }
-    
+
     /**
-     * 监听消息过期事件
+     * 监听【消息已读】事件（READ）
+     * 对应队列：MqMessageEventConstants.Queues.MESSAGE_READ
      */
-    @RabbitListener(queues = RabbitMessageEvent.QUEUE_MESSAGE_EXPIRE)
-    public void handleMessageExpired(RabbitMessage<Map<String, Object>> rabbitMessage) {
-        try {
-            log.info("接收到消息过期事件，重试次数: {}", rabbitMessage.getRetryCount());
-            
-            // 处理消息过期后的业务逻辑
-            processMessageExpired(rabbitMessage.getPayload());
-            
-        } catch (Exception e) {
-            log.error("处理消息过期事件失败", e);
-            // 过期消息不重试，直接记录日志
-            log.error("消息过期事件处理失败，数据: {}", rabbitMessage.getPayload(), e);
+    @Override
+    @RabbitListener(queues = MqMessageEventConstants.Queues.MESSAGE_READ)
+    public void handleMessageRead(MqMessage<Map<String, Object>> MqMessage) {
+        String messageId = extractMessageId(MqMessage);
+        log.info("接收到消息已读事件，消息ID: {}, 重试次数: {}", messageId, MqMessage.getRetryCount());
+
+        messageDistributionProcessor.handleMessageRead(messageId, MqMessage.getPayload());
+    }
+
+    /**
+     * 监听【消息已过期】事件（EXPIRED）
+     * 对应队列：MqMessageEventConstants.Queues.MESSAGE_EXPIRED
+     */
+    @Override
+    @RabbitListener(queues = MqMessageEventConstants.Queues.MESSAGE_EXPIRED)
+    public void handleMessageExpired(MqMessage<Map<String, Object>> MqMessage) {
+        String messageId = extractMessageId(MqMessage);
+        log.info("接收到消息已过期事件，消息ID: {}, 重试次数: {}", messageId, MqMessage.getRetryCount());
+
+        messageDistributionProcessor.handleMessageExpired(messageId, MqMessage.getPayload());
+    }
+
+    /**
+     * 监听【消息失败】事件（FAILED）
+     * 对应队列：MqMessageEventConstants.Queues.MESSAGE_FAILED
+     */
+    @Override
+    @RabbitListener(queues = MqMessageEventConstants.Queues.MESSAGE_FAILED)
+    public void handleMessageFailed(MqMessage<Map<String, Object>> MqMessage) {
+        String messageId = extractMessageId(MqMessage);
+        log.info("接收到消息失败事件，消息ID: {}, 重试次数: {}", messageId, MqMessage.getRetryCount());
+
+        messageDistributionProcessor.handleMessageFailed(messageId, MqMessage.getPayload());
+    }
+
+    // ==================== 异步任务队列监听 ====================
+
+    /**
+     * 监听消息推送任务队列
+     */
+    @Override
+    @RabbitListener(queues = MqMessageEventConstants.Queues.MESSAGE_SEND_TASK)
+    public void handleSendTask(MqMessage<Map<String, Object>> MqMessage) {
+        String taskId = (String) MqMessage.getPayload().get("taskId");
+        log.info("接收到消息推送任务，任务ID: {}, 重试次数: {}", taskId, MqMessage.getRetryCount());
+
+        messageDistributionProcessor.processSendTask(MqMessage.getPayload());
+    }
+
+    /**
+     * 监听回调任务队列
+     */
+    @Override
+    @RabbitListener(queues = MqMessageEventConstants.Queues.MESSAGE_CALLBACK_TASK)
+    public void handleCallbackTask(MqMessage<Map<String, Object>> MqMessage) {
+        String taskId = (String) MqMessage.getPayload().get("taskId");
+        log.info("接收到回调任务，任务ID: {}, 重试次数: {}", taskId, MqMessage.getRetryCount());
+
+        messageDistributionProcessor.processCallbackTask(MqMessage.getPayload());
+    }
+
+    /**
+     * 监听重试任务队列
+     */
+    @Override
+    @RabbitListener(queues = MqMessageEventConstants.Queues.MESSAGE_RETRY_TASK)
+    public void handleRetryTask(MqMessage<Map<String, Object>> MqMessage) {
+        String taskId = (String) MqMessage.getPayload().get("taskId");
+        log.info("接收到重试任务，任务ID: {}, 重试次数: {}", taskId, MqMessage.getRetryCount());
+
+        messageDistributionProcessor.processRetryTask(MqMessage.getPayload());
+    }
+
+    /**
+     * 监听广播分发任务队列
+     */
+    @Override
+    @RabbitListener(queues = MqMessageEventConstants.Queues.BROADCAST_DISPATCH_TASK)
+    public void handleBroadcastDispatchTask(MqMessage<Map<String, Object>> MqMessage) {
+        String taskId = (String) MqMessage.getPayload().get("taskId");
+        log.info("接收到广播分发任务，任务ID: {}, 重试次数: {}", taskId, MqMessage.getRetryCount());
+
+        messageDistributionProcessor.processBroadcastDispatchTask(MqMessage.getPayload());
+    }
+
+    // ==================== 延迟队列监听 ====================
+    @Override
+    @RabbitListener(queues = MqMessageEventConstants.Queues.DELAYED_SEND)
+    public void handleDelayedSendTask(MqMessage<Map<String, Object>> MqMessage) {
+        log.info("接收到延迟发送任务，重试次数: {}", MqMessage.getRetryCount());
+        messageDistributionProcessor.processDelayedSend(MqMessage.getPayload());
+    }
+
+    @Override
+    @RabbitListener(queues = MqMessageEventConstants.Queues.DELAYED_EXPIRE)
+    public void handleDelayedExpireTask(MqMessage<Map<String, Object>> MqMessage) {
+        log.info("接收到延迟过期处理任务，重试次数: {}", MqMessage.getRetryCount());
+        messageDistributionProcessor.processDelayedExpire(MqMessage.getPayload());
+    }
+
+    // ==================== 私有辅助方法 ====================
+
+    /**
+     * 从 MqMessage 中提取消息ID
+     * 优先从 payload 中获取 messageId，若不存在则使用 MqMessage 自身的 messageId
+     */
+    private String extractMessageId(MqMessage<Map<String, Object>> MqMessage) {
+        Map<String, Object> payload = MqMessage.getPayload();
+        if (payload != null && payload.containsKey("messageId")) {
+            return (String) payload.get("messageId");
         }
-    }
-    
-    // ============ 私有方法 ============
-    
-    private void processMessageCreated(Map<String, Object> messageData) {
-        // 这里实现消息创建后的业务逻辑
-        // 例如：消息验证、消息路由、消息分发等
-        
-        String messageId = (String) messageData.get("messageId");
-        String pushMode = (String) messageData.get("pushMode");
-        
-        log.debug("处理消息创建业务逻辑，消息ID: {}, 推送模式: {}", messageId, pushMode);
-        
-        // 根据推送模式处理
-        if ("PUSH".equals(pushMode)) {
-            // 主动推送模式
-            handlePushModeMessage(messageData);
-        } else if ("POLL".equals(pushMode)) {
-            // 轮询模式
-            handlePollModeMessage(messageData);
-        }
-    }
-    
-    private void processMessageStatusUpdated(Map<String, Object> statusData) {
-        // 这里实现消息状态更新后的业务逻辑
-        // 例如：状态同步、通知发送者、触发下一步流程等
-        
-        String messageId = (String) statusData.get("messageId");
-        String newStatus = (String) statusData.get("newStatus");
-        
-        log.debug("处理消息状态更新业务逻辑，消息ID: {}, 新状态: {}", messageId, newStatus);
-        
-        switch (newStatus) {
-            case "SENT":
-                handleMessageSent(messageId, statusData);
-                break;
-            case "DISTRIBUTED":
-                handleMessageDistributed(messageId, statusData);
-                break;
-            case "READ":
-                handleMessageRead(messageId, statusData);
-                break;
-            case "FAILED":
-                handleMessageFailed(messageId, statusData);
-                break;
-        }
-    }
-    
-    private void processMessageDistributed(Map<String, Object> distributeData) {
-        // 这里实现消息分发后的业务逻辑
-        // 例如：生成收件箱记录、通知接收者等
-        
-        String messageId = (String) distributeData.get("messageId");
-        Integer receiverCount = (Integer) distributeData.get("receiverCount");
-        String receiverType = (String) distributeData.get("receiverType");
-        
-        log.debug("处理消息分发业务逻辑，消息ID: {}, 接收者类型: {}, 数量: {}", 
-                messageId, receiverType, receiverCount);
-        
-        // 根据接收者类型处理分发
-        if ("USER".equals(receiverType)) {
-            handleUserMessageDistribution(messageId, distributeData);
-        } else if ("DEPT".equals(receiverType)) {
-            handleDeptMessageDistribution(messageId, distributeData);
-        } else if ("ALL".equals(receiverType)) {
-            handleAllMessageDistribution(messageId, distributeData);
-        }
-    }
-    
-    private void processMessageExpired(Object payload) {
-        // 这里实现消息过期后的业务逻辑
-        // 例如：清理相关数据、记录日志、通知管理员等
-        
-        log.debug("处理消息过期业务逻辑");
-        
-        // 如果是List类型，说明是批量过期
-        if (payload instanceof java.util.List) {
-            java.util.List<?> expiredList = (java.util.List<?>) payload;
-            log.info("批量处理过期消息，数量: {}", expiredList.size());
-        } else {
-            log.info("处理单个消息过期");
-        }
-    }
-    
-    private void handlePushModeMessage(Map<String, Object> messageData) {
-        // 实现主动推送模式的业务逻辑
-        String messageId = (String) messageData.get("messageId");
-        log.debug("处理主动推送消息，消息ID: {}", messageId);
-        
-        // TODO: 实现具体的推送逻辑
-    }
-    
-    private void handlePollModeMessage(Map<String, Object> messageData) {
-        // 实现轮询模式的业务逻辑
-        String messageId = (String) messageData.get("messageId");
-        log.debug("处理轮询模式消息，消息ID: {}", messageId);
-        
-        // TODO: 实现具体的轮询逻辑
-    }
-    
-    private void handleMessageSent(String messageId, Map<String, Object> statusData) {
-        log.debug("处理消息已发送状态，消息ID: {}", messageId);
-        // TODO: 实现消息已发送后的处理逻辑
-    }
-    
-    private void handleMessageDistributed(String messageId, Map<String, Object> statusData) {
-        log.debug("处理消息已分发状态，消息ID: {}", messageId);
-        // TODO: 实现消息已分发后的处理逻辑
-    }
-    
-    private void handleMessageRead(String messageId, Map<String, Object> statusData) {
-        log.debug("处理消息已读状态，消息ID: {}", messageId);
-        // TODO: 实现消息已读后的处理逻辑
-    }
-    
-    private void handleMessageFailed(String messageId, Map<String, Object> statusData) {
-        log.debug("处理消息失败状态，消息ID: {}", messageId);
-        // TODO: 实现消息失败后的处理逻辑
-    }
-    
-    private void handleUserMessageDistribution(String messageId, Map<String, Object> distributeData) {
-        log.debug("处理个人消息分发，消息ID: {}", messageId);
-        // TODO: 实现个人消息分发的具体逻辑
-    }
-    
-    private void handleDeptMessageDistribution(String messageId, Map<String, Object> distributeData) {
-        log.debug("处理部门消息分发，消息ID: {}", messageId);
-        // TODO: 实现部门消息分发的具体逻辑
-    }
-    
-    private void handleAllMessageDistribution(String messageId, Map<String, Object> distributeData) {
-        log.debug("处理全体消息分发，消息ID: {}", messageId);
-        // TODO: 实现全体消息分发的具体逻辑
+        return MqMessage.getMessageId();
     }
 }

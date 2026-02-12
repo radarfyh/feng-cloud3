@@ -72,6 +72,14 @@ public interface UmpAppCredentialService extends IService<UmpAppCredential> {
      * @return 是否成功
      */
     boolean resetAppSecret(String appId, String newSecret, Integer expireDays);
+    
+    /**
+     * 单独获取应用密钥
+     *
+     * @param appId 应用ID
+     * @return 密钥
+     */
+    String getAppSecret(String appId);
 
     /**
      * 根据应用标识查询应用

@@ -1,152 +1,217 @@
 package ltd.huntinginfo.feng.common.rabbitmq.config;
 
-import ltd.huntinginfo.feng.common.rabbitmq.constant.RabbitMessageEvent;
-
-import java.util.HashMap;
-import java.util.Map;
-
 import org.springframework.amqp.core.*;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import ltd.huntinginfo.feng.common.core.mq.MqMessageEventConstants;
+
 /**
- * RabbitMQ队列和交换器配置
+ * RabbitMQ 队列、交换机、绑定配置（Spring Boot 4 + Jackson 3）
+ * <p>
+ * 设计原则：
+ * - 队列名、交换机名、路由键严格使用 MqMessageEventConstants 常量
+ * - 移除所有队列级 TTL，改为消息级 TTL（生产者设置）
+ * - 移除队列 maxLength 硬编码，由 RabbitMQ 磁盘/内存阈值控制
+ * - 独立死信交换机，各业务队列绑定 DLX + 明确路由键
+ * - 废弃专用延迟交换机，使用主交换机 + x-delay 头 + 业务延迟队列
+ * </p>
  */
 @Configuration
 public class RabbitQueueConfig {
 
-    /**
-     * 消息创建队列
-     */
-    @Bean
-    public Queue messageCreatedQueue() {
-        return QueueBuilder.durable(RabbitMessageEvent.QUEUE_MESSAGE_CREATED)
-                // 设置消息TTL（24小时）
-                .ttl(24 * 60 * 60 * 1000)
-                // 设置死信交换器
-                .deadLetterExchange(RabbitMessageEvent.EXCHANGE_MESSAGE)
-                .deadLetterRoutingKey(RabbitMessageEvent.ROUTING_KEY_MESSAGE_EXPIRE)
-                // 设置最大长度
-                .maxLength(10000)
-                .build();
-    }
-
-    /**
-     * 消息状态更新队列
-     */
-    @Bean
-    public Queue messageStatusQueue() {
-        return QueueBuilder.durable(RabbitMessageEvent.QUEUE_MESSAGE_STATUS)
-                .ttl(12 * 60 * 60 * 1000)
-                .deadLetterExchange(RabbitMessageEvent.EXCHANGE_MESSAGE)
-                .deadLetterRoutingKey(RabbitMessageEvent.ROUTING_KEY_MESSAGE_EXPIRE)
-                .maxLength(5000)
-                .build();
-    }
-
-    /**
-     * 消息分发队列
-     */
-    @Bean
-    public Queue messageDistributeQueue() {
-        return QueueBuilder.durable(RabbitMessageEvent.QUEUE_MESSAGE_DISTRIBUTE)
-                .ttl(6 * 60 * 60 * 1000)
-                .deadLetterExchange(RabbitMessageEvent.EXCHANGE_MESSAGE)
-                .deadLetterRoutingKey(RabbitMessageEvent.ROUTING_KEY_MESSAGE_EXPIRE)
-                .maxLength(20000)
-                .build();
-    }
-
-    /**
-     * 消息过期队列
-     */
-    @Bean
-    public Queue messageExpireQueue() {
-        return QueueBuilder.durable(RabbitMessageEvent.QUEUE_MESSAGE_EXPIRE)
-                .ttl(72 * 60 * 60 * 1000)
-                .maxLength(1000)
-                .build();
-    }
-
-    /**
-     * 消息交换器（主题交换器）
-     */
+    // -------------------- 1. 交换机 --------------------
     @Bean
     public TopicExchange messageExchange() {
-        return ExchangeBuilder.topicExchange(RabbitMessageEvent.EXCHANGE_MESSAGE)
+        return ExchangeBuilder.topicExchange(MqMessageEventConstants.Exchanges.MESSAGE)
                 .durable(true)
                 .build();
     }
 
-    /**
-     * 绑定消息创建队列
-     */
     @Bean
-    public Binding messageCreatedBinding(Queue messageCreatedQueue, TopicExchange messageExchange) {
-        return BindingBuilder.bind(messageCreatedQueue)
-                .to(messageExchange)
-                .with(RabbitMessageEvent.ROUTING_KEY_MESSAGE_CREATED);
-    }
-
-    /**
-     * 绑定消息状态队列
-     */
-    @Bean
-    public Binding messageStatusBinding(Queue messageStatusQueue, TopicExchange messageExchange) {
-        return BindingBuilder.bind(messageStatusQueue)
-                .to(messageExchange)
-                .with(RabbitMessageEvent.ROUTING_KEY_MESSAGE_STATUS);
-    }
-
-    /**
-     * 绑定消息分发队列
-     */
-    @Bean
-    public Binding messageDistributeBinding(Queue messageDistributeQueue, TopicExchange messageExchange) {
-        return BindingBuilder.bind(messageDistributeQueue)
-                .to(messageExchange)
-                .with(RabbitMessageEvent.ROUTING_KEY_MESSAGE_DISTRIBUTE);
-    }
-
-    /**
-     * 绑定消息过期队列
-     */
-    @Bean
-    public Binding messageExpireBinding(Queue messageExpireQueue, TopicExchange messageExchange) {
-        return BindingBuilder.bind(messageExpireQueue)
-                .to(messageExchange)
-                .with(RabbitMessageEvent.ROUTING_KEY_MESSAGE_EXPIRE);
-    }
-    
-    /**
-     * 延迟消息交换器（自定义交换器类型）
-     */
-    @Bean
-    public CustomExchange delayedMessageExchange() {
-        Map<String, Object> args = new HashMap<>();
-        args.put("x-delayed-type", "direct");
-        return new CustomExchange("delayed.exchange", "x-delayed-message", true, false, args);
-    }
-
-    /**
-     * 延迟消息队列
-     */
-    @Bean
-    public Queue delayedMessageQueue() {
-        return QueueBuilder.durable("queue.delayed.message")
-                .ttl(24 * 60 * 60 * 1000)
-                .maxLength(5000)
+    public TopicExchange deadLetterExchange() {
+        return ExchangeBuilder.topicExchange(MqMessageEventConstants.Exchanges.DLX)
+                .durable(true)
                 .build();
     }
 
-    /**
-     * 绑定延迟消息队列
-     */
+    // -------------------- 2. 消息状态队列 --------------------
     @Bean
-    public Binding delayedMessageBinding(Queue delayedMessageQueue, CustomExchange delayedMessageExchange) {
-        return BindingBuilder.bind(delayedMessageQueue)
-                .to(delayedMessageExchange)
-                .with("delayed.routing.key")
-                .noargs();
+    public Queue messageReceivedQueue() {
+        return QueueBuilder.durable(MqMessageEventConstants.Queues.MESSAGE_RECEIVED)
+                .deadLetterExchange(MqMessageEventConstants.Exchanges.DLX)
+                .deadLetterRoutingKey(MqMessageEventConstants.RoutingKeys.MESSAGE_EXPIRED)
+                .build();
+    }
+
+    @Bean
+    public Queue messageDistributedQueue() {
+        return QueueBuilder.durable(MqMessageEventConstants.Queues.MESSAGE_DISTRIBUTED)
+                .deadLetterExchange(MqMessageEventConstants.Exchanges.DLX)
+                .deadLetterRoutingKey(MqMessageEventConstants.RoutingKeys.MESSAGE_EXPIRED)
+                .build();
+    }
+
+    @Bean
+    public Queue messageSentQueue() {
+        return QueueBuilder.durable(MqMessageEventConstants.Queues.MESSAGE_SENT)
+                .deadLetterExchange(MqMessageEventConstants.Exchanges.DLX)
+                .deadLetterRoutingKey(MqMessageEventConstants.RoutingKeys.MESSAGE_EXPIRED)
+                .build();
+    }
+
+    @Bean
+    public Queue messageReadQueue() {
+        return QueueBuilder.durable(MqMessageEventConstants.Queues.MESSAGE_READ)
+                .deadLetterExchange(MqMessageEventConstants.Exchanges.DLX)
+                .deadLetterRoutingKey(MqMessageEventConstants.RoutingKeys.MESSAGE_EXPIRED)
+                .build();
+    }
+
+    @Bean
+    public Queue messageExpiredQueue() {
+        return QueueBuilder.durable(MqMessageEventConstants.Queues.MESSAGE_EXPIRED)
+                .build();
+    }
+
+    @Bean
+    public Queue messageFailedQueue() {
+        return QueueBuilder.durable(MqMessageEventConstants.Queues.MESSAGE_FAILED)
+                .build();
+    }
+
+    // -------------------- 3. 异步任务队列 --------------------
+    @Bean
+    public Queue messageSendTaskQueue() {
+        return QueueBuilder.durable(MqMessageEventConstants.Queues.MESSAGE_SEND_TASK)
+                .deadLetterExchange(MqMessageEventConstants.Exchanges.DLX)
+                .deadLetterRoutingKey(MqMessageEventConstants.RoutingKeys.TASK_RETRY)
+                .build();
+    }
+
+    @Bean
+    public Queue messageCallbackTaskQueue() {
+        return QueueBuilder.durable(MqMessageEventConstants.Queues.MESSAGE_CALLBACK_TASK)
+                .deadLetterExchange(MqMessageEventConstants.Exchanges.DLX)
+                .deadLetterRoutingKey(MqMessageEventConstants.RoutingKeys.TASK_RETRY)
+                .build();
+    }
+
+    @Bean
+    public Queue messageRetryTaskQueue() {
+        return QueueBuilder.durable(MqMessageEventConstants.Queues.MESSAGE_RETRY_TASK)
+                .deadLetterExchange(MqMessageEventConstants.Exchanges.DLX)
+                .deadLetterRoutingKey(MqMessageEventConstants.RoutingKeys.MESSAGE_EXPIRED)
+                .build();
+    }
+
+    @Bean
+    public Queue broadcastDispatchTaskQueue() {
+        return QueueBuilder.durable(MqMessageEventConstants.Queues.BROADCAST_DISPATCH_TASK)
+                .deadLetterExchange(MqMessageEventConstants.Exchanges.DLX)
+                .deadLetterRoutingKey(MqMessageEventConstants.RoutingKeys.TASK_RETRY)
+                .build();
+    }
+
+    // -------------------- 4. 延迟队列 --------------------
+    @Bean
+    public Queue delayedSendQueue() {
+        return QueueBuilder.durable(MqMessageEventConstants.Queues.DELAYED_SEND)
+                .deadLetterExchange(MqMessageEventConstants.Exchanges.DLX)
+                .deadLetterRoutingKey(MqMessageEventConstants.RoutingKeys.MESSAGE_EXPIRED)
+                .build();
+    }
+
+    @Bean
+    public Queue delayedExpireQueue() {
+        return QueueBuilder.durable(MqMessageEventConstants.Queues.DELAYED_EXPIRE)
+                .deadLetterExchange(MqMessageEventConstants.Exchanges.DLX)
+                .deadLetterRoutingKey(MqMessageEventConstants.RoutingKeys.MESSAGE_EXPIRED)
+                .build();
+    }
+
+    // -------------------- 5. 绑定关系 --------------------
+    @Bean
+    public Binding messageReceivedBinding(Queue messageReceivedQueue, TopicExchange messageExchange) {
+        return BindingBuilder.bind(messageReceivedQueue)
+                .to(messageExchange)
+                .with(MqMessageEventConstants.RoutingKeys.MESSAGE_RECEIVED);
+    }
+
+    @Bean
+    public Binding messageDistributedBinding(Queue messageDistributedQueue, TopicExchange messageExchange) {
+        return BindingBuilder.bind(messageDistributedQueue)
+                .to(messageExchange)
+                .with(MqMessageEventConstants.RoutingKeys.MESSAGE_DISTRIBUTED);
+    }
+
+    @Bean
+    public Binding messageSentBinding(Queue messageSentQueue, TopicExchange messageExchange) {
+        return BindingBuilder.bind(messageSentQueue)
+                .to(messageExchange)
+                .with(MqMessageEventConstants.RoutingKeys.MESSAGE_SENT);
+    }
+
+    @Bean
+    public Binding messageReadBinding(Queue messageReadQueue, TopicExchange messageExchange) {
+        return BindingBuilder.bind(messageReadQueue)
+                .to(messageExchange)
+                .with(MqMessageEventConstants.RoutingKeys.MESSAGE_READ);
+    }
+
+    @Bean
+    public Binding messageExpiredBinding(Queue messageExpiredQueue, TopicExchange messageExchange) {
+        return BindingBuilder.bind(messageExpiredQueue)
+                .to(messageExchange)
+                .with(MqMessageEventConstants.RoutingKeys.MESSAGE_EXPIRED);
+    }
+
+    @Bean
+    public Binding messageFailedBinding(Queue messageFailedQueue, TopicExchange messageExchange) {
+        return BindingBuilder.bind(messageFailedQueue)
+                .to(messageExchange)
+                .with(MqMessageEventConstants.RoutingKeys.MESSAGE_FAILED);
+    }
+
+    @Bean
+    public Binding messageSendTaskBinding(Queue messageSendTaskQueue, TopicExchange messageExchange) {
+        return BindingBuilder.bind(messageSendTaskQueue)
+                .to(messageExchange)
+                .with(MqMessageEventConstants.RoutingKeys.TASK_SEND);
+    }
+
+    @Bean
+    public Binding messageCallbackTaskBinding(Queue messageCallbackTaskQueue, TopicExchange messageExchange) {
+        return BindingBuilder.bind(messageCallbackTaskQueue)
+                .to(messageExchange)
+                .with(MqMessageEventConstants.RoutingKeys.TASK_CALLBACK);
+    }
+
+    @Bean
+    public Binding messageRetryTaskBinding(Queue messageRetryTaskQueue, TopicExchange messageExchange) {
+        return BindingBuilder.bind(messageRetryTaskQueue)
+                .to(messageExchange)
+                .with(MqMessageEventConstants.RoutingKeys.TASK_RETRY);
+    }
+
+    @Bean
+    public Binding broadcastDispatchTaskBinding(Queue broadcastDispatchTaskQueue, TopicExchange messageExchange) {
+        return BindingBuilder.bind(broadcastDispatchTaskQueue)
+                .to(messageExchange)
+                .with(MqMessageEventConstants.RoutingKeys.TASK_BROADCAST_DISPATCH);
+    }
+
+    @Bean
+    public Binding delayedSendBinding(Queue delayedSendQueue, TopicExchange messageExchange) {
+        return BindingBuilder.bind(delayedSendQueue)
+                .to(messageExchange)
+                .with(MqMessageEventConstants.RoutingKeys.DELAYED_SEND);
+    }
+
+    @Bean
+    public Binding delayedExpireBinding(Queue delayedExpireQueue, TopicExchange messageExchange) {
+        return BindingBuilder.bind(delayedExpireQueue)
+                .to(messageExchange)
+                .with(MqMessageEventConstants.RoutingKeys.DELAYED_EXPIRE);
     }
 }

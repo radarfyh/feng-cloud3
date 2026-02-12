@@ -540,4 +540,10 @@ public class UmpAppCredentialServiceImpl extends ServiceImpl<UmpAppCredentialMap
         
         return vo;
     }
+
+	@Override
+	public String getAppSecret(String appId) {
+		UmpAppCredential app = this.getById(appId);
+		return app.getAppSecret();
+	}
 }

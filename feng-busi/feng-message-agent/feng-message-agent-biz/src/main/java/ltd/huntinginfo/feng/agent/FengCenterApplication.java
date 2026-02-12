@@ -32,7 +32,7 @@ import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
  * @author lengleng
  * @date 2025/05/30
  */
-@EnableFengDoc(value = "center")
+@EnableFengDoc(value = "agent")
 @EnableFengFeignClients
 @EnableFengResourceServer
 @EnableDiscoveryClient

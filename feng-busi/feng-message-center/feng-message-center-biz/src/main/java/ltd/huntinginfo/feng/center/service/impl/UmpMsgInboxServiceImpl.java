@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import ltd.huntinginfo.feng.center.api.entity.UmpMsgInbox;
 import ltd.huntinginfo.feng.center.mapper.UmpMsgInboxMapper;
 import ltd.huntinginfo.feng.center.service.UmpMsgInboxService;
+import ltd.huntinginfo.feng.center.service.processor.MessagePushProcessor;
 import ltd.huntinginfo.feng.center.api.dto.InboxQueryDTO;
 import ltd.huntinginfo.feng.center.api.vo.InboxDetailVO;
 import ltd.huntinginfo.feng.center.api.vo.InboxPageVO;
@@ -31,6 +32,7 @@ import java.util.stream.Collectors;
 public class UmpMsgInboxServiceImpl extends ServiceImpl<UmpMsgInboxMapper, UmpMsgInbox> implements UmpMsgInboxService {
 
     private final UmpMsgInboxMapper umpMsgInboxMapper;
+    private final MessagePushProcessor messagePushProcessor;
 
     @Override
     public Page<InboxPageVO> queryInboxPage(InboxQueryDTO queryDTO) {
@@ -481,14 +483,7 @@ public class UmpMsgInboxServiceImpl extends ServiceImpl<UmpMsgInboxMapper, UmpMs
     }
 
     private boolean pushMessageToReceiver(UmpMsgInbox inbox) {
-        // TODO: 实现消息推送逻辑
-        // 1. 根据推送方式（PUSH/POLL）选择不同的推送策略
-        // 2. 调用相应的消息推送服务
-        // 3. 返回推送结果
-        
-        log.debug("推送消息给接收者，收件箱ID: {}, 接收者: {}", inbox.getId(), inbox.getReceiverId());
-        // 模拟推送成功
-        return true;
+    	return messagePushProcessor.pushMessageToReceiver(inbox);
     }
 
     private void triggerReceiveEvent(UmpMsgInbox inbox) {

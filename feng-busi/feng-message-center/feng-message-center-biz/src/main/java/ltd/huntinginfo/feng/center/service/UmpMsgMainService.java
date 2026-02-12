@@ -128,4 +128,10 @@ public interface UmpMsgMainService extends IService<UmpMsgMain> {
      * @return 是否存在且未删除
      */
     boolean existsAndValid(String msgId);
+    
+    /**
+     * 更新接收者统计信息
+     */
+    boolean updateReceiverCount(String messageId, Integer totalReceivers, 
+                               Integer receivedCount, Integer readCount);
 }
