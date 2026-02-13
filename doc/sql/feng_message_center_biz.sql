@@ -144,7 +144,7 @@ CREATE TABLE `ump_msg_main` (
   `expire_time` datetime DEFAULT NULL COMMENT '过期时间',
   
   -- 状态和时间
-  `status` varchar(20) DEFAULT 'RECEIVED' COMMENT '状态:RECEIVED-已接收 DISTRIBUTING-分发中 DISTRIBUTED-已分发 DIST_FAILED-分发失败 PUSHED-已推送 PUSH_FAILED-推送失败 BIZ_RECEIVED-业务系统已接收 POLL-待拉取 BIZ_PULLED-业务系统已拉取 POLL_FAILED-拉取失败 READ-已读 ',
+  `status` varchar(20) DEFAULT 'RECEIVED' COMMENT '状态:RECEIVED-已接收 DISTRIBUTING-分发中 DISTRIBUTED-已分发 DIST_FAILED-分发失败 PUSHED-已推送 PUSH_FAILED-推送失败 BIZ_RECEIVED-业务系统已接收 POLL-待拉取 BIZ_PULLED-业务系统已拉取 POLL_FAILED-拉取失败 READ-已读',
   `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `send_time` datetime DEFAULT NULL COMMENT '发送时间',
   `distribute_time` datetime DEFAULT NULL COMMENT '分发时间',
@@ -305,7 +305,7 @@ COMMENT='广播消息接收记录表 - 记录重要广播消息的精准送达�
 DROP TABLE IF EXISTS `ump_msg_queue`;
 CREATE TABLE `ump_msg_queue` (
   `id` varchar(32) NOT NULL COMMENT '主键ID(UUID)',
-  `queue_type` varchar(20) NOT NULL COMMENT '队列类型:SEND-发送 DISTRIBUTE-分发 CALLBACK-回调 RETRY-重试',
+  `queue_type` varchar(20) NOT NULL COMMENT '队列类型:DISTRIBUTE-分发 PUSH-推送 RETRY-重试',
   `queue_name` varchar(100) NOT NULL COMMENT '队列名称',
   `msg_id` varchar(32) NOT NULL COMMENT '消息ID',
   
