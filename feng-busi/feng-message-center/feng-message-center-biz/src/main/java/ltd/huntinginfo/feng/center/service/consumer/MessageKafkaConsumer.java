@@ -40,6 +40,15 @@ public class MessageKafkaConsumer implements MqMessageConsumer {
         log.info("Kafka 接收到消息已接收事件，消息ID: {}, 重试次数: {}", messageId, message.getRetryCount());
         messageDistributionProcessor.handleMessageReceived(messageId, message.getPayload());
     }
+    
+    @Override
+    @KafkaListener(topics = MqMessageEventConstants.Queues.MESSAGE_DISTRIBUTING,
+                   groupId = MqMessageEventConstants.ConsumerGroups.MESSAGE_STATE)
+    public void handleMessageDistributing(MqMessage<Map<String, Object>> message) {
+        String messageId = extractMessageId(message);
+        log.info("Kafka 接收到消息分发中事件，消息ID: {}", messageId);
+        messageDistributionProcessor.handleMessageDistributing(messageId, message.getPayload());
+    }
 
     @Override
     @KafkaListener(topics = MqMessageEventConstants.Queues.MESSAGE_DISTRIBUTED,
@@ -51,12 +60,66 @@ public class MessageKafkaConsumer implements MqMessageConsumer {
     }
 
     @Override
-    @KafkaListener(topics = MqMessageEventConstants.Queues.MESSAGE_SENT,
+    @KafkaListener(topics = MqMessageEventConstants.Queues.MESSAGE_DIST_FAILED,
                    groupId = MqMessageEventConstants.ConsumerGroups.MESSAGE_STATE)
-    public void handleMessageSent(MqMessage<Map<String, Object>> message) {
+    public void handleMessageDistFailed(MqMessage<Map<String, Object>> message) {
         String messageId = extractMessageId(message);
-        log.info("Kafka 接收到消息已发送事件，消息ID: {}", messageId);
-        messageDistributionProcessor.handleMessageSent(messageId, message.getPayload());
+        log.info("Kafka 接收到消息分发失败事件，消息ID: {}", messageId);
+        messageDistributionProcessor.handleMessageDistFailed(messageId, message.getPayload());
+    }
+    
+    @Override
+    @KafkaListener(topics = MqMessageEventConstants.Queues.MESSAGE_PUSHED,
+                   groupId = MqMessageEventConstants.ConsumerGroups.MESSAGE_STATE)
+    public void handleMessagePushed(MqMessage<Map<String, Object>> message) {
+        String messageId = extractMessageId(message);
+        log.info("Kafka 接收到消息已推送事件，消息ID: {}", messageId);
+        messageDistributionProcessor.handleMessagePushed(messageId, message.getPayload());
+    }
+    
+    @Override
+    @KafkaListener(topics = MqMessageEventConstants.Queues.MESSAGE_PUSH_FAILED,
+                   groupId = MqMessageEventConstants.ConsumerGroups.MESSAGE_STATE)
+    public void handleMessagePushFailed(MqMessage<Map<String, Object>> message) {
+        String messageId = extractMessageId(message);
+        log.info("Kafka 接收到消息推送失败事件，消息ID: {}", messageId);
+        messageDistributionProcessor.handleMessagePushFailed(messageId, message.getPayload());
+    }
+    
+    @Override
+    @KafkaListener(topics = MqMessageEventConstants.Queues.MESSAGE_BIZ_RECEIVED,
+                   groupId = MqMessageEventConstants.ConsumerGroups.MESSAGE_STATE)
+    public void handleMessageBizReceived(MqMessage<Map<String, Object>> message) {
+        String messageId = extractMessageId(message);
+        log.info("Kafka 接收到消息业务已接收事件，消息ID: {}", messageId);
+        messageDistributionProcessor.handleMessageBizReceived(messageId, message.getPayload());
+    }
+    
+    @Override
+    @KafkaListener(topics = MqMessageEventConstants.Queues.MESSAGE_POLL,
+                   groupId = MqMessageEventConstants.ConsumerGroups.MESSAGE_STATE)
+    public void handleMessagePoll(MqMessage<Map<String, Object>> message) {
+        String messageId = extractMessageId(message);
+        log.info("Kafka 接收到消息待拉取事件，消息ID: {}", messageId);
+        messageDistributionProcessor.handleMessagePoll(messageId, message.getPayload());
+    }
+    
+    @Override
+    @KafkaListener(topics = MqMessageEventConstants.Queues.MESSAGE_BIZ_PULLED,
+                   groupId = MqMessageEventConstants.ConsumerGroups.MESSAGE_STATE)
+    public void handleMessageBizPolled(MqMessage<Map<String, Object>> message) {
+        String messageId = extractMessageId(message);
+        log.info("Kafka 接收到消息业务已拉取事件，消息ID: {}", messageId);
+        messageDistributionProcessor.handleMessageBizPolled(messageId, message.getPayload());
+    }
+    
+    @Override
+    @KafkaListener(topics = MqMessageEventConstants.Queues.MESSAGE_POLL_FAILED,
+                   groupId = MqMessageEventConstants.ConsumerGroups.MESSAGE_STATE)
+    public void handleMessagePollFailed(MqMessage<Map<String, Object>> message) {
+        String messageId = extractMessageId(message);
+        log.info("Kafka 接收到消息拉取失败事件，消息ID: {}", messageId);
+        messageDistributionProcessor.handleMessagePollFailed(messageId, message.getPayload());
     }
 
     @Override
@@ -77,49 +140,38 @@ public class MessageKafkaConsumer implements MqMessageConsumer {
         messageDistributionProcessor.handleMessageExpired(messageId, message.getPayload());
     }
 
-    @Override
-    @KafkaListener(topics = MqMessageEventConstants.Queues.MESSAGE_FAILED,
-                   groupId = MqMessageEventConstants.ConsumerGroups.MESSAGE_STATE)
-    public void handleMessageFailed(MqMessage<Map<String, Object>> message) {
-        String messageId = extractMessageId(message);
-        log.info("Kafka 接收到消息失败事件，消息ID: {}", messageId);
-        messageDistributionProcessor.handleMessageFailed(messageId, message.getPayload());
-    }
-
     // ==================== 异步任务监听 ====================
 
-    @Override
-    @KafkaListener(topics = MqMessageEventConstants.Queues.MESSAGE_SEND_TASK,
+    /**
+     * 监听分发任务（DISTRIBUTE）
+     */
+    @KafkaListener(topics = MqMessageEventConstants.Queues.MESSAGE_DISTRIBUTE_TASK,
                    groupId = MqMessageEventConstants.ConsumerGroups.TASK)
-    public void handleSendTask(MqMessage<Map<String, Object>> message) {
-        log.info("Kafka 接收到发送任务");
-        messageDistributionProcessor.processSendTask(message.getPayload());
+    public void handleDistributeTask(MqMessage<Map<String, Object>> message) {
+        log.info("Kafka 接收到分发任务");
+        messageDistributionProcessor.processDistributeTask(message.getPayload());
     }
 
-    @Override
-    @KafkaListener(topics = MqMessageEventConstants.Queues.MESSAGE_CALLBACK_TASK,
+    /**
+     * 监听推送任务（PUSH）
+     */
+    @KafkaListener(topics = MqMessageEventConstants.Queues.MESSAGE_PUSH_TASK,
                    groupId = MqMessageEventConstants.ConsumerGroups.TASK)
-    public void handleCallbackTask(MqMessage<Map<String, Object>> message) {
-        log.info("Kafka 接收到回调任务");
-        messageDistributionProcessor.processCallbackTask(message.getPayload());
+    public void handlePushTask(MqMessage<Map<String, Object>> message) {
+        log.info("Kafka 接收到推送任务");
+        messageDistributionProcessor.processPushTask(message.getPayload());
     }
 
-    @Override
+    /**
+     * 监听重试任务（RETRY）
+     */
     @KafkaListener(topics = MqMessageEventConstants.Queues.MESSAGE_RETRY_TASK,
                    groupId = MqMessageEventConstants.ConsumerGroups.TASK)
     public void handleRetryTask(MqMessage<Map<String, Object>> message) {
         log.info("Kafka 接收到重试任务");
         messageDistributionProcessor.processRetryTask(message.getPayload());
     }
-
-    @Override
-    @KafkaListener(topics = MqMessageEventConstants.Queues.BROADCAST_DISPATCH_TASK,
-                   groupId = MqMessageEventConstants.ConsumerGroups.TASK)
-    public void handleBroadcastDispatchTask(MqMessage<Map<String, Object>> message) {
-        log.info("Kafka 接收到广播分发任务");
-        messageDistributionProcessor.processBroadcastDispatchTask(message.getPayload());
-    }
-
+    
     // ==================== 延迟任务监听（Kafka 无原生延迟，但仍可接收外部投递的消息）====================
 
     @Override

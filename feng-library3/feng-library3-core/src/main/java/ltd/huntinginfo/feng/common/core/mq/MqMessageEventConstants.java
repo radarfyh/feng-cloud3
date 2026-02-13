@@ -37,26 +37,36 @@ public final class MqMessageEventConstants {
         // ---------- 消息状态流转队列（与 ump_msg_main.status 一一对应）----------
         /** 消息已接收，待验证/分发 */
         public static final String MESSAGE_RECEIVED = "ump.queue.message.received";
+        /** 分发中 */
+        public static final String MESSAGE_DISTRIBUTING = "ump.queue.message.distributing";
         /** 消息已分发到收件箱/广播筒 */
         public static final String MESSAGE_DISTRIBUTED = "ump.queue.message.distributed";
-        /** 消息已发送给接收方（推送成功） */
-        public static final String MESSAGE_SENT = "ump.queue.message.sent";
+        /** 分发失败 */
+        public static final String MESSAGE_DIST_FAILED = "ump.queue.message.dist.failed";
+        /** 已推送 */
+        public static final String MESSAGE_PUSHED = "ump.queue.message.pushed";
+        /** 推送失败 */
+        public static final String MESSAGE_PUSH_FAILED = "ump.queue.message.push.failed";
+        /** 业务已接收 */
+        public static final String MESSAGE_BIZ_RECEIVED = "ump.queue.message.biz.received";
+        /** 待拉取 */
+        public static final String MESSAGE_POLL = "ump.queue.message.poll";
+        /** 业务已拉取 */
+        public static final String MESSAGE_BIZ_PULLED = "ump.queue.message.biz.pulled";
+        /** 拉取失败 */
+        public static final String MESSAGE_POLL_FAILED = "ump.queue.message.poll.failed";
         /** 消息已被接收方阅读 */
         public static final String MESSAGE_READ = "ump.queue.message.read";
         /** 消息已过期 */
         public static final String MESSAGE_EXPIRED = "ump.queue.message.expired";
-        /** 消息处理失败（最终状态） */
-        public static final String MESSAGE_FAILED = "ump.queue.message.failed";
 
         // ---------- 异步任务队列 ----------
-        /** 消息推送任务（调用接收方回调） */
-        public static final String MESSAGE_SEND_TASK = "ump.queue.task.send";
-        /** 回调执行任务（调用业务系统回调地址） */
-        public static final String MESSAGE_CALLBACK_TASK = "ump.queue.task.callback";
+        /** 分发任务 */
+        public static final String MESSAGE_DISTRIBUTE_TASK = "ump.queue.task.distribute";
+        /** 推送任务 */
+        public static final String MESSAGE_PUSH_TASK = "ump.queue.task.push";
         /** 重试任务（所有需要重试的任务统一入口） */
         public static final String MESSAGE_RETRY_TASK = "ump.queue.task.retry";
-        /** 广播分发任务（大范围消息写广播筒） */
-        public static final String BROADCAST_DISPATCH_TASK = "ump.queue.task.broadcast.dispatch";
 
         // ---------- 延迟队列（按业务细分）----------
         /** 延迟发送队列（如定时推送） */
@@ -71,17 +81,22 @@ public final class MqMessageEventConstants {
     public static final class RoutingKeys {
         // ---------- 事件路由（与队列绑定）----------
         public static final String MESSAGE_RECEIVED = "ump.event.message.received";
+        public static final String MESSAGE_DISTRIBUTING = "ump.event.message.distributing";
         public static final String MESSAGE_DISTRIBUTED = "ump.event.message.distributed";
-        public static final String MESSAGE_SENT = "ump.event.message.sent";
+        public static final String MESSAGE_DIST_FAILED = "ump.event.message.dist.failed";
+        public static final String MESSAGE_PUSHED = "ump.event.message.pushed";
+        public static final String MESSAGE_PUSH_FAILED = "ump.event.message.push.failed";
+        public static final String MESSAGE_BIZ_RECEIVED = "ump.event.message.biz.received";
+        public static final String MESSAGE_POLL = "ump.event.message.poll";
+        public static final String MESSAGE_BIZ_PULLED = "ump.event.message.biz.pulled";
+        public static final String MESSAGE_POLL_FAILED = "ump.event.message.poll.failed";
         public static final String MESSAGE_READ = "ump.event.message.read";
         public static final String MESSAGE_EXPIRED = "ump.event.message.expired";
-        public static final String MESSAGE_FAILED = "ump.event.message.failed";
 
         // ---------- 任务路由 ----------
-        public static final String TASK_SEND = "ump.task.send";
-        public static final String TASK_CALLBACK = "ump.task.callback";
+        public static final String TASK_DISTRIBUTED = "ump.task.distribute";
+        public static final String TASK_PUSH = "ump.task.push";
         public static final String TASK_RETRY = "ump.task.retry";
-        public static final String TASK_BROADCAST_DISPATCH = "ump.task.broadcast.dispatch";
 
         // ---------- 延迟路由 ----------
         /** 延迟发送，配合 x-delay 头使用，通过主交换机发送 */
@@ -104,16 +119,24 @@ public final class MqMessageEventConstants {
         public static final String DISTRIBUTING = "DISTRIBUTING";
         /** 已分发 */
         public static final String DISTRIBUTED = "DISTRIBUTED";
-        /** 发送中 */
-        public static final String SENDING = "SENDING";
-        /** 已发送 */
-        public static final String SENT = "SENT";
+        /** 分发失败（永久） */
+        public static final String DIST_FAILED = "DIST_FAILED";
+        /** 已推送（等待业务确认） */
+        public static final String PUSHED = "PUSHED";
+        /** 推送失败（永久） */
+        public static final String PUSH_FAILED = "PUSH_FAILED";
+        /** 业务系统已接收 */
+        public static final String BIZ_RECEIVED = "BIZ_RECEIVED";
+        /** 待拉取 */
+        public static final String POLL = "POLL";
+        /** 业务系统已拉取 */
+        public static final String BIZ_PULLED = "BIZ_PULLED";
+        /** 拉取超时/过期（永久） */
+        public static final String POLL_FAILED = "POLL_FAILED";
         /** 已读 */
         public static final String READ = "READ";
         /** 已过期 */
         public static final String EXPIRED = "EXPIRED";
-        /** 失败 */
-        public static final String FAILED = "FAILED";
 
         private EventTypes() {}
     }
@@ -208,13 +231,9 @@ public final class MqMessageEventConstants {
         /** 消息分发任务 */
         public static final String DISTRIBUTE = "DISTRIBUTE";
         /** 消息推送任务 */
-        public static final String SEND = "SEND";
-        /** 回调任务 */
-        public static final String CALLBACK = "CALLBACK";
+        public static final String PUSH = "PUSH";
         /** 重试任务 */
         public static final String RETRY = "RETRY";
-//        /** 广播分发任务 */
-//        public static final String BROADCAST_DISTRIBUTE = "BROADCAST_DISTRIBUTE";
 
         private QueueTaskTypes() {}
     }
@@ -224,13 +243,9 @@ public final class MqMessageEventConstants {
         /** 消息分发队列 */
         public static final String MESSAGE_DISTRIBUTE = "message_distribute";
         /** 消息推送队列 */
-        public static final String MESSAGE_SEND = "message_send";
-        /** 回调队列 */
-        public static final String MESSAGE_CALLBACK = "message_callback";
+        public static final String MESSAGE_PUSH = "message_push";
         /** 重试队列 */
         public static final String MESSAGE_RETRY = "message_retry";
-//        /** 广播分发队列 */
-//        public static final String BROADCAST_DISTRIBUTE = "broadcast_distribute";
 
         private QueueNames() {}
     }
@@ -251,7 +266,6 @@ public final class MqMessageEventConstants {
         public static final String AREA = "AREA";
         public static final String ORG = "ORG";
         public static final String DEPT = "DEPT";
-        public static final String MASS_DEPT = "MASS_DEPT"; 
         public static final String CUSTOM = "CUSTOM";
 
         private BroadcastTypes() {}
@@ -289,13 +303,16 @@ public final class MqMessageEventConstants {
 
     // ============================ 任务数据中的字段名 ============================
     public static final class TaskDataKeys {
-        public static final String MESSAGE_ID = "messageId";
+        public static final String MESSAGE_ID = "messageId";  // 对应消息主表的id
+        public static final String INBOX_ID = "inboxId";  // 新增收件箱的记录ID
+        public static final String BROADCAST_ID = "broadcastId";  // 新增广播信息筒的记录ID
         public static final String TASK_ID = "taskId";
         public static final String RECEIVER_ID = "receiverId";
         public static final String RECEIVER_TYPE = "receiverType";
         public static final String RECEIVER_NAME = "receiverName";
         public static final String RECEIVER_COUNT = "receiverCount";
-        public static final String PUSH_MODE = "pushMode";
+        public static final String PUSH_MODE = "pushMode"; // ump_msg_main.push_mode/ump_app_credential.default_push_mode
+        public static final String CALLBACK_URL = "callbackUrl";  // 新增APP回调地址，来自ump_msg_main.callback_url/ump_app_credential.callback_url
         public static final String ESTIMATED_COUNT = "estimatedCount";
         public static final String STATUS = "status";
         public static final String DELAYED = "delayed";

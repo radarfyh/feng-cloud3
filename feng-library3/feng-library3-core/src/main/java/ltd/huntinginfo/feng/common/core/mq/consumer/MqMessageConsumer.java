@@ -21,25 +21,36 @@ public interface MqMessageConsumer {
 
     void handleMessageDistributed(MqMessage<Map<String, Object>> message);
 
-    void handleMessageSent(MqMessage<Map<String, Object>> message);
+	void handleMessageDistributing(MqMessage<Map<String, Object>> message);
+
+	void handleMessageDistFailed(MqMessage<Map<String, Object>> message);
+
+	void handleMessagePushed(MqMessage<Map<String, Object>> message);
+
+	void handleMessagePushFailed(MqMessage<Map<String, Object>> message);
+
+	void handleMessageBizReceived(MqMessage<Map<String, Object>> message);
+
+	void handleMessagePoll(MqMessage<Map<String, Object>> message);
+
+	void handleMessageBizPolled(MqMessage<Map<String, Object>> message);
+
+	void handleMessagePollFailed(MqMessage<Map<String, Object>> message);
 
     void handleMessageRead(MqMessage<Map<String, Object>> message);
 
     void handleMessageExpired(MqMessage<Map<String, Object>> message);
 
-    void handleMessageFailed(MqMessage<Map<String, Object>> message);
-
     // ---------- 异步任务 ----------
-    void handleSendTask(MqMessage<Map<String, Object>> message);
+    void handleDistributeTask(MqMessage<Map<String, Object>> message);
 
-    void handleCallbackTask(MqMessage<Map<String, Object>> message);
+    void handlePushTask(MqMessage<Map<String, Object>> message);
 
     void handleRetryTask(MqMessage<Map<String, Object>> message);
-
-    void handleBroadcastDispatchTask(MqMessage<Map<String, Object>> message);
 
     // ---------- 延迟任务 ----------
     void handleDelayedSendTask(MqMessage<Map<String, Object>> message);
 
     void handleDelayedExpireTask(MqMessage<Map<String, Object>> message);
+
 }
