@@ -14,6 +14,38 @@ import java.util.Map;
 
 /**
  * 消息队列表服务接口
+ * 主要业务逻辑如下，涉及多个表，实际上应该指其对应的后台服务实现：
+ * 1.若ump_msg_main.push_mode/ump_app_credential.default_push_mode=PUSH，ump_msg_main.receiver_type=USER,
+ *     则ump_msg_queue.queue_type=CALLBACK，存收件箱ump_msg_inbox，调用APP回调地址ump_msg_main.callback_url/ump_app_credential.callback_url，记录发送日志ump_system_log
+ * 2.若ump_msg_main.push_mode/ump_app_credential.default_push_mode=PUSH，ump_msg_main.receiver_type=DEPT,
+ *     则ump_msg_queue.queue_type=CALLBACK，存广播信息筒ump_msg_broadcast，调用APP回调地址ump_msg_main.callback_url/ump_app_credential.callback_url，记录发送日志ump_system_log
+ * 3.若ump_msg_main.push_mode/ump_app_credential.default_push_mode=PUSH，ump_msg_main.receiver_type=ORG,
+ *     则ump_msg_queue.queue_type=CALLBACK，存广播信息筒ump_msg_broadcast，调用APP回调地址ump_msg_main.callback_url/ump_app_credential.callback_url，记录发送日志ump_system_log
+ * 4.若ump_msg_main.push_mode/ump_app_credential.default_push_mode=PUSH，ump_msg_main.receiver_type=AREA,
+ *     则ump_msg_queue.queue_type=CALLBACK，存广播信息筒ump_msg_broadcast，调用APP回调地址ump_msg_main.callback_url/ump_app_credential.callback_url，记录发送日志ump_system_log
+ * 5.若ump_msg_main.push_mode/ump_app_credential.default_push_mode=PUSH，ump_msg_main.receiver_type=ALL,
+ *     则ump_msg_queue.queue_type=CALLBACK，存广播信息筒ump_msg_broadcast，调用APP回调地址ump_msg_main.callback_url/ump_app_credential.callback_url，记录发送日志ump_system_log
+ * 6.若ump_msg_main.push_mode/ump_app_credential.default_push_mode=POLL，ump_msg_main.receiver_type=USER,
+ *     则ump_msg_queue.queue_type=SEND，存收件箱ump_msg_inbo，记录发送日志ump_system_log，等待APP调用查询接口
+ * 7.若ump_msg_main.push_mode/ump_app_credential.default_push_mode=POLL，ump_msg_main.receiver_type=DEPT,
+ *     则ump_msg_queue.queue_type=DISTRIBUTE，存收广播信息筒ump_msg_broadcast，记录发送日志ump_system_log，等待APP调用查询接口
+ * 8.若ump_msg_main.push_mode/ump_app_credential.default_push_mode=POLL，ump_msg_main.receiver_type=ORG,
+ *     则ump_msg_queue.queue_type=DISTRIBUTE，存收广播信息筒ump_msg_broadcast，记录发送日志ump_system_log，等待APP调用查询接口
+ * 9.若ump_msg_main.push_mode/ump_app_credential.default_push_mode=POLL，ump_msg_main.receiver_type=AREA,
+ *     则ump_msg_queue.queue_type=DISTRIBUTE，存收广播信息筒ump_msg_broadcast，记录发送日志ump_system_log，等待APP调用查询接口
+ * 10.若ump_msg_main.push_mode/ump_app_credential.default_push_mode=POLL，ump_msg_main.receiver_type=ALL,
+ *     则ump_msg_queue.queue_type=DISTRIBUTE, 存收广播信息筒ump_msg_broadcast，记录发送日志ump_system_log，等待APP调用查询接口
+ * 11. APP上报已接收（receive_status）和已读（read_status）后表示信息已完结，要写ump_msg_queue.end_time
+ *     如果接收失败（ump_msg_inbox.receive_status=FAILED）、广播送达失败（ump_broadcast_receive_record.receive_status=FAILED）
+ *         、执行失败（ump_msg_queue.status=FAILED）、发送失败（ump_msg_callback.status=FAILED)，重试直到达到ump_msg_queue.max_retry次数才写ump_msg_queue.end_time，
+ *     同时，要及时更新时间、错误信息、状态信息、统计信息等，例如：ump_msg_inbox.distribute_time/error_message/push_count/last_push_time/push_status
+ * 12.已完成的任务不从ump_msg_queue中删除，但要定期归档（超过3个月进入历史表，超过1年进入归档表）
+ * 13.已经处理完的消息不从ump_msg_main中删除，但要定期归档（超过3个月进入历史表，超过1年进入归档表）
+ * 14.已经完结的点对点消息不从ump_msg_inbox中删除，但要定期归档（超过3个月进入历史表，超过1年进入归档表）
+ * 15.已经完结的广播消息不从ump_msg_broadcast中删除，但要定期归档（超过3个月进入历史表，超过1年进入归档表）
+ * 16.APP上报已读状态时写记录到ump_broadcast_receive_record，不删除该表，但要定期归档（超过3个月进入历史表，超过1年进入归档表）
+ * 17.ump_msg_topic和ump_topic_subscription暂时不处理，使用ump_msg_queue作为任务中心
+ * 18.ump_msg_inbox.distribute_mode调整为：发送方式:PUSH-推送 POLL-轮询，ump_msg_inbox.distribute_time调整为：发送时间
  */
 public interface UmpMsgQueueService extends IService<UmpMsgQueue> {
 

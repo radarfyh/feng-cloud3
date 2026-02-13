@@ -148,7 +148,7 @@ public final class MqMessageEventConstants {
 
     // ============================ 消息头字段 ============================
     /**
-     * RabbitMQ 消息头中使用的键名
+     * 消息头中使用的键名
      */
     public static final class Headers {
         /** 消息ID（全局唯一） */
@@ -175,6 +175,151 @@ public final class MqMessageEventConstants {
         public static final String DELAYED = "ump-consumer-delayed";
 
         private ConsumerGroups() {}
+    }
+    
+    // ============================ 推送方式（与数据库 ump_app_credential.default_push_mode 一致） ============================
+    public static final class PushModes {
+        /** 主动推送 */
+        public static final String PUSH = "PUSH";
+        /** 等待轮询 */
+        public static final String POLL = "POLL";
+
+        private PushModes() {}
+    }
+
+    // ============================ 接收者类型（与数据库 ump_msg_main.receiver_type 一致） ============================
+    public static final class ReceiverTypes {
+        /** 个人 */
+        public static final String USER = "USER";
+        /** 部门 */
+        public static final String DEPT = "DEPT";
+        /** 组织 */
+        public static final String ORG = "ORG";
+        /** 区域 */
+        public static final String AREA = "AREA";
+        /** 全体 */
+        public static final String ALL = "ALL";
+
+        private ReceiverTypes() {}
+    }
+
+    // ============================ 消息队列表（ump_msg_queue）队列类型 ============================
+    public static final class QueueTaskTypes {
+        /** 消息分发任务 */
+        public static final String DISTRIBUTE = "DISTRIBUTE";
+        /** 消息推送任务 */
+        public static final String SEND = "SEND";
+        /** 回调任务 */
+        public static final String CALLBACK = "CALLBACK";
+        /** 重试任务 */
+        public static final String RETRY = "RETRY";
+//        /** 广播分发任务 */
+//        public static final String BROADCAST_DISTRIBUTE = "BROADCAST_DISTRIBUTE";
+
+        private QueueTaskTypes() {}
+    }
+
+    // ============================ 消息队列表（ump_msg_queue）队列名称 ============================
+    public static final class QueueNames {
+        /** 消息分发队列 */
+        public static final String MESSAGE_DISTRIBUTE = "message_distribute";
+        /** 消息推送队列 */
+        public static final String MESSAGE_SEND = "message_send";
+        /** 回调队列 */
+        public static final String MESSAGE_CALLBACK = "message_callback";
+        /** 重试队列 */
+        public static final String MESSAGE_RETRY = "message_retry";
+//        /** 广播分发队列 */
+//        public static final String BROADCAST_DISTRIBUTE = "broadcast_distribute";
+
+        private QueueNames() {}
+    }
+
+    // ============================ 收件箱分发方式（ump_msg_inbox.distribute_mode） ============================
+    public static final class DistributeModes {
+        /** 收件箱模式（写扩散） */
+        public static final String INBOX = "INBOX";
+        /** 广播模式（读扩散） */
+        public static final String BROADCAST = "BROADCAST";
+
+        private DistributeModes() {}
+    }
+
+    // ============================ 广播类型（ump_msg_broadcast.broadcast_type） ============================
+    public static final class BroadcastTypes {
+        public static final String ALL = "ALL";
+        public static final String AREA = "AREA";
+        public static final String ORG = "ORG";
+        public static final String DEPT = "DEPT";
+        public static final String MASS_DEPT = "MASS_DEPT"; 
+        public static final String CUSTOM = "CUSTOM";
+
+        private BroadcastTypes() {}
+    }
+
+    // ============================ 任务优先级（仅作参考，具体数值可配置） ============================
+    public static final class TaskPriorities {
+        /** 最高优先级（如消息分发） */
+        public static final int HIGHEST = 1;
+        /** 高优先级 */
+        public static final int HIGH = 3;
+        /** 默认优先级 */
+        public static final int DEFAULT = 5;
+        /** 低优先级（如推送任务） */
+        public static final int LOW = 7;
+        /** 最低优先级 */
+        public static final int LOWEST = 10;
+
+        private TaskPriorities() {}
+    }
+
+    // ============================ 重试相关默认值 ============================
+    public static final class RetryDefaults {
+        /** 默认最大重试次数（与系统配置 queue.max.retry 对齐） */
+        public static final int MAX_RETRY = 3;
+        /** 默认初始重试间隔（毫秒） */
+        public static final long INITIAL_INTERVAL = 1000;
+        /** 默认重试间隔倍数 */
+        public static final double MULTIPLIER = 2.0;
+        /** 默认最大重试间隔（毫秒） */
+        public static final long MAX_INTERVAL = 10000;
+
+        private RetryDefaults() {}
+    }
+
+    // ============================ 任务数据中的字段名 ============================
+    public static final class TaskDataKeys {
+        public static final String MESSAGE_ID = "messageId";
+        public static final String TASK_ID = "taskId";
+        public static final String RECEIVER_ID = "receiverId";
+        public static final String RECEIVER_TYPE = "receiverType";
+        public static final String RECEIVER_NAME = "receiverName";
+        public static final String RECEIVER_COUNT = "receiverCount";
+        public static final String PUSH_MODE = "pushMode";
+        public static final String ESTIMATED_COUNT = "estimatedCount";
+        public static final String STATUS = "status";
+        public static final String DELAYED = "delayed";
+        public static final String REASON = "reason";
+        public static final String OLD_STATUS = "oldStatus";
+
+        private TaskDataKeys() {}
+    }
+    
+    // ============================ 业务阈值 ============================
+    public static final class Thresholds {
+        /** 
+         * 分发策略阈值：接收者数量超过此值使用广播模式（读扩散）
+         * 默认值：1000
+         */
+        public static final int BROADCAST_THRESHOLD = 1000;
+
+        /** 
+         * 部门广播特殊阈值：接收者数量超过此值标记为大范围部门广播
+         * 默认值：5000
+         */
+        public static final int DEPT_MASS_THRESHOLD = 5000;
+
+        private Thresholds() {}
     }
 
     private MqMessageEventConstants() {}

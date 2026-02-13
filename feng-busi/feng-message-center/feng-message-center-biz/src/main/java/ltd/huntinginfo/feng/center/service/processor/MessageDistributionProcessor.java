@@ -8,6 +8,7 @@ import ltd.huntinginfo.feng.center.api.entity.UmpMsgInbox;
 import ltd.huntinginfo.feng.center.api.entity.UmpMsgMain;
 import ltd.huntinginfo.feng.center.api.entity.UmpMsgQueue;
 import ltd.huntinginfo.feng.center.service.*;
+import ltd.huntinginfo.feng.common.core.mq.MqMessageEventConstants;
 import ltd.huntinginfo.feng.common.core.util.R;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,7 +24,7 @@ import java.util.*;
  * 消息分发处理器
  * <p>
  * 职责：
- * 1. 处理消息状态变更后的业务逻辑（如状态更新、任务创建、统计等）
+ * 1. 处理消息状态变更后的业务逻辑（如状态更新、任务创建、统计等），主要业务逻辑参见数据库表脚本和UmpMsgQueueService的注释
  * 2. 执行分发队列任务（写扩散/读扩散）
  * 3. 调用 Feign 接口获取用户/部门/组织/区域信息
  * </p>
@@ -31,38 +32,43 @@ import java.util.*;
  * @author feng-cloud3
  * @since 2026-02-12
  */
-
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class MessageDistributionProcessor {
-    
-    // 分发策略阈值：接收者数量超过此阈值使用广播模式
-    private static final int BROADCAST_THRESHOLD = 1000;
-    
-    // 分页查询大小（避免一次性获取过多数据）
+
+    // ==================== 业务常量（私有） ====================
+
+	/** 分页查询大小（避免一次性获取过多数据） */
     private static final int BATCH_QUERY_SIZE = 1000;
-    
+
+    /** 工作者ID前缀 */
+    private static final String WORKER_PREFIX = "distribution-processor-";
+
+    /** 最大分页限制（防止无限循环） */
+    private static final int MAX_PAGE_LIMIT = 100;
+
+    // ==================== 依赖注入 ====================
     private final UmpMsgMainService umpMsgMainService;
     private final UmpMsgInboxService umpMsgInboxService;
     private final UmpMsgBroadcastService umpMsgBroadcastService;
     private final UmpMsgQueueService umpMsgQueueService;
-    
+
     // Feign客户端
     private final RemoteUserService remoteUserService;
     private final RemoteDeptService remoteDeptService;
     private final RemoteOrgService remoteOrgService;
     private final RemoteAreaService remoteAreaService;
-    
-    // ==================== 消息状态事件处理（由消费者直接调用） ====================
 
+    // ==================== 消息状态事件处理 ====================
+    
     /**
      * 处理【消息已接收】事件
-     * 业务逻辑：创建消息分发队列任务
-     */
+     * 业务逻辑：创建消息发送队列任务
+     */    
     @Transactional(rollbackFor = Exception.class)
     public void handleMessageReceived(String messageId, Map<String, Object> payload) {
-        log.info("处理消息已接收事件，创建分发队列任务，消息ID: {}", messageId);
+        log.info("处理消息已接收事件，创建发送队列任务，消息ID: {}", messageId);
 
         UmpMsgMain message = umpMsgMainService.getById(messageId);
         if (message == null) {
@@ -70,27 +76,29 @@ public class MessageDistributionProcessor {
             return;
         }
 
-        if (!"RECEIVED".equals(message.getStatus())) {
-            log.warn("消息状态不是RECEIVED，跳过创建分发任务，消息ID: {}, 状态: {}",
+        if (!MqMessageEventConstants.EventTypes.RECEIVED.equals(message.getStatus())) {
+            log.warn("消息状态不是RECEIVED，跳过创建发送任务，消息ID: {}, 状态: {}",
                     messageId, message.getStatus());
             return;
         }
 
         // 创建消息分发队列任务
         Map<String, Object> taskData = new HashMap<>();
-        taskData.put("messageId", messageId);
-        taskData.put("receiverType", message.getReceiverType());
+        taskData.put(MqMessageEventConstants.TaskDataKeys.MESSAGE_ID, messageId);
+        taskData.put(MqMessageEventConstants.TaskDataKeys.PUSH_MODE, message.getPushMode());
+        taskData.put(MqMessageEventConstants.TaskDataKeys.RECEIVER_TYPE, message.getReceiverType());
+        taskData.put(MqMessageEventConstants.TaskDataKeys.ESTIMATED_COUNT, 0);
+        // receiverScope 直接放入，后续解析
         taskData.put("receiverScope", message.getReceiverScope());
-        taskData.put("estimatedCount", 0);
 
         String queueTaskId = umpMsgQueueService.createQueueTask(
-                "DISTRIBUTE",
-                "message_distribute",
+                MqMessageEventConstants.QueueTaskTypes.SEND,
+                MqMessageEventConstants.QueueNames.MESSAGE_SEND,
                 messageId,
                 taskData,
-                5,
+                MqMessageEventConstants.TaskPriorities.DEFAULT,
                 LocalDateTime.now(),
-                3
+                MqMessageEventConstants.RetryDefaults.MAX_RETRY
         );
 
         log.info("消息分发队列任务创建成功，消息ID: {}, 队列任务ID: {}", messageId, queueTaskId);
@@ -112,23 +120,22 @@ public class MessageDistributionProcessor {
 
         // 2. 获取消息详情，判断是否需要创建推送任务
         UmpMsgMain message = umpMsgMainService.getById(messageId);
-        if (message != null && "PUSH".equals(message.getPushMode())) {
-            // 异步触发推送任务创建（通过队列）
-            Map<String, Object> pushTaskData = new HashMap<>();
-            pushTaskData.put("messageId", messageId);
-            pushTaskData.put("pushMode", message.getPushMode());
+        Map<String, Object> pushTaskData = new HashMap<>();
+        pushTaskData.put(MqMessageEventConstants.TaskDataKeys.MESSAGE_ID, messageId);
+        pushTaskData.put(MqMessageEventConstants.TaskDataKeys.PUSH_MODE, message.getPushMode());
+        pushTaskData.put(MqMessageEventConstants.TaskDataKeys.RECEIVER_TYPE, message.getReceiverType());
+        pushTaskData.put(MqMessageEventConstants.TaskDataKeys.ESTIMATED_COUNT, 0);
 
-            umpMsgQueueService.createQueueTask(
-                    "PUSH",
-                    "message_push",
-                    messageId,
-                    pushTaskData,
-                    7,
-                    LocalDateTime.now(),
-                    3
-            );
-            log.info("已触发推送任务创建，消息ID: {}", messageId);
-        }
+        umpMsgQueueService.createQueueTask(
+                MqMessageEventConstants.QueueTaskTypes.DISTRIBUTE,
+                MqMessageEventConstants.QueueNames.MESSAGE_DISTRIBUTE,
+                messageId,
+                pushTaskData,
+                MqMessageEventConstants.TaskPriorities.LOW,
+                LocalDateTime.now(),
+                MqMessageEventConstants.RetryDefaults.MAX_RETRY
+        );
+        log.info("已触发推送任务创建，消息ID: {}", messageId);
     }
 
     /**
@@ -142,10 +149,8 @@ public class MessageDistributionProcessor {
         umpMsgMainService.lambdaUpdate()
                 .eq(UmpMsgMain::getId, messageId)
                 .set(UmpMsgMain::getSendTime, LocalDateTime.now())
-                .set(UmpMsgMain::getStatus, "SENT")
+                .set(UmpMsgMain::getStatus, MqMessageEventConstants.EventTypes.SENT)
                 .update();
-
-        // 可在此处扩展：通知发送方、记录审计日志等
     }
 
     /**
@@ -156,7 +161,7 @@ public class MessageDistributionProcessor {
     public void handleMessageRead(String messageId, Map<String, Object> payload) {
         log.info("处理消息已读事件，消息ID: {}", messageId);
 
-        String receiverId = (String) payload.get("receiverId");
+        String receiverId = (String) payload.get(MqMessageEventConstants.TaskDataKeys.RECEIVER_ID);
         if (receiverId == null) {
             log.warn("消息已读事件缺少 receiverId，消息ID: {}", messageId);
             return;
@@ -184,11 +189,9 @@ public class MessageDistributionProcessor {
 
         umpMsgMainService.lambdaUpdate()
                 .eq(UmpMsgMain::getId, messageId)
-                .set(UmpMsgMain::getStatus, "EXPIRED")
+                .set(UmpMsgMain::getStatus, MqMessageEventConstants.EventTypes.EXPIRED)
                 .set(UmpMsgMain::getCompleteTime, LocalDateTime.now())
                 .update();
-
-        // 可选：清理未发送的推送任务、回调任务等
     }
 
     /**
@@ -197,15 +200,16 @@ public class MessageDistributionProcessor {
      */
     @Transactional(rollbackFor = Exception.class)
     public void handleMessageFailed(String messageId, Map<String, Object> payload) {
-        String reason = (String) payload.getOrDefault("reason", "未知错误");
+        String reason = (String) payload.getOrDefault(MqMessageEventConstants.TaskDataKeys.REASON, "未知错误");
         log.info("处理消息失败事件，消息ID: {}, 原因: {}", messageId, reason);
 
         umpMsgMainService.lambdaUpdate()
                 .eq(UmpMsgMain::getId, messageId)
-                .set(UmpMsgMain::getStatus, "FAILED")
+                .set(UmpMsgMain::getStatus, MqMessageEventConstants.EventTypes.FAILED)
                 .set(UmpMsgMain::getCompleteTime, LocalDateTime.now())
                 .update();
     }
+
     // ==================== 队列任务处理 ====================
 
     /**
@@ -214,8 +218,8 @@ public class MessageDistributionProcessor {
      */
     @Transactional(rollbackFor = Exception.class)
     public void processDistributeTask(Map<String, Object> payload) {
-        String taskId = (String) payload.get("taskId");
-        String messageId = (String) payload.get("messageId");
+        String taskId = (String) payload.get(MqMessageEventConstants.TaskDataKeys.TASK_ID);
+        String messageId = (String) payload.get(MqMessageEventConstants.TaskDataKeys.MESSAGE_ID);
 
         // 查询任务实体
         UmpMsgQueue queueTask = umpMsgQueueService.getById(taskId);
@@ -235,7 +239,7 @@ public class MessageDistributionProcessor {
     public void processDistributeTask(UmpMsgQueue queueTask) {
         String taskId = queueTask.getId();
         String messageId = queueTask.getMsgId();
-        String workerId = "distribution-processor-" + Thread.currentThread().getId();
+        String workerId = WORKER_PREFIX + Thread.currentThread().getId();
 
         log.info("开始处理分发队列任务，任务ID: {}, 消息ID: {}", taskId, messageId);
 
@@ -256,9 +260,9 @@ public class MessageDistributionProcessor {
             updateTaskEstimate(queueTask, receiverList.size());
 
             // 5. 根据接收者数量选择分发策略
-            if (receiverList.size() <= BROADCAST_THRESHOLD) {
+            if (receiverList.size() <= MqMessageEventConstants.Thresholds.BROADCAST_THRESHOLD) {
                 distributeToInbox(message, receiverList);
-                if ("PUSH".equals(message.getPushMode())) {
+                if (MqMessageEventConstants.PushModes.PUSH.equals(message.getPushMode())) {
                     createPushTasks(messageId, receiverList);
                 }
             } else {
@@ -267,8 +271,7 @@ public class MessageDistributionProcessor {
             }
 
             // 6. 更新消息状态为已分发
-            umpMsgMainService.updateMessageStatus(messageId, "DISTRIBUTED");
-
+            umpMsgMainService.updateMessageStatus(messageId, MqMessageEventConstants.EventTypes.DISTRIBUTED);
             // 7. 标记任务为成功
             umpMsgQueueService.markAsSuccess(taskId, workerId,
                     String.format("成功分发消息，接收者数量: %d", receiverList.size()));
@@ -282,7 +285,7 @@ public class MessageDistributionProcessor {
 
             // 重试判断
             if (queueTask.getCurrentRetry() >= queueTask.getMaxRetry()) {
-                umpMsgMainService.updateMessageStatus(messageId, "FAILED");
+                umpMsgMainService.updateMessageStatus(messageId, MqMessageEventConstants.EventTypes.FAILED);
                 log.error("分发任务达到最大重试次数，消息ID: {}", messageId);
             }
             throw e;
@@ -294,7 +297,7 @@ public class MessageDistributionProcessor {
      */
     @Transactional(rollbackFor = Exception.class)
     public void processSendTask(Map<String, Object> payload) {
-        String taskId = (String) payload.get("taskId");
+        String taskId = (String) payload.get(MqMessageEventConstants.TaskDataKeys.TASK_ID);
         log.info("处理推送任务，taskId: {}", taskId);
         // TODO: 调用实际推送逻辑（HTTP/WebSocket等）
         umpMsgQueueService.markAsSuccess(taskId, "push-worker", "推送成功");
@@ -305,7 +308,7 @@ public class MessageDistributionProcessor {
      */
     @Transactional(rollbackFor = Exception.class)
     public void processCallbackTask(Map<String, Object> payload) {
-        String taskId = (String) payload.get("taskId");
+        String taskId = (String) payload.get(MqMessageEventConstants.TaskDataKeys.TASK_ID);
         log.info("处理回调任务，taskId: {}", taskId);
         // TODO: 调用业务系统回调接口
         umpMsgQueueService.markAsSuccess(taskId, "callback-worker", "回调成功");
@@ -316,7 +319,7 @@ public class MessageDistributionProcessor {
      */
     @Transactional(rollbackFor = Exception.class)
     public void processRetryTask(Map<String, Object> payload) {
-        String taskId = (String) payload.get("taskId");
+        String taskId = (String) payload.get(MqMessageEventConstants.TaskDataKeys.TASK_ID);
         log.info("处理重试任务，taskId: {}", taskId);
         // TODO: 根据原任务类型重新入队
     }
@@ -326,7 +329,7 @@ public class MessageDistributionProcessor {
      */
     @Transactional(rollbackFor = Exception.class)
     public void processBroadcastDispatchTask(Map<String, Object> payload) {
-        String taskId = (String) payload.get("taskId");
+        String taskId = (String) payload.get(MqMessageEventConstants.TaskDataKeys.TASK_ID);
         log.info("处理广播分发任务，taskId: {}", taskId);
         // TODO: 实现广播消息的分页拉取与推送
         umpMsgQueueService.markAsSuccess(taskId, "broadcast-worker", "广播分发完成");
@@ -339,11 +342,19 @@ public class MessageDistributionProcessor {
     public void processDelayedSend(Map<String, Object> payload) {
         log.info("处理延迟发送任务，payload: {}", payload);
         // 将延迟任务转为普通推送任务
-        String messageId = (String) payload.get("messageId");
+        String messageId = (String) payload.get(MqMessageEventConstants.TaskDataKeys.MESSAGE_ID);
         Map<String, Object> sendTaskData = new HashMap<>();
-        sendTaskData.put("messageId", messageId);
-        sendTaskData.put("delayed", true);
-        umpMsgQueueService.createQueueTask("PUSH", "message_push", messageId, sendTaskData, 7, LocalDateTime.now(), 3);
+        sendTaskData.put(MqMessageEventConstants.TaskDataKeys.MESSAGE_ID, messageId);
+        sendTaskData.put(MqMessageEventConstants.TaskDataKeys.DELAYED, true);
+        umpMsgQueueService.createQueueTask(
+                MqMessageEventConstants.QueueTaskTypes.SEND,
+                MqMessageEventConstants.QueueNames.MESSAGE_SEND,
+                messageId,
+                sendTaskData,
+                MqMessageEventConstants.TaskPriorities.LOW,
+                LocalDateTime.now(),
+                MqMessageEventConstants.RetryDefaults.MAX_RETRY
+        );
     }
 
     /**
@@ -352,13 +363,13 @@ public class MessageDistributionProcessor {
     @Transactional(rollbackFor = Exception.class)
     public void processDelayedExpire(Map<String, Object> payload) {
         log.info("处理延迟过期任务，payload: {}", payload);
-        String messageId = (String) payload.get("messageId");
+        String messageId = (String) payload.get(MqMessageEventConstants.TaskDataKeys.MESSAGE_ID);
         umpMsgMainService.lambdaUpdate()
                 .eq(UmpMsgMain::getId, messageId)
-                .set(UmpMsgMain::getStatus, "EXPIRED")
+                .set(UmpMsgMain::getStatus, MqMessageEventConstants.EventTypes.EXPIRED)
                 .update();
     }
-    
+
     // ==================== 接收者解析、分发逻辑 ====================
     
     /**
@@ -368,22 +379,22 @@ public class MessageDistributionProcessor {
         String receiverType = message.getReceiverType();
         Map<String, Object> receiverScope = message.getReceiverScope();
         List<Map<String, Object>> receiverList = new ArrayList<>();
-        
+
         try {
             switch (receiverType) {
-                case "USER":
+                case MqMessageEventConstants.ReceiverTypes.USER:
                     receiverList = resolveUserReceivers(receiverScope);
                     break;
-                case "DEPT":
+                case MqMessageEventConstants.ReceiverTypes.DEPT:
                     receiverList = resolveDepartmentReceivers(receiverScope);
                     break;
-                case "ORG":
+                case MqMessageEventConstants.ReceiverTypes.ORG:
                     receiverList = resolveOrganizationReceivers(receiverScope);
                     break;
-                case "AREA":
+                case MqMessageEventConstants.ReceiverTypes.AREA:
                     receiverList = resolveAreaReceivers(receiverScope);
                     break;
-                case "ALL":
+                case MqMessageEventConstants.ReceiverTypes.ALL:
                     receiverList = resolveAllReceivers();
                     break;
                 default:
@@ -394,10 +405,9 @@ public class MessageDistributionProcessor {
             log.error("解析接收者失败，消息ID: {}, 接收者类型: {}", message.getId(), receiverType, e);
             throw new RuntimeException("解析接收者失败: " + e.getMessage(), e);
         }
-        
-        log.info("解析接收者完成，消息ID: {}, 接收者类型: {}, 数量: {}", 
+
+        log.info("解析接收者完成，消息ID: {}, 接收者类型: {}, 数量: {}",
                 message.getId(), receiverType, receiverList.size());
-        
         return receiverList;
     }
     
@@ -406,11 +416,10 @@ public class MessageDistributionProcessor {
      */
     private List<Map<String, Object>> resolveUserReceivers(Map<String, Object> receiverScope) {
         List<Map<String, Object>> receivers = new ArrayList<>();
-        
         if (receiverScope == null || receiverScope.isEmpty()) {
             return receivers;
         }
-        
+
         try {
             // 方式1：直接指定用户ID列表
             if (receiverScope.containsKey("userIds") && receiverScope.get("userIds") instanceof List) {
@@ -425,15 +434,11 @@ public class MessageDistributionProcessor {
                         
                         // 调用Feign服务获取用户信息
                         R<List<Map<String, Object>>> result = remoteUserService.listUsersByIds(batchIds);
-                        
                         if (result != null && result.getData() != null) {
-                            List<Map<String, Object>> userList = result.getData();
-                            for (Map<String, Object> user : userList) {
+                            result.getData().forEach(user -> {
                                 Map<String, Object> receiver = createUserReceiver(user);
-                                if (receiver != null) {
-                                    receivers.add(receiver);
-                                }
-                            }
+                                if (receiver != null) receivers.add(receiver);
+                            });
                         }
                     }
                 }
@@ -445,23 +450,17 @@ public class MessageDistributionProcessor {
                 
                 // 调用Feign服务查询用户
                 R<List<Map<String, Object>>> result = remoteUserService.listUsersByDept(query);
-                
                 if (result != null && result.getData() != null) {
-                    List<Map<String, Object>> userList = result.getData();
-                    for (Map<String, Object> user : userList) {
+                    result.getData().forEach(user -> {
                         Map<String, Object> receiver = createUserReceiver(user);
-                        if (receiver != null) {
-                            receivers.add(receiver);
-                        }
-                    }
+                        if (receiver != null) receivers.add(receiver);
+                    });
                 }
             }
-            
         } catch (Exception e) {
             log.error("解析个人接收者失败", e);
             throw new RuntimeException("解析个人接收者失败: " + e.getMessage(), e);
         }
-        
         return receivers;
     }
     
@@ -470,38 +469,26 @@ public class MessageDistributionProcessor {
      */
     private List<Map<String, Object>> resolveDepartmentReceivers(Map<String, Object> receiverScope) {
         List<Map<String, Object>> receivers = new ArrayList<>();
-        
         if (receiverScope == null || receiverScope.isEmpty()) {
             return receivers;
         }
-        
+
         try {
             // 方式1：直接指定部门ID列表
             if (receiverScope.containsKey("deptIds") && receiverScope.get("deptIds") instanceof List) {
                 List<String> deptIds = (List<String>) receiverScope.get("deptIds");
-                
                 if (!CollectionUtils.isEmpty(deptIds)) {
-                    // 获取部门信息
-                    R<List<Map<String, Object>>> deptResult = remoteDeptService.listDeptsByIds(deptIds);
-                    
-                    if (deptResult != null && deptResult.getData() != null) {
-                        // 获取每个部门下的用户
-                        for (String deptId : deptIds) {
-                            Map<String, Object> query = new HashMap<>();
-                            query.put("deptId", deptId);
-                            query.put("includeSubDepts", true); // 默认包含子部门
-                            
-                            R<List<Map<String, Object>>> userResult = remoteUserService.listUsersByDept(query);
-                            
-                            if (userResult != null && userResult.getData() != null) {
-                                List<Map<String, Object>> userList = userResult.getData();
-                                for (Map<String, Object> user : userList) {
-                                    Map<String, Object> receiver = createUserReceiver(user);
-                                    if (receiver != null) {
-                                        receivers.add(receiver);
-                                    }
-                                }
-                            }
+                    // 部门信息用于日志，不一定需要
+                    for (String deptId : deptIds) {
+                        Map<String, Object> query = new HashMap<>();
+                        query.put("deptId", deptId);
+                        query.put("includeSubDepts", true);
+                        R<List<Map<String, Object>>> userResult = remoteUserService.listUsersByDept(query);
+                        if (userResult != null && userResult.getData() != null) {
+                            userResult.getData().forEach(user -> {
+                                Map<String, Object> receiver = createUserReceiver(user);
+                                if (receiver != null) receivers.add(receiver);
+                            });
                         }
                     }
                 }
@@ -514,7 +501,6 @@ public class MessageDistributionProcessor {
                 // 获取部门树
                 String deptName = (String) deptTreeQuery.get("deptName");
                 R<List<Map<String, Object>>> deptTreeResult = remoteDeptService.getDeptTree(deptName);
-                
                 if (deptTreeResult != null && deptTreeResult.getData() != null) {
                     // 从部门树中获取所有部门ID，然后查询用户
                     List<String> allDeptIds = extractDeptIdsFromTree(deptTreeResult.getData());
@@ -523,27 +509,20 @@ public class MessageDistributionProcessor {
                     for (String deptId : allDeptIds) {
                         Map<String, Object> query = new HashMap<>();
                         query.put("deptId", deptId);
-                        
                         R<List<Map<String, Object>>> userResult = remoteUserService.listUsersByDept(query);
-                        
                         if (userResult != null && userResult.getData() != null) {
-                            List<Map<String, Object>> userList = userResult.getData();
-                            for (Map<String, Object> user : userList) {
+                            userResult.getData().forEach(user -> {
                                 Map<String, Object> receiver = createUserReceiver(user);
-                                if (receiver != null) {
-                                    receivers.add(receiver);
-                                }
-                            }
+                                if (receiver != null) receivers.add(receiver);
+                            });
                         }
                     }
                 }
             }
-            
         } catch (Exception e) {
             log.error("解析部门接收者失败", e);
             throw new RuntimeException("解析部门接收者失败: " + e.getMessage(), e);
         }
-        
         return receivers;
     }
     
@@ -552,47 +531,32 @@ public class MessageDistributionProcessor {
      */
     private List<Map<String, Object>> resolveOrganizationReceivers(Map<String, Object> receiverScope) {
         List<Map<String, Object>> receivers = new ArrayList<>();
-        
         if (receiverScope == null || receiverScope.isEmpty()) {
             return receivers;
         }
-        
+
         try {
             // 方式1：直接指定组织ID列表
             if (receiverScope.containsKey("orgIds") && receiverScope.get("orgIds") instanceof List) {
                 List<String> orgIds = (List<String>) receiverScope.get("orgIds");
-                
                 if (!CollectionUtils.isEmpty(orgIds)) {
-                    // 获取组织信息
-                    R<List<Map<String, Object>>> orgResult = remoteOrgService.listOrgsByIds(orgIds);
-                    
-                    if (orgResult != null && orgResult.getData() != null) {
-                        // 获取每个组织下的用户
-                        for (String orgId : orgIds) {
-                            Map<String, Object> query = new HashMap<>();
-                            query.put("orgId", orgId);
-                            
-                            R<List<Map<String, Object>>> userResult = remoteOrgService.listUsersByOrg(query);
-                            
-                            if (userResult != null && userResult.getData() != null) {
-                                List<Map<String, Object>> userList = userResult.getData();
-                                for (Map<String, Object> user : userList) {
-                                    Map<String, Object> receiver = createUserReceiver(user);
-                                    if (receiver != null) {
-                                        receivers.add(receiver);
-                                    }
-                                }
-                            }
+                    for (String orgId : orgIds) {
+                        Map<String, Object> query = new HashMap<>();
+                        query.put("orgId", orgId);
+                        R<List<Map<String, Object>>> userResult = remoteOrgService.listUsersByOrg(query);
+                        if (userResult != null && userResult.getData() != null) {
+                            userResult.getData().forEach(user -> {
+                                Map<String, Object> receiver = createUserReceiver(user);
+                                if (receiver != null) receivers.add(receiver);
+                            });
                         }
                     }
                 }
             }
-            
         } catch (Exception e) {
             log.error("解析组织接收者失败", e);
             throw new RuntimeException("解析组织接收者失败: " + e.getMessage(), e);
         }
-        
         return receivers;
     }
     
@@ -601,48 +565,33 @@ public class MessageDistributionProcessor {
      */
     private List<Map<String, Object>> resolveAreaReceivers(Map<String, Object> receiverScope) {
         List<Map<String, Object>> receivers = new ArrayList<>();
-        
         if (receiverScope == null || receiverScope.isEmpty()) {
             return receivers;
         }
-        
+
         try {
             // 方式1：指定行政区划代码
             if (receiverScope.containsKey("areaCodes") && receiverScope.get("areaCodes") instanceof List) {
                 List<String> areaCodes = (List<String>) receiverScope.get("areaCodes");
-                
                 if (!CollectionUtils.isEmpty(areaCodes)) {
-                    // 获取区域信息
-                    R<List<Map<String, Object>>> areaResult = remoteAreaService.listAreasByCodes(areaCodes);
-                    
-                    if (areaResult != null && areaResult.getData() != null) {
-                        // 获取每个区域的用户
-                        for (String areaCode : areaCodes) {
-                            Map<String, Object> query = new HashMap<>();
-                            query.put("areaCode", areaCode);
-                            query.put("includeSubAreas", true); // 默认包含子区域
-                            
-                            R<List<Map<String, Object>>> userResult = remoteAreaService.listUsersByArea(query);
-                            
-                            if (userResult != null && userResult.getData() != null) {
-                                List<Map<String, Object>> userList = userResult.getData();
-                                for (Map<String, Object> user : userList) {
-                                    Map<String, Object> receiver = createUserReceiver(user);
-                                    if (receiver != null) {
-                                        receivers.add(receiver);
-                                    }
-                                }
-                            }
+                    for (String areaCode : areaCodes) {
+                        Map<String, Object> query = new HashMap<>();
+                        query.put("areaCode", areaCode);
+                        query.put("includeSubAreas", true);
+                        R<List<Map<String, Object>>> userResult = remoteAreaService.listUsersByArea(query);
+                        if (userResult != null && userResult.getData() != null) {
+                            userResult.getData().forEach(user -> {
+                                Map<String, Object> receiver = createUserReceiver(user);
+                                if (receiver != null) receivers.add(receiver);
+                            });
                         }
                     }
                 }
             }
-            
         } catch (Exception e) {
             log.error("解析区域接收者失败", e);
             throw new RuntimeException("解析区域接收者失败: " + e.getMessage(), e);
         }
-        
         return receivers;
     }
     
@@ -651,55 +600,42 @@ public class MessageDistributionProcessor {
      */
     private List<Map<String, Object>> resolveAllReceivers() {
         List<Map<String, Object>> receivers = new ArrayList<>();
-        
         try {
-            // 这里需要实现获取所有活跃用户的逻辑
-            // 由于用户数量可能很大，需要分页查询
-            
             int page = 1;
-            int pageSize = 1000;
+            int pageSize = BATCH_QUERY_SIZE;
             boolean hasMore = true;
-            
+
             while (hasMore) {
                 Map<String, Object> query = new HashMap<>();
                 query.put("page", page);
                 query.put("size", pageSize);
-                query.put("status", "ACTIVE"); // 只获取活跃用户
-                
-                // 注意：feng-user3项目可能需要添加分页查询接口
-                // 这里假设有相应的接口
+                query.put("status", "ACTIVE");
+
                 R<List<Map<String, Object>>> result = remoteUserService.listUsersByDept(query);
-                
                 if (result != null && result.getData() != null) {
                     List<Map<String, Object>> userList = result.getData();
-                    
                     if (userList.isEmpty()) {
                         hasMore = false;
                     } else {
-                        for (Map<String, Object> user : userList) {
+                        userList.forEach(user -> {
                             Map<String, Object> receiver = createUserReceiver(user);
-                            if (receiver != null) {
-                                receivers.add(receiver);
-                            }
-                        }
+                            if (receiver != null) receivers.add(receiver);
+                        });
                         page++;
                     }
                 } else {
                     hasMore = false;
                 }
-                
-                // 避免无限循环
-                if (page > 100) {
+
+                if (page > MAX_PAGE_LIMIT) {
                     log.warn("获取全体接收者时达到最大分页数限制");
                     break;
                 }
             }
-            
         } catch (Exception e) {
             log.error("解析全体接收者失败", e);
             throw new RuntimeException("解析全体接收者失败: " + e.getMessage(), e);
         }
-        
         return receivers;
     }
     
@@ -708,14 +644,10 @@ public class MessageDistributionProcessor {
      */
     private void distributeToInbox(UmpMsgMain message, List<Map<String, Object>> receiverList) {
         String msgId = message.getId();
-        
-        // 批量创建收件箱记录
-        int createdCount = umpMsgInboxService.batchCreateInboxRecords(msgId, receiverList, "INBOX");
-        
-        log.info("消息分发到收件箱成功，消息ID: {}, 接收者数量: {}, 成功创建: {}", 
+        int createdCount = umpMsgInboxService.batchCreateInboxRecords(
+                msgId, receiverList, MqMessageEventConstants.DistributeModes.INBOX);
+        log.info("消息分发到收件箱成功，消息ID: {}, 接收者数量: {}, 成功创建: {}",
                 msgId, receiverList.size(), createdCount);
-        
-        // 更新消息的接收者数量
         umpMsgMainService.updateReceiverCount(msgId, receiverList.size(), 0, 0);
     }
     
@@ -726,27 +658,22 @@ public class MessageDistributionProcessor {
         String msgId = message.getId();
         String receiverType = message.getReceiverType();
         Map<String, Object> receiverScope = message.getReceiverScope();
-        
-        // 1. 创建广播记录
+
         Map<String, Object> targetScope = new HashMap<>();
-        targetScope.put("receiverType", receiverType);
+        targetScope.put(MqMessageEventConstants.TaskDataKeys.RECEIVER_TYPE, receiverType);
         targetScope.put("receiverScope", receiverScope);
-        targetScope.put("estimatedCount", receiverList.size());
-        
+        targetScope.put(MqMessageEventConstants.TaskDataKeys.ESTIMATED_COUNT, receiverList.size());
+
         String broadcastType = determineBroadcastType(receiverType, receiverList.size());
         String targetDescription = generateTargetDescription(receiverType, receiverScope);
-        
+
         String broadcastId = umpMsgBroadcastService.createBroadcast(
                 msgId, broadcastType, targetScope, targetDescription);
-        
-        // 2. 更新广播统计信息（预估接收者数量）
-        umpMsgBroadcastService.updateBroadcastStatistics(
-                broadcastId, 0, 0, 0);
-        
-        // 3. 更新消息的接收者数量
+
+        umpMsgBroadcastService.updateBroadcastStatistics(broadcastId, 0, 0, 0);
         umpMsgMainService.updateReceiverCount(msgId, receiverList.size(), 0, 0);
-        
-        log.info("消息分发到广播信息筒成功，消息ID: {}, 广播ID: {}, 预估接收者: {}", 
+
+        log.info("消息分发到广播信息筒成功，消息ID: {}, 广播ID: {}, 预估接收者: {}",
                 msgId, broadcastId, receiverList.size());
     }
     
@@ -757,29 +684,28 @@ public class MessageDistributionProcessor {
         if (CollectionUtils.isEmpty(receiverList)) {
             return;
         }
-        
-        // 为每个接收者创建推送任务
+
         for (Map<String, Object> receiver : receiverList) {
-            String receiverId = (String) receiver.get("receiverId");
-            String receiverType = (String) receiver.get("receiverType");
-            
+            String receiverId = (String) receiver.get(MqMessageEventConstants.TaskDataKeys.RECEIVER_ID);
+            String receiverType = (String) receiver.get(MqMessageEventConstants.TaskDataKeys.RECEIVER_TYPE);
+
             Map<String, Object> taskData = new HashMap<>();
-            taskData.put("msgId", msgId);
-            taskData.put("receiverId", receiverId);
-            taskData.put("receiverType", receiverType);
-            taskData.put("receiverName", receiver.get("receiverName"));
-            
+            taskData.put(MqMessageEventConstants.TaskDataKeys.MESSAGE_ID, msgId);
+            taskData.put(MqMessageEventConstants.TaskDataKeys.RECEIVER_ID, receiverId);
+            taskData.put(MqMessageEventConstants.TaskDataKeys.RECEIVER_TYPE, receiverType);
+            taskData.put(MqMessageEventConstants.TaskDataKeys.RECEIVER_NAME, receiver.get("receiverName"));
+
             umpMsgQueueService.createQueueTask(
-                    "PUSH",                      // 队列类型
-                    "message_push",             // 队列名称
-                    msgId,                      // 消息ID
-                    taskData,                   // 任务数据
-                    7,                          // 优先级（较低）
-                    LocalDateTime.now(),        // 立即执行
-                    3                           // 最大重试次数
+                    MqMessageEventConstants.QueueTaskTypes.SEND,
+                    MqMessageEventConstants.QueueNames.MESSAGE_SEND,
+                    msgId,
+                    taskData,
+                    MqMessageEventConstants.TaskPriorities.LOW,
+                    LocalDateTime.now(),
+                    MqMessageEventConstants.RetryDefaults.MAX_RETRY
             );
         }
-        
+
         log.info("创建推送队列任务成功，消息ID: {}, 任务数量: {}", msgId, receiverList.size());
     }
     
@@ -788,20 +714,20 @@ public class MessageDistributionProcessor {
      */
     private void createBroadcastDistributeTask(String msgId, int receiverCount) {
         Map<String, Object> taskData = new HashMap<>();
-        taskData.put("msgId", msgId);
-        taskData.put("receiverCount", receiverCount);
-        taskData.put("status", "PENDING");
-        
+        taskData.put(MqMessageEventConstants.TaskDataKeys.MESSAGE_ID, msgId);
+        taskData.put(MqMessageEventConstants.TaskDataKeys.RECEIVER_COUNT, receiverCount);
+        taskData.put(MqMessageEventConstants.TaskDataKeys.STATUS, "PENDING");
+
         umpMsgQueueService.createQueueTask(
-                "BROADCAST_DISTRIBUTE",        // 队列类型
-                "broadcast_distribute",        // 队列名称
-                msgId,                         // 消息ID
-                taskData,                      // 任务数据
-                5,                             // 优先级
-                LocalDateTime.now(),           // 立即执行
-                3                              // 最大重试次数
+                MqMessageEventConstants.QueueTaskTypes.DISTRIBUTE,
+                MqMessageEventConstants.QueueNames.MESSAGE_DISTRIBUTE,
+                msgId,
+                taskData,
+                MqMessageEventConstants.TaskPriorities.DEFAULT,
+                LocalDateTime.now(),
+                MqMessageEventConstants.RetryDefaults.MAX_RETRY
         );
-        
+
         log.info("创建广播分发队列任务成功，消息ID: {}, 接收者数量: {}", msgId, receiverCount);
     }
     
@@ -813,120 +739,106 @@ public class MessageDistributionProcessor {
         if (taskData == null) {
             taskData = new HashMap<>();
         }
-        
-        taskData.put("estimatedCount", estimatedCount);
-        
-        // 这里需要更新队列任务的数据，但由于UmpMsgQueueService没有提供更新任务数据的方法，
-        // 我们可以通过直接更新实体或扩展服务来实现
-        // 简化处理：这里只记录日志
+        taskData.put(MqMessageEventConstants.TaskDataKeys.ESTIMATED_COUNT, estimatedCount);
+        // 若UmpMsgQueueService未提供更新任务数据方法，此处仅记录日志
         log.debug("更新任务预估数量，任务ID: {}, 预估数量: {}", queueTask.getId(), estimatedCount);
     }
-    
-    // ============ 辅助方法 ============
-    
+
+    // ==================== 辅助方法 ====================
+
     private Map<String, Object> createUserReceiver(Map<String, Object> user) {
         if (user == null || user.isEmpty()) {
             return null;
         }
-        
         String userId = (String) user.get("id");
         String username = (String) user.get("username");
-        
         if (!StringUtils.hasText(userId)) {
             log.warn("用户信息缺少ID字段: {}", user);
             return null;
         }
-        
         Map<String, Object> receiver = new HashMap<>();
-        receiver.put("receiverId", userId);
-        receiver.put("receiverType", "USER");
-        receiver.put("receiverName", StringUtils.hasText(username) ? username : userId);
-        
-        // 可以添加其他信息，如部门、组织等
+        receiver.put(MqMessageEventConstants.TaskDataKeys.RECEIVER_ID, userId);
+        receiver.put(MqMessageEventConstants.TaskDataKeys.RECEIVER_TYPE, MqMessageEventConstants.ReceiverTypes.USER);
+        receiver.put(MqMessageEventConstants.TaskDataKeys.RECEIVER_NAME, StringUtils.hasText(username) ? username : userId);
         if (user.containsKey("deptId")) {
             receiver.put("deptId", user.get("deptId"));
         }
         if (user.containsKey("deptName")) {
             receiver.put("deptName", user.get("deptName"));
         }
-        
         return receiver;
     }
-    
+
     private List<String> extractDeptIdsFromTree(List<Map<String, Object>> deptTree) {
         List<String> deptIds = new ArrayList<>();
         extractDeptIdsRecursive(deptTree, deptIds);
         return deptIds;
     }
-    
+
     private void extractDeptIdsRecursive(List<Map<String, Object>> nodes, List<String> deptIds) {
         if (CollectionUtils.isEmpty(nodes)) {
             return;
         }
-        
         for (Map<String, Object> node : nodes) {
             String deptId = (String) node.get("id");
             if (StringUtils.hasText(deptId)) {
                 deptIds.add(deptId);
             }
-            
-            // 递归处理子节点
             if (node.containsKey("children") && node.get("children") instanceof List) {
                 List<Map<String, Object>> children = (List<Map<String, Object>>) node.get("children");
                 extractDeptIdsRecursive(children, deptIds);
             }
         }
     }
-    
+
     private String determineBroadcastType(String receiverType, int receiverCount) {
-        switch (receiverType) {
-            case "ALL":
-                return "ALL";
-            case "AREA":
-                return "AREA";
-            case "ORG":
-                return "ORG";
-            case "DEPT":
-                return receiverCount > 5000 ? "MASS_DEPT" : "DEPT";
-            default:
-                return "CUSTOM";
+        if (MqMessageEventConstants.ReceiverTypes.ALL.equals(receiverType)) {
+            return MqMessageEventConstants.BroadcastTypes.ALL;
+        } else if (MqMessageEventConstants.ReceiverTypes.AREA.equals(receiverType)) {
+            return MqMessageEventConstants.BroadcastTypes.AREA;
+        } else if (MqMessageEventConstants.ReceiverTypes.ORG.equals(receiverType)) {
+            return MqMessageEventConstants.BroadcastTypes.ORG;
+        } else if (MqMessageEventConstants.ReceiverTypes.DEPT.equals(receiverType)) {
+            return receiverCount > MqMessageEventConstants.Thresholds.DEPT_MASS_THRESHOLD ?
+                    MqMessageEventConstants.BroadcastTypes.MASS_DEPT :
+                    MqMessageEventConstants.BroadcastTypes.DEPT;
+        } else {
+            return MqMessageEventConstants.BroadcastTypes.CUSTOM;
         }
     }
-    
+
     private String generateTargetDescription(String receiverType, Map<String, Object> receiverScope) {
         if (receiverScope == null) {
             return "自定义接收者";
         }
-        
         switch (receiverType) {
-            case "USER":
+            case MqMessageEventConstants.ReceiverTypes.USER:
                 if (receiverScope.containsKey("userIds") && receiverScope.get("userIds") instanceof List) {
                     List<String> userIds = (List<String>) receiverScope.get("userIds");
                     return "指定用户: " + userIds.size() + "人";
                 }
                 break;
-            case "DEPT":
+            case MqMessageEventConstants.ReceiverTypes.DEPT:
                 if (receiverScope.containsKey("deptIds") && receiverScope.get("deptIds") instanceof List) {
                     List<String> deptIds = (List<String>) receiverScope.get("deptIds");
                     return "指定部门: " + deptIds.size() + "个";
                 }
                 break;
-            case "ORG":
+            case MqMessageEventConstants.ReceiverTypes.ORG:
                 if (receiverScope.containsKey("orgIds") && receiverScope.get("orgIds") instanceof List) {
                     List<String> orgIds = (List<String>) receiverScope.get("orgIds");
                     return "指定组织: " + orgIds.size() + "个";
                 }
                 break;
-            case "AREA":
+            case MqMessageEventConstants.ReceiverTypes.AREA:
                 if (receiverScope.containsKey("areaCodes") && receiverScope.get("areaCodes") instanceof List) {
                     List<String> areaCodes = (List<String>) receiverScope.get("areaCodes");
                     return "指定区域: " + areaCodes.size() + "个";
                 }
                 break;
-            case "ALL":
+            case MqMessageEventConstants.ReceiverTypes.ALL:
                 return "全体用户";
         }
-        
         return "自定义接收者";
     }
     

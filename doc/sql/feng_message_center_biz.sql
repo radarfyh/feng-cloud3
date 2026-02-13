@@ -108,7 +108,7 @@ COMMENT='应用权限表 - 管理API访问权限';
 DROP TABLE IF EXISTS `ump_msg_main`;
 CREATE TABLE `ump_msg_main` (
   `id` varchar(32) NOT NULL COMMENT '消息ID(UUID)',
-	`partition_key` int NOT NULL DEFAULT (YEAR(CURRENT_DATE) * 100 + MONTH(CURRENT_DATE)) COMMENT '分区键：YYYYMM格式，如202501',
+  `partition_key` int NOT NULL DEFAULT (YEAR(CURRENT_DATE) * 100 + MONTH(CURRENT_DATE)) COMMENT '分区键：YYYYMM格式，如202501',
   `msg_code` varchar(50) DEFAULT NULL COMMENT '消息编码(xxbm)',
   `msg_type` varchar(20) NOT NULL DEFAULT 'NOTICE' COMMENT '消息类型:NOTICE-通知 ALERT-提醒 BIZ-业务 AGENT-代理',
   
@@ -144,7 +144,7 @@ CREATE TABLE `ump_msg_main` (
   `expire_time` datetime DEFAULT NULL COMMENT '过期时间',
   
   -- 状态和时间
-  `status` varchar(20) DEFAULT 'RECEIVED' COMMENT '状态:RECEIVED-已接收 DISTRIBUTING-分发中 DISTRIBUTED-已分发 SENDING-发送中 SENT-已发送 READ-已读 FAILED-失败',
+  `status` varchar(20) DEFAULT 'RECEIVED' COMMENT '状态:RECEIVED-已接收 DISTRIBUTING-分发中 DISTRIBUTED-已分发 DIST_FAILED-分发失败 PUSHED-已推送 PUSH_FAILED-推送失败 BIZ_RECEIVED-业务系统已接收 POLL-待拉取 BIZ_PULLED-业务系统已拉取 POLL_FAILED-拉取失败 READ-已读 ',
   `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `send_time` datetime DEFAULT NULL COMMENT '发送时间',
   `distribute_time` datetime DEFAULT NULL COMMENT '分发时间',
@@ -194,8 +194,8 @@ CREATE TABLE `ump_msg_inbox` (
   `receiver_org_name` varchar(100) DEFAULT NULL COMMENT '接收者单位名称',
   
   -- 分发信息
-  `distribute_mode` varchar(20) DEFAULT 'INBOX' COMMENT '分发方式:INBOX-收件箱 BROADCAST-广播',
-  `distribute_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '分发时间',
+  `distribute_mode` varchar(20) DEFAULT 'INBOX' COMMENT '发送方式:PUSH-推送 POLL-轮询',
+  `distribute_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '发送时间',
   
   -- 接收状态
   `receive_status` varchar(20) DEFAULT 'PENDING' COMMENT '接收状态:PENDING-待接收 RECEIVED-已接收 FAILED-接收失败',

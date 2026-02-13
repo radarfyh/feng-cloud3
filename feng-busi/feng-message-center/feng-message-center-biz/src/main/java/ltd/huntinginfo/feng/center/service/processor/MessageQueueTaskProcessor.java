@@ -13,6 +13,10 @@ import java.util.List;
 
 /**
  * 消息队列任务处理器
+ * 职责：
+ * 1. 负责为job提供消息队列任务的处理入口
+ * 2. 每个队列类型一个入口，包括SEND、DISTRIBUTE、CALLBACK、RETRY
+ * 主要业务逻辑参见数据库表脚本和UmpMsgQueueService的注释
  */
 @Slf4j
 @Service

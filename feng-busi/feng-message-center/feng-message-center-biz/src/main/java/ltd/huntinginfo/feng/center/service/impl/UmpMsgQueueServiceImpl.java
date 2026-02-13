@@ -24,6 +24,7 @@ import java.util.stream.Collectors;
 
 /**
  * 消息队列表服务实现类
+ * 主要业务逻辑参见数据库表脚本和UmpMsgQueueService的注释
  */
 @Slf4j
 @Service

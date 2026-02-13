@@ -52,11 +52,11 @@ public class UmpMsgInbox implements Serializable {
     @TableField("receiver_org_name")
     private String receiverOrgName;
 
-    @Schema(description = "分发方式:INBOX-收件箱 BROADCAST-广播")
+    @Schema(description = "发送方式:PUSH-推送 POLL-轮询")
     @TableField("distribute_mode")
     private String distributeMode;
 
-    @Schema(description = "分发时间")
+    @Schema(description = "发送时间")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @TableField("distribute_time")
     private LocalDateTime distributeTime;

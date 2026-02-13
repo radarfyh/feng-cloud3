@@ -21,6 +21,7 @@ import java.util.Map;
 /**
  * 消息推送处理器
  * 负责处理主动推送模式的消息
+ * 主要业务逻辑参见数据库表脚本和UmpMsgQueueService的注释
  */
 @Slf4j
 @Service
