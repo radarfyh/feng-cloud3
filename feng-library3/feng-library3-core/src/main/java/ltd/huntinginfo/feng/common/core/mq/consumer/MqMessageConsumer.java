@@ -17,40 +17,40 @@ import ltd.huntinginfo.feng.common.core.mq.dto.MqMessage;
 public interface MqMessageConsumer {
 
     // ---------- 消息状态事件 ----------
-    void handleMessageReceived(MqMessage<Map<String, Object>> message);
+    void handleMessageDistributeStart(MqMessage<Map<String, Object>> message);
 
     void handleMessageDistributed(MqMessage<Map<String, Object>> message);
 
 	void handleMessageDistributing(MqMessage<Map<String, Object>> message);
 
-	void handleMessageDistFailed(MqMessage<Map<String, Object>> message);
+	void handleMessageDistributeFailed(MqMessage<Map<String, Object>> message);
 
 	void handleMessagePushed(MqMessage<Map<String, Object>> message);
 
 	void handleMessagePushFailed(MqMessage<Map<String, Object>> message);
 
-	void handleMessageBizReceived(MqMessage<Map<String, Object>> message);
+	void handleMessageBusinessReceived(MqMessage<Map<String, Object>> message);
 
-	void handleMessagePoll(MqMessage<Map<String, Object>> message);
+	void handleMessagePullReady(MqMessage<Map<String, Object>> message);
 
-	void handleMessageBizPolled(MqMessage<Map<String, Object>> message);
+	void handleMessageBusinessPulled(MqMessage<Map<String, Object>> message);
 
-	void handleMessagePollFailed(MqMessage<Map<String, Object>> message);
+	void handleMessagePullFailed(MqMessage<Map<String, Object>> message);
 
     void handleMessageRead(MqMessage<Map<String, Object>> message);
 
     void handleMessageExpired(MqMessage<Map<String, Object>> message);
 
-    // ---------- 异步任务 ----------
-    void handleDistributeTask(MqMessage<Map<String, Object>> message);
-
-    void handlePushTask(MqMessage<Map<String, Object>> message);
-
-    void handleRetryTask(MqMessage<Map<String, Object>> message);
-
-    // ---------- 延迟任务 ----------
-    void handleDelayedSendTask(MqMessage<Map<String, Object>> message);
-
-    void handleDelayedExpireTask(MqMessage<Map<String, Object>> message);
+//    // ---------- 异步任务 ----------
+//    void handleDistributeTask(MqMessage<Map<String, Object>> message);
+//
+//    void handlePushTask(MqMessage<Map<String, Object>> message);
+//
+//    void handleRetryTask(MqMessage<Map<String, Object>> message);
+//
+//    // ---------- 延迟任务 ----------
+//    void handleDelayedSendTask(MqMessage<Map<String, Object>> message);
+//
+//    void handleDelayedExpireTask(MqMessage<Map<String, Object>> message);
 
 }

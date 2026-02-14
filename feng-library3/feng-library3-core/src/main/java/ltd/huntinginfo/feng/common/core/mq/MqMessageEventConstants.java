@@ -50,11 +50,11 @@ public final class MqMessageEventConstants {
         /** 业务已接收 */
         public static final String MESSAGE_BIZ_RECEIVED = "ump.queue.message.biz.received";
         /** 待拉取 */
-        public static final String MESSAGE_POLL = "ump.queue.message.poll";
+        public static final String MESSAGE_PULL = "ump.queue.message.pull";
         /** 业务已拉取 */
         public static final String MESSAGE_BIZ_PULLED = "ump.queue.message.biz.pulled";
         /** 拉取失败 */
-        public static final String MESSAGE_POLL_FAILED = "ump.queue.message.poll.failed";
+        public static final String MESSAGE_PULL_FAILED = "ump.queue.message.pull.failed";
         /** 消息已被接收方阅读 */
         public static final String MESSAGE_READ = "ump.queue.message.read";
         /** 消息已过期 */
@@ -70,9 +70,9 @@ public final class MqMessageEventConstants {
 
         // ---------- 延迟队列（按业务细分）----------
         /** 延迟发送队列（如定时推送） */
-        public static final String DELAYED_SEND = "ump.queue.delayed.send";
+        public static final String MESSAGE_DELAYED_SEND = "ump.queue.delayed.send";
         /** 延迟过期处理队列 */
-        public static final String DELAYED_EXPIRE = "ump.queue.delayed.expire";
+        public static final String MESSAGE_DELAYED_EXPIRE = "ump.queue.delayed.expire";
 
         private Queues() {}
     }
@@ -80,29 +80,29 @@ public final class MqMessageEventConstants {
     // ============================ 路由键 ============================
     public static final class RoutingKeys {
         // ---------- 事件路由（与队列绑定）----------
-        public static final String MESSAGE_RECEIVED = "ump.event.message.received";
-        public static final String MESSAGE_DISTRIBUTING = "ump.event.message.distributing";
-        public static final String MESSAGE_DISTRIBUTED = "ump.event.message.distributed";
-        public static final String MESSAGE_DIST_FAILED = "ump.event.message.dist.failed";
-        public static final String MESSAGE_PUSHED = "ump.event.message.pushed";
-        public static final String MESSAGE_PUSH_FAILED = "ump.event.message.push.failed";
-        public static final String MESSAGE_BIZ_RECEIVED = "ump.event.message.biz.received";
-        public static final String MESSAGE_POLL = "ump.event.message.poll";
-        public static final String MESSAGE_BIZ_PULLED = "ump.event.message.biz.pulled";
-        public static final String MESSAGE_POLL_FAILED = "ump.event.message.poll.failed";
-        public static final String MESSAGE_READ = "ump.event.message.read";
-        public static final String MESSAGE_EXPIRED = "ump.event.message.expired";
+        public static final String ROUTING_KEY_RECEIVED = "ump.event.message.received";
+        public static final String ROUTING_KEY_DISTRIBUTING = "ump.event.message.distributing";
+        public static final String ROUTING_KEY_DISTRIBUTED = "ump.event.message.distributed";
+        public static final String ROUTING_KEY_DIST_FAILED = "ump.event.message.dist.failed";
+        public static final String ROUTING_KEY_PUSHED = "ump.event.message.pushed";
+        public static final String ROUTING_KEY_PUSH_FAILED = "ump.event.message.push.failed";
+        public static final String ROUTING_KEY_BIZ_RECEIVED = "ump.event.message.biz.received";
+        public static final String ROUTING_KEY_PULL = "ump.event.message.pull";
+        public static final String ROUTING_KEY_BIZ_PULLED = "ump.event.message.biz.pulled";
+        public static final String ROUTING_KEY_PULL_FAILED = "ump.event.message.pull.failed";
+        public static final String ROUTING_KEY_READ = "ump.event.message.read";
+        public static final String ROUTING_KEY_EXPIRED = "ump.event.message.expired";
 
         // ---------- 任务路由 ----------
-        public static final String TASK_DISTRIBUTED = "ump.task.distribute";
-        public static final String TASK_PUSH = "ump.task.push";
-        public static final String TASK_RETRY = "ump.task.retry";
+        public static final String ROUTING_KEY_DISTRIBUTE_TASK = "ump.event.task.distribute";
+        public static final String ROUTING_KEY_PUSH_TASK = "ump.event.task.push";
+        public static final String ROUTING_KEY_RETRY_TASK = "ump.event.task.retry";
 
         // ---------- 延迟路由 ----------
         /** 延迟发送，配合 x-delay 头使用，通过主交换机发送 */
-        public static final String DELAYED_SEND = "ump.event.delayed.send";
+        public static final String ROUTING_KEY_DELAYED_SEND = "ump.event.delayed.send";
         /** 延迟过期处理 */
-        public static final String DELAYED_EXPIRE = "ump.event.delayed.expire";
+        public static final String ROUTING_KEY_DELAYED_EXPIRE = "ump.event.delayed.expire";
 
         private RoutingKeys() {}
     }
@@ -128,11 +128,11 @@ public final class MqMessageEventConstants {
         /** 业务系统已接收 */
         public static final String BIZ_RECEIVED = "BIZ_RECEIVED";
         /** 待拉取 */
-        public static final String POLL = "POLL";
+        public static final String PULL = "PULL";
         /** 业务系统已拉取 */
         public static final String BIZ_PULLED = "BIZ_PULLED";
         /** 拉取超时/过期（永久） */
-        public static final String POLL_FAILED = "POLL_FAILED";
+        public static final String PULL_FAILED = "PULL_FAILED";
         /** 已读 */
         public static final String READ = "READ";
         /** 已过期 */
@@ -241,11 +241,11 @@ public final class MqMessageEventConstants {
     // ============================ 消息队列表（ump_msg_queue）队列名称 ============================
     public static final class QueueNames {
         /** 消息分发队列 */
-        public static final String MESSAGE_DISTRIBUTE = "message_distribute";
+        public static final String MESSAGE_DISTRIBUTE_QUEUE = "message_distribute_queue";
         /** 消息推送队列 */
-        public static final String MESSAGE_PUSH = "message_push";
+        public static final String MESSAGE_PUSH_QUEUE = "message_push_queue";
         /** 重试队列 */
-        public static final String MESSAGE_RETRY = "message_retry";
+        public static final String MESSAGE_RETRY_QUEUE = "message_retry_queue";
 
         private QueueNames() {}
     }
@@ -304,19 +304,18 @@ public final class MqMessageEventConstants {
     // ============================ 任务数据中的字段名 ============================
     public static final class TaskDataKeys {
         public static final String MESSAGE_ID = "messageId";  // 对应消息主表的id
-        public static final String INBOX_ID = "inboxId";  // 新增收件箱的记录ID
-        public static final String BROADCAST_ID = "broadcastId";  // 新增广播信息筒的记录ID
-        public static final String TASK_ID = "taskId";
-        public static final String RECEIVER_ID = "receiverId";
+        public static final String MSG_CODE = "msgCode";  // 对应消息主表的msg_code
+        public static final String TITLE = "title";  // 对应消息主表的title
         public static final String RECEIVER_TYPE = "receiverType";
-        public static final String RECEIVER_NAME = "receiverName";
-        public static final String RECEIVER_COUNT = "receiverCount";
-        public static final String PUSH_MODE = "pushMode"; // ump_msg_main.push_mode/ump_app_credential.default_push_mode
-        public static final String CALLBACK_URL = "callbackUrl";  // 新增APP回调地址，来自ump_msg_main.callback_url/ump_app_credential.callback_url
-        public static final String ESTIMATED_COUNT = "estimatedCount";
+        public static final String RECEIVER_SCOPE = "receiverScope";
+        public static final String PUSH_MODE = "pushMode"; // ump_app_credential.default_push_mode
+        public static final String CALLBACK_URL = "callbackUrl";  // 新增APP回调地址，来自ump_app_credential.callback_url
+        public static final String CALLBACK_CONFIG = "callbackConfig";
+        public static final String PRIORITY = "priority";  // 对应消息主表的优先级
+        public static final String EXPIRE_TIME = "expireTime";  
+        public static final String SEND_TIME = "sendTime";
+        public static final String CREATE_TIME = "createTime";
         public static final String STATUS = "status";
-        public static final String DELAYED = "delayed";
-        public static final String REASON = "reason";
         public static final String OLD_STATUS = "oldStatus";
 
         private TaskDataKeys() {}
