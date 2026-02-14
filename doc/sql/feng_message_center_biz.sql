@@ -40,6 +40,7 @@ CREATE TABLE `ump_app_credential` (
   -- 推送配置
   `default_push_mode` varchar(10) DEFAULT 'PUSH' COMMENT '默认推送方式:PUSH-推送 POLL-轮询',
   `callback_url` varchar(500) DEFAULT NULL COMMENT '默认回调地址',
+  `callback_config` json DEFAULT NULL COMMENT '回调配置(JSON)',
   `callback_auth_mode` varchar(20) DEFAULT 'SIGNATURE' COMMENT '回调认证模式',
   
   -- 限制配置
@@ -101,7 +102,7 @@ COMMENT='应用权限表 - 管理API访问权限';
 -- 作用：存储所有消息的核心元数据，是消息系统的中央存储
 -- 关键业务逻辑：
 -- 1. 所有消息的统一入口，支持直接消息和代理消息
--- 2. 消息状态流转：RECEIVED → DISTRIBUTING → DISTRIBUTED → SENT → READ
+-- 2. 消息状态关键流转：RECEIVED → DISTRIBUTING → DISTRIBUTED → PUSHED → BIZ_RECEIVED → READ，次要流转：RECEIVED → DISTRIBUTING → DISTRIBUTED → POLL → BIZ_PULLED → READ
 -- 3. 支持消息优先级，高优先级消息优先处理
 -- 4. 支持消息过期，过期消息自动清理
 -- 5. 支持代理消息的关联追踪
@@ -114,7 +115,23 @@ CREATE TABLE `ump_msg_main` (
   
   -- 消息内容
   `title` varchar(200) DEFAULT NULL COMMENT '消息标题',
-  `content` json NOT NULL COMMENT '消息内容(JSON格式)',
+  `content` json NOT NULL COMMENT '消息内容(JSON格式)，格式：{
+      "header": {
+        "title": "关于2026年度预算申报的通知",
+        "sub_title": "财务处〔2026〕12号"
+      },
+      "body": [
+        "各单位：",
+        "为做好2026年度预算编制工作，现将有关事项通知如下。",
+        "一、预算申报截止时间为2026年3月31日。",
+        "二、请通过财政一体化平台完成申报。",
+        "特此通知。"
+      ],
+      "footer": {
+        "org": "财政处",
+        "date": "2026-01-10"
+      }
+    }',
   `priority` tinyint DEFAULT 3 COMMENT '优先级1-5,数字越小优先级越高',
   
   -- 发送方信息
@@ -132,7 +149,22 @@ CREATE TABLE `ump_msg_main` (
   -- 接收者范围
   `receiver_count` int DEFAULT 1 COMMENT '接收者数量',
   `receiver_type` varchar(20) DEFAULT 'USER' COMMENT '接收者类型:USER-个人 DEPT-部门 ORG-组织 AREA-区域 ALL-全体',
-  `receiver_scope` json DEFAULT NULL COMMENT '接收者范围配置(JSON)',
+  `receiver_scope` json DEFAULT NULL COMMENT '接收者范围配置(JSON)，格式：{
+      "include": {
+		"appKeys": ["app001", "app002"],
+        "loginIds": ["u001", "u002"],
+        "deptIds": ["D_FIN_001"],
+		"agencyCodes": ["AG_1001"],
+        "orgCodes": ["ORG_1001"],
+        "divisionCodes": ["110000"],
+        "roleCodes": ["FIN_MANAGER"]
+      },
+      "exclude": {
+        "loginIds": ["u003", "u004"],
+        "deptIds": ["D_FIN_002"],
+        "roleCodes": ["DEV_MANAGER"]
+      }
+    }',
   
   -- 推送配置
   `callback_url` varchar(500) DEFAULT NULL COMMENT '回调地址',
@@ -146,9 +178,9 @@ CREATE TABLE `ump_msg_main` (
   -- 状态和时间
   `status` varchar(20) DEFAULT 'RECEIVED' COMMENT '状态:RECEIVED-已接收 DISTRIBUTING-分发中 DISTRIBUTED-已分发 DIST_FAILED-分发失败 PUSHED-已推送 PUSH_FAILED-推送失败 BIZ_RECEIVED-业务系统已接收 POLL-待拉取 BIZ_PULLED-业务系统已拉取 POLL_FAILED-拉取失败 READ-已读',
   `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-  `send_time` datetime DEFAULT NULL COMMENT '发送时间',
-  `distribute_time` datetime DEFAULT NULL COMMENT '分发时间',
-  `complete_time` datetime DEFAULT NULL COMMENT '完成时间',
+  `send_time` datetime DEFAULT NULL COMMENT '发送时间（发送到队列）',
+  `distribute_time` datetime DEFAULT NULL COMMENT '分发时间（分发到收件箱或者广播信息筒）',
+  `complete_time` datetime DEFAULT NULL COMMENT '完成时间（消息生命周期终结，例如已读）',
   
   -- 统计信息
   `total_receivers` int DEFAULT 0 COMMENT '总接收人数',

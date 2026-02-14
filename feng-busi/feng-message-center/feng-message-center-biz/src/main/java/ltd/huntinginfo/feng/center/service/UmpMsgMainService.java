@@ -70,22 +70,6 @@ public interface UmpMsgMainService extends IService<UmpMsgMain> {
     int batchUpdateMessageStatus(List<String> msgIds, String status);
 
     /**
-     * 标记消息为已发送
-     *
-     * @param msgId 消息ID
-     * @return 是否成功
-     */
-    boolean markAsSent(String msgId);
-
-    /**
-     * 标记消息为已分发
-     *
-     * @param msgId 消息ID
-     * @return 是否成功
-     */
-    boolean markAsDistributed(String msgId);
-
-    /**
      * 更新消息的已读统计
      *
      * @param msgId 消息ID
@@ -134,4 +118,8 @@ public interface UmpMsgMainService extends IService<UmpMsgMain> {
      */
     boolean updateReceiverCount(String messageId, Integer totalReceivers, 
                                Integer receivedCount, Integer readCount);
+    /**
+     * 查询未读消息
+     */
+	List<MessageDetailVO> getAllUnreadMessages(int limit);
 }

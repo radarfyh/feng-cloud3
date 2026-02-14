@@ -122,4 +122,34 @@ public interface UmpMsgBroadcastService extends IService<UmpMsgBroadcast> {
     List<BroadcastDetailVO> getBroadcastsByReceiver(String receiverId,
                                                    String receiverType,
                                                    int limit);
+
+    /**
+     * 已读数量加一
+     * @param broadcastId
+     */
+	void incrementReadCount(String broadcastId);
+
+	/**
+	 * 修改已分发数量
+	 * @param broadcastId
+	 * @param distributedCount 已分发数量
+	 * @return
+	 */
+	boolean updateDistributedCount(String broadcastId, Integer distributedCount);
+
+	/**
+	 * 修改已接收数量
+	 * @param broadcastId
+	 * @param receivedCount 已接收数量
+	 * @return
+	 */
+	boolean updateReceivedCount(String broadcastId, Integer receivedCount);
+
+	/**
+	 * 修改已读人数
+	 * @param broadcastId
+	 * @param readCount 已读人数
+	 * @return
+	 */
+	boolean updateReadCount(String broadcastId, Integer readCount);
 }

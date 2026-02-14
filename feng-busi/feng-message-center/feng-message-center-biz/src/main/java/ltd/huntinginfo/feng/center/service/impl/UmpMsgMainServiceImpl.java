@@ -3,16 +3,24 @@ package ltd.huntinginfo.feng.center.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+
+import ltd.huntinginfo.feng.center.api.entity.UmpBroadcastReceiveRecord;
+import ltd.huntinginfo.feng.center.api.entity.UmpMsgBroadcast;
+import ltd.huntinginfo.feng.center.api.entity.UmpMsgInbox;
 import ltd.huntinginfo.feng.center.api.entity.UmpMsgMain;
 import ltd.huntinginfo.feng.center.mapper.UmpMsgMainMapper;
+import ltd.huntinginfo.feng.center.service.UmpBroadcastReceiveRecordService;
+import ltd.huntinginfo.feng.center.service.UmpMsgBroadcastService;
+import ltd.huntinginfo.feng.center.service.UmpMsgInboxService;
 import ltd.huntinginfo.feng.center.service.UmpMsgMainService;
+import ltd.huntinginfo.feng.center.service.state.MessageStateMachine;
 import ltd.huntinginfo.feng.center.api.dto.MessageSendDTO;
 import ltd.huntinginfo.feng.center.api.dto.MessageQueryDTO;
 import ltd.huntinginfo.feng.center.api.vo.MessageDetailVO;
 import ltd.huntinginfo.feng.center.api.vo.MessagePageVO;
 import ltd.huntinginfo.feng.center.api.vo.MessageStatisticsVO;
 import ltd.huntinginfo.feng.common.core.mq.MqMessageEventConstants;
-import ltd.huntinginfo.feng.common.rabbitmq.service.RabbitMqService;
+import ltd.huntinginfo.feng.common.core.mq.producer.MqMessageProducer;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
@@ -23,6 +31,7 @@ import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -34,7 +43,10 @@ import java.util.stream.Collectors;
 public class UmpMsgMainServiceImpl extends ServiceImpl<UmpMsgMainMapper, UmpMsgMain> implements UmpMsgMainService {
 
     private final UmpMsgMainMapper umpMsgMainMapper;
-    private final RabbitMqService rabbitMqService;
+    private final MqMessageProducer mqMessageProducer;
+    private final UmpMsgBroadcastService umpMsgBroadcastService;
+    private final UmpMsgInboxService umpMsgInboxService;
+    private final UmpBroadcastReceiveRecordService umpBroadcastReceiveRecordService;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -44,15 +56,19 @@ public class UmpMsgMainServiceImpl extends ServiceImpl<UmpMsgMainMapper, UmpMsgM
 
         // 构建消息实体
         UmpMsgMain message = buildMessageFromDTO(sendDTO);
-        message.setStatus("RECEIVED");
+        message.setMsgType(MqMessageEventConstants.BusinessTypes.BIZ);
+        message.setStatus(MqMessageEventConstants.EventTypes.RECEIVED);
         message.setCreateTime(LocalDateTime.now());
+        
+        String oldStatus = "";
 
         // 保存到数据库
         if (save(message)) {
             log.info("消息创建成功，消息ID: {}, 消息编码: {}", message.getId(), message.getMsgCode());
             
             // 异步发布消息事件到RabbitMQ
-            publishMessageReceived(message);
+            
+            publishEventByStatus(message, oldStatus);
             
             return message.getId();
         } else {
@@ -75,16 +91,18 @@ public class UmpMsgMainServiceImpl extends ServiceImpl<UmpMsgMainMapper, UmpMsgM
         UmpMsgMain message = buildMessageFromDTO(sendDTO);
         message.setAgentAppKey(agentAppKey);
         message.setAgentMsgId(agentMsgId);
-        message.setMsgType("AGENT");
-        message.setStatus("RECEIVED");
+        message.setMsgType(MqMessageEventConstants.BusinessTypes.AGENT);
+        message.setStatus(MqMessageEventConstants.EventTypes.RECEIVED);
         message.setCreateTime(LocalDateTime.now());
+        
+        String oldStatus = "";
 
         // 保存到数据库
         if (save(message)) {
             log.info("代理消息创建成功，消息ID: {}, 代理消息ID: {}", message.getId(), agentMsgId);
             
             // 异步发布消息事件到RabbitMQ
-            publishMessageReceived(message);
+            publishEventByStatus(message, oldStatus);
             
             return message.getId();
         } else {
@@ -219,16 +237,18 @@ public class UmpMsgMainServiceImpl extends ServiceImpl<UmpMsgMainMapper, UmpMsgM
 
         // 根据状态设置相应的时间字段
         switch (status) {
-            case "SENT":
+            case MqMessageEventConstants.EventTypes.RECEIVED:
                 message.setSendTime(LocalDateTime.now());
                 break;
-            case "DISTRIBUTED":
+            case MqMessageEventConstants.EventTypes.DISTRIBUTED:
                 message.setDistributeTime(LocalDateTime.now());
                 break;
-            case "READ":
+            case MqMessageEventConstants.EventTypes.READ:
                 message.setCompleteTime(LocalDateTime.now());
                 break;
-            case "FAILED":
+            case MqMessageEventConstants.EventTypes.PULL_FAILED:
+            case MqMessageEventConstants.EventTypes.PUSH_FAILED:
+            case MqMessageEventConstants.EventTypes.DIST_FAILED:
                 message.setCompleteTime(LocalDateTime.now());
                 break;
         }
@@ -236,7 +256,7 @@ public class UmpMsgMainServiceImpl extends ServiceImpl<UmpMsgMainMapper, UmpMsgM
         	return false;
         }
         
-        publishEventByStatus(message, status, oldStatus);
+        publishEventByStatus(message, oldStatus);
         
         log.info("消息状态更新成功，消息ID: {}, 旧状态: {}, 新状态: {}", 
                 msgId, oldStatus, status);
@@ -264,24 +284,6 @@ public class UmpMsgMainServiceImpl extends ServiceImpl<UmpMsgMainMapper, UmpMsgM
         }
 
         return updatedCount;
-    }
-
-    @Override
-    @Transactional(rollbackFor = Exception.class)
-    public boolean markAsSent(String msgId) {
-        return updateMessageStatus(msgId, "SENT");
-    }
-
-    @Override
-    @Transactional(rollbackFor = Exception.class)
-    public boolean markAsDistributed(String msgId) {
-        boolean success = updateMessageStatus(msgId, "DISTRIBUTED");
-        if (success) {
-        	UmpMsgMain message = this.getById(msgId);
-            // 触发消息分发事件
-        	publishMessageDistributed(message);
-        }
-        return success;
     }
 
     @Override
@@ -320,11 +322,11 @@ public class UmpMsgMainServiceImpl extends ServiceImpl<UmpMsgMainMapper, UmpMsgM
                 .map(UmpMsgMain::getId)
                 .collect(Collectors.toList());
 
-        int updatedCount = batchUpdateMessageStatus(expiredMsgIds, "EXPIRED");
+        // 过期没有单独的状态，使用 POLL_FAILED 状态代替
+        int updatedCount = batchUpdateMessageStatus(expiredMsgIds, MqMessageEventConstants.EventTypes.PULL_FAILED);
         log.info("已处理过期消息数量: {}", updatedCount);
         
         // 发布过期事件
-//        publishMessageExpiredEvent(expiredMessages);
         publishBatchMessageExpired(expiredMessages);
         
         return updatedCount;
@@ -378,12 +380,13 @@ public class UmpMsgMainServiceImpl extends ServiceImpl<UmpMsgMainMapper, UmpMsgM
     }
 
     @Override
-    public List<MessageDetailVO> getUnreadMessages(String receiverId, String receiverType, int limit) {
-        // 这里需要关联查询ump_msg_inbox表获取未读消息
-        // 简化实现，实际需要根据业务逻辑调整
+    public List<MessageDetailVO> getAllUnreadMessages(int limit) {
+    	
+    	// 直接读状态，前提是收件箱和广播信息筒状态改变时同步修改主表的状态
         LambdaQueryWrapper<UmpMsgMain> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(UmpMsgMain::getDelFlag, 0)
-                   .eq(UmpMsgMain::getStatus, "SENT")
+                   .ne(UmpMsgMain::getStatus, MqMessageEventConstants.EventTypes.READ)
+                   .in(UmpMsgMain::getStatus, MqMessageEventConstants.EventTypes.PUSHED, MqMessageEventConstants.EventTypes.BIZ_PULLED)
                    .orderByDesc(UmpMsgMain::getCreateTime)
                    .last("LIMIT " + limit);
         
@@ -391,6 +394,88 @@ public class UmpMsgMainServiceImpl extends ServiceImpl<UmpMsgMainMapper, UmpMsgM
         return messages.stream()
                 .map(this::convertToDetailVO)
                 .collect(Collectors.toList());
+    }
+    
+    @Override
+    public List<MessageDetailVO> getUnreadMessages(String receiverId, String receiverType, int limit) {
+        if (!StringUtils.hasText(receiverId) || !StringUtils.hasText(receiverType)) {
+            throw new IllegalArgumentException("接收者ID和接收者类型不能为空");
+        }
+
+        List<MessageDetailVO> result = new ArrayList<>();
+
+        // 1. 查询收件箱中未读的点对点消息
+        List<UmpMsgInbox> inboxList = umpMsgInboxService.lambdaQuery()
+                .eq(UmpMsgInbox::getReceiverId, receiverId)
+                .eq(UmpMsgInbox::getReceiverType, receiverType)
+                .eq(UmpMsgInbox::getReadStatus, 0) // 0-未读
+                .orderByDesc(UmpMsgInbox::getDistributeTime)
+                .last("LIMIT " + limit)
+                .list();
+
+        if (!CollectionUtils.isEmpty(inboxList)) {
+            List<String> msgIds = inboxList.stream()
+                    .map(UmpMsgInbox::getMsgId)
+                    .collect(Collectors.toList());
+
+            // 批量查询消息主表
+            List<UmpMsgMain> msgList = listByIds(msgIds);
+            Map<String, UmpMsgMain> msgMap = msgList.stream()
+                    .collect(Collectors.toMap(UmpMsgMain::getId, Function.identity()));
+
+            for (UmpMsgInbox inbox : inboxList) {
+                UmpMsgMain msg = msgMap.get(inbox.getMsgId());
+                if (msg != null) {
+                    MessageDetailVO vo = convertToDetailVO(msg);
+//                    vo.setInboxId(inbox.getId()); // 可附带收件箱ID
+//                    vo.setReadStatus(inbox.getReadStatus());
+                    result.add(vo);
+                }
+            }
+        }
+
+        // 2. 如果数量不足，再查询广播中未读的消息（简化示例）
+        if (result.size() < limit) {
+            int remaining = limit - result.size();
+            List<UmpBroadcastReceiveRecord> broadcastRecords = umpBroadcastReceiveRecordService.lambdaQuery()
+                    .eq(UmpBroadcastReceiveRecord::getReceiverId, receiverId)
+                    .eq(UmpBroadcastReceiveRecord::getReceiverType, receiverType)
+                    .eq(UmpBroadcastReceiveRecord::getReadStatus, 0)
+                    .orderByDesc(UmpBroadcastReceiveRecord::getCreateTime)
+                    .last("LIMIT " + remaining)
+                    .list();
+
+            if (!CollectionUtils.isEmpty(broadcastRecords)) {
+                List<String> broadcastIds = broadcastRecords.stream()
+                        .map(UmpBroadcastReceiveRecord::getBroadcastId)
+                        .collect(Collectors.toList());
+
+                List<UmpMsgBroadcast> broadcasts = umpMsgBroadcastService.listByIds(broadcastIds);
+                List<String> msgIds = broadcasts.stream()
+                        .map(UmpMsgBroadcast::getMsgId)
+                        .collect(Collectors.toList());
+
+                Map<String, UmpMsgMain> msgMap = listByIds(msgIds).stream()
+                        .collect(Collectors.toMap(UmpMsgMain::getId, Function.identity()));
+
+                for (UmpBroadcastReceiveRecord record : broadcastRecords) {
+                    UmpMsgBroadcast broadcast = broadcasts.stream()
+                            .filter(b -> b.getId().equals(record.getBroadcastId()))
+                            .findFirst().orElse(null);
+                    if (broadcast != null) {
+                        UmpMsgMain msg = msgMap.get(broadcast.getMsgId());
+                        if (msg != null) {
+                            MessageDetailVO vo = convertToDetailVO(msg);
+//                            vo.setBroadcastId(record.getBroadcastId());
+//                            vo.setReadStatus(record.getReadStatus());
+                            result.add(vo);
+                        }
+                    }
+                }
+            }
+        }
+
+        return result;
     }
 
     @Override
@@ -509,127 +594,63 @@ public class UmpMsgMainServiceImpl extends ServiceImpl<UmpMsgMainMapper, UmpMsgM
     /**
      * 根据消息新状态发布对应的事件
      */
-    private void publishEventByStatus(UmpMsgMain message, String newStatus, String oldStatus) {
-        switch (newStatus) {
-            case MqMessageEventConstants.EventTypes.DISTRIBUTED:
-                publishMessageDistributed(message);
-                break;
-            case MqMessageEventConstants.EventTypes.SENT:
-                publishMessageSent(message);
-                break;
-            case MqMessageEventConstants.EventTypes.READ:
-                // READ 事件通常由接收者回执触发，此处仅作示例
-                publishMessageRead(message);
-                break;
-            case MqMessageEventConstants.EventTypes.EXPIRED:
-                publishMessageExpired(message);
-                break;
-            case MqMessageEventConstants.EventTypes.FAILED:
-                publishMessageFailed(message, oldStatus);
-                break;
-            // 其他状态（RECEIVED 在创建时发布，DISTRIBUTING 等可不发布事件）
-            default:
-                log.debug("状态 {} 无需发布事件", newStatus);
-        }
-    }
-
-    // ==================== 消息创建/接收事件 ====================
-
-    /**
-     * 发布【消息已接收】事件（RECEIVED）
-     * 在消息成功保存后调用
-     */
-    public void publishMessageReceived(UmpMsgMain message) {
+    private void publishEventByStatus(UmpMsgMain message, String oldStatus) {
         executePublish(() -> {
-            Map<String, Object> eventData = buildBaseEventData(message);
-            rabbitMqService.sendMessageReceived(eventData, message.getMsgType());
+            Map<String, Object> eventData = buildBaseEventData(message, oldStatus);
+            switch (message.getStatus()) {
+		        case MqMessageEventConstants.EventTypes.RECEIVED:
+		        	// 将会进入ump_msg_queue表，队列类型：分发
+		        	mqMessageProducer.sendMessageDistributeStart(eventData, message.getMsgType());
+		            break;	
+		        case MqMessageEventConstants.EventTypes.DISTRIBUTING:
+		        	// 不发布事件到MQ，因为已经进入ump_msg_queue表，队列类型：分发
+		        	//mqMessageProducer.sendMessageDistributing(eventData, message.getMsgType());
+		            break;	
+		        case MqMessageEventConstants.EventTypes.DISTRIBUTED:
+		        	// 将会进入ump_msg_queue表，队列类型：推送
+		        	mqMessageProducer.sendMessageDistributed(eventData, message.getMsgType());
+	                break;
+	            case MqMessageEventConstants.EventTypes.DIST_FAILED:
+	            	// 将会进入ump_msg_queue表，队列类型：重试
+	            	mqMessageProducer.sendMessageDistributeFailed(eventData, message.getMsgType());
+	                break;
+	            case MqMessageEventConstants.EventTypes.PUSHED:
+	            	// 不会发布事件，不会进入ump_msg_queue表
+	            	//mqMessageProducer.sendMessagePushed(eventData, message.getMsgType());
+	                break;
+	            case MqMessageEventConstants.EventTypes.PUSH_FAILED:
+	            	// 将会进入ump_msg_queue表，队列类型：重试
+	            	mqMessageProducer.sendMessagePushFailed(eventData, message.getMsgType());
+	                break;
+	            case MqMessageEventConstants.EventTypes.BIZ_RECEIVED:
+	            	//业务系统上报接收成功（暂定调用回调地址成功就表示业务已接收）（不直接更改状态，而是发布到MQ，进入ump_msg_queue表进行专门处理）
+	            	mqMessageProducer.sendMessageBusinessReceived(eventData, message.getMsgType());
+	                break;
+	            case MqMessageEventConstants.EventTypes.PULL:
+	            	//mqMessageProducer.sendMessagePullReady(eventData, message.getMsgType());
+	                break;
+	            case MqMessageEventConstants.EventTypes.BIZ_PULLED:
+	            	//业务系统上报拉取成功（暂定查询成功就表示业务已拉取）（不直接更改状态，而是发布到MQ，进入ump_msg_queue表进行专门处理）
+	            	mqMessageProducer.sendMessageBusinessPulled(eventData, message.getMsgType());
+	                break;
+	            case MqMessageEventConstants.EventTypes.PULL_FAILED:
+	            	//mqMessageProducer.sendMessagePullFailed(eventData, message.getMsgType());
+	                break;
+	            case MqMessageEventConstants.EventTypes.READ:
+	            	//业务系统上报已读（不直接更改状态，而是发布到MQ，进入ump_msg_queue表进行专门处理）
+	            	mqMessageProducer.sendMessageRead(eventData, message.getMsgType());
+	                break;
+	            case MqMessageEventConstants.EventTypes.EXPIRED:
+	            	// 发布到MQ，进入ump_msg_queue表进行专门处理
+	            	mqMessageProducer.sendMessageExpired(eventData, message.getMsgType());
+	                break;
+	            default:
+	                log.debug("状态 {} 无需发布事件", message.getStatus());
+	        }
+            
             log.debug("消息已接收事件发布成功，消息ID: {}", message.getId());
         }, "消息已接收事件发布失败，消息ID: {}", message.getId());
-    }
 
-    // ==================== 消息分发事件 ====================
-
-    /**
-     * 发布【消息已分发】事件（DISTRIBUTED）
-     */
-    public void publishMessageDistributed(UmpMsgMain message) {
-        executePublish(() -> {
-            Map<String, Object> eventData = buildBaseEventData(message);
-            eventData.put("distributeTime", message.getDistributeTime());
-            eventData.put("receiverCount", message.getReceiverCount());
-            rabbitMqService.sendMessageDistributed(eventData, message.getMsgType());
-            log.debug("消息已分发事件发布成功，消息ID: {}", message.getId());
-        }, "消息已分发事件发布失败，消息ID: {}", message.getId());
-    }
-
-    // ==================== 消息已发送事件 ====================
-
-    /**
-     * 发布【消息已发送】事件（SENT）
-     */
-    public void publishMessageSent(UmpMsgMain message) {
-        executePublish(() -> {
-            Map<String, Object> eventData = buildBaseEventData(message);
-            eventData.put("sendTime", message.getSendTime());
-            rabbitMqService.sendMessageSent(eventData, message.getMsgType());
-            log.debug("消息已发送事件发布成功，消息ID: {}", message.getId());
-        }, "消息已发送事件发布失败，消息ID: {}", message.getId());
-    }
-
-    // ==================== 消息已读事件 ====================
-
-    /**
-     * 发布【消息已读】事件（READ）
-     * 通常由收件箱状态更新触发
-     */
-    public void publishMessageRead(UmpMsgMain message) {
-        executePublish(() -> {
-            Map<String, Object> eventData = buildBaseEventData(message);
-            // 已读事件需要接收者信息，此处从外部传入，简化示例
-            rabbitMqService.sendMessageRead(eventData, message.getMsgType());
-            log.debug("消息已读事件发布成功，消息ID: {}", message.getId());
-        }, "消息已读事件发布失败，消息ID: {}", message.getId());
-    }
-
-    // ==================== 消息过期事件 ====================
-
-    /**
-     * 发布【消息已过期】事件（EXPIRED）
-     */
-    public void publishMessageExpired(UmpMsgMain message) {
-        executePublish(() -> {
-            Map<String, Object> eventData = buildBaseEventData(message);
-            eventData.put("expireTime", message.getExpireTime());
-            rabbitMqService.sendMessageExpired(eventData, message.getMsgType());
-            log.debug("消息已过期事件发布成功，消息ID: {}", message.getId());
-        }, "消息已过期事件发布失败，消息ID: {}", message.getId());
-    }
-
-    /**
-     * 批量发布消息过期事件（用于定时清理）
-     */
-    public void publishBatchMessageExpired(List<UmpMsgMain> expiredMessages) {
-        if (CollectionUtils.isEmpty(expiredMessages)) {
-            return;
-        }
-        // 批量发送单个事件，或压缩为一个批量事件（需消费者支持）
-        expiredMessages.forEach(this::publishMessageExpired);
-        log.debug("批量消息过期事件发布完成，数量: {}", expiredMessages.size());
-    }
-
-    // ==================== 消息失败事件 ====================
-
-    /**
-     * 发布【消息失败】事件（FAILED）
-     */
-    public void publishMessageFailed(UmpMsgMain message, String oldStatus) {
-        executePublish(() -> {
-            Map<String, Object> eventData = buildBaseEventData(message);
-            eventData.put("oldStatus", oldStatus);
-            eventData.put("failedTime", LocalDateTime.now());
-            rabbitMqService.sendMessageFailed(eventData, message.getMsgType());
-            log.debug("消息失败事件发布成功，消息ID: {}", message.getId());
-        }, "消息失败事件发布失败，消息ID: {}", message.getId());
     }
 
     // ==================== 辅助方法 ====================
@@ -637,24 +658,23 @@ public class UmpMsgMainServiceImpl extends ServiceImpl<UmpMsgMainMapper, UmpMsgM
     /**
      * 构建消息基础事件数据（所有事件共有的字段）
      */
-    private Map<String, Object> buildBaseEventData(UmpMsgMain message) {
+    private Map<String, Object> buildBaseEventData(UmpMsgMain message, String oldStatus) {
         Map<String, Object> data = new HashMap<>();
-        data.put("messageId", message.getId());
-        data.put("msgCode", message.getMsgCode());
-        data.put("title", message.getTitle());
-        data.put("msgType", message.getMsgType());
-        data.put("priority", message.getPriority());
-        data.put("senderAppKey", message.getSenderAppKey());
-        data.put("senderId", message.getSenderId());
-        data.put("senderName", message.getSenderName());
-        data.put("senderOrgCode", message.getSenderOrgCode());
-        data.put("senderOrgName", message.getSenderOrgName());
-        data.put("receiverType", message.getReceiverType());
-        data.put("pushMode", message.getPushMode());
-        data.put("createTime", message.getCreateTime());
-        // 代理消息字段
-        data.put("agentAppKey", message.getAgentAppKey());
-        data.put("agentMsgId", message.getAgentMsgId());
+        data.put(MqMessageEventConstants.TaskDataKeys.MESSAGE_ID, message.getId());
+        data.put(MqMessageEventConstants.TaskDataKeys.MSG_CODE, message.getMsgCode());
+        data.put(MqMessageEventConstants.TaskDataKeys.TITLE, message.getTitle());
+        data.put(MqMessageEventConstants.TaskDataKeys.RECEIVER_TYPE, message.getReceiverType());
+        data.put(MqMessageEventConstants.TaskDataKeys.RECEIVER_SCOPE, message.getReceiverScope());
+        data.put(MqMessageEventConstants.TaskDataKeys.PUSH_MODE, message.getPushMode());
+        data.put(MqMessageEventConstants.TaskDataKeys.CALLBACK_URL, message.getCallbackUrl());
+        data.put(MqMessageEventConstants.TaskDataKeys.CALLBACK_CONFIG, message.getCallbackConfig());
+        data.put(MqMessageEventConstants.TaskDataKeys.PRIORITY, message.getPriority());
+        data.put(MqMessageEventConstants.TaskDataKeys.EXPIRE_TIME, message.getExpireTime());
+        data.put(MqMessageEventConstants.TaskDataKeys.SEND_TIME, message.getSendTime());
+        data.put(MqMessageEventConstants.TaskDataKeys.CREATE_TIME, message.getCreateTime());
+        data.put(MqMessageEventConstants.TaskDataKeys.STATUS, message.getStatus());
+        data.put(MqMessageEventConstants.TaskDataKeys.OLD_STATUS, oldStatus);
+
         return data;
     }
 
@@ -668,5 +688,27 @@ public class UmpMsgMainServiceImpl extends ServiceImpl<UmpMsgMainMapper, UmpMsgM
             log.error(errorMsg, args, e);
             // 不抛出异常，不影响主流程
         }
+    }
+    
+    // ==================== 消息过期事件 ====================
+
+    /**
+     * 发布【消息已过期】事件（EXPIRED）
+     */
+    private void publishMessageExpired(UmpMsgMain message) {
+    	// 注意没有过期状态，但是有过期事件
+    	publishEventByStatus(message, MqMessageEventConstants.EventTypes.EXPIRED);
+    }
+
+    /**
+     * 批量发布消息过期事件（用于定时清理）
+     */
+    private void publishBatchMessageExpired(List<UmpMsgMain> expiredMessages) {
+        if (CollectionUtils.isEmpty(expiredMessages)) {
+            return;
+        }
+        // 批量发送单个事件，或压缩为一个批量事件（需消费者支持）
+        expiredMessages.forEach(this::publishMessageExpired);
+        log.debug("批量消息过期事件发布完成，数量: {}", expiredMessages.size());
     }
 }

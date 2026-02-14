@@ -30,7 +30,7 @@ public class UmpMsgQueue implements Serializable {
     @TableId(value = "id", type = IdType.ASSIGN_UUID)
     private String id;
 
-    @Schema(description = "队列类型:SEND-发送 DISTRIBUTE-分发 CALLBACK-回调 RETRY-重试")
+    @Schema(description = "队列类型:DISTRIBUTE-分发 PUSH-推送 RETRY-重试")
     @TableField("queue_type")
     private String queueType;
 

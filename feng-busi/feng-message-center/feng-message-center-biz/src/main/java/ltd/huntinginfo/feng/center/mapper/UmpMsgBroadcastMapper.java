@@ -98,4 +98,43 @@ public interface UmpMsgBroadcastMapper extends BaseMapper<UmpMsgBroadcast> {
      * @return 待分发的广播记录列表
      */
     List<UmpMsgBroadcast> selectPendingDistribute(@Param("limit") int limit);
+
+    /**
+     * 已读数量加1
+     * @param broadcastId
+     */
+	void incrementReadCount(String broadcastId);
+
+    /**
+     * 更新已接收数量
+     *
+     * @param broadcastId 广播ID
+     * @param receivedCount 已接收数量
+     * @param status 状态
+     * @param updateTime 更新时间
+     * @return 更新条数
+     */
+	int updateReceivedCount(String broadcastId, Integer receivedCount, String status, LocalDateTime now);
+
+    /**
+     * 更新已读数量
+     *
+     * @param broadcastId 广播ID
+     * @param readCount 已读数量
+     * @param status 状态
+     * @param updateTime 更新时间
+     * @return 更新条数
+     */
+	int updateReadCount(String broadcastId, Integer readCount, String status, LocalDateTime now);
+
+    /**
+     * 更新已分发数量
+     *
+     * @param broadcastId 广播ID
+     * @param distributedCount 已分发数量
+     * @param status 状态
+     * @param updateTime 更新时间
+     * @return 更新条数
+     */
+	int updateDistributedCount(String broadcastId, Integer distributedCount, String status, LocalDateTime now);
 }

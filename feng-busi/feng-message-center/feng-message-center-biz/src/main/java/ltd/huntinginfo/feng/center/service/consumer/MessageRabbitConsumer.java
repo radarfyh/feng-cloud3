@@ -34,7 +34,7 @@ public class MessageRabbitConsumer implements MqMessageConsumer {
 
     @Override
     @RabbitListener(queues = MqMessageEventConstants.Queues.MESSAGE_RECEIVED)
-    public void handleMessageReceived(MqMessage<Map<String, Object>> message) {
+    public void handleMessageDistributeStart(MqMessage<Map<String, Object>> message) {
         String messageId = extractMessageId(message);
         log.info("RabbitMQ 接收到消息已接收事件，消息ID: {}, 重试次数: {}", messageId, message.getRetryCount());
         messageDistributionProcessor.handleMessageReceived(messageId, message.getPayload());
@@ -58,7 +58,7 @@ public class MessageRabbitConsumer implements MqMessageConsumer {
 
     @Override
     @RabbitListener(queues = MqMessageEventConstants.Queues.MESSAGE_DIST_FAILED)
-    public void handleMessageDistFailed(MqMessage<Map<String, Object>> message) {
+    public void handleMessageDistributeFailed(MqMessage<Map<String, Object>> message) {
         String messageId = extractMessageId(message);
         log.info("RabbitMQ 接收到消息分发失败事件，消息ID: {}", messageId);
         messageDistributionProcessor.handleMessageDistFailed(messageId, message.getPayload());
@@ -82,15 +82,15 @@ public class MessageRabbitConsumer implements MqMessageConsumer {
     
     @Override
     @RabbitListener(queues = MqMessageEventConstants.Queues.MESSAGE_BIZ_RECEIVED)
-    public void handleMessageBizReceived(MqMessage<Map<String, Object>> message) {
+    public void handleMessageBusinessReceived(MqMessage<Map<String, Object>> message) {
         String messageId = extractMessageId(message);
         log.info("RabbitMQ 接收到消息业务已接收事件，消息ID: {}", messageId);
         messageDistributionProcessor.handleMessageBizReceived(messageId, message.getPayload());
     }
     
     @Override
-    @RabbitListener(queues = MqMessageEventConstants.Queues.MESSAGE_POLL)
-    public void handleMessagePoll(MqMessage<Map<String, Object>> message) {
+    @RabbitListener(queues = MqMessageEventConstants.Queues.MESSAGE_PULL)
+    public void handleMessagePullReady(MqMessage<Map<String, Object>> message) {
         String messageId = extractMessageId(message);
         log.info("RabbitMQ 接收到消息待拉取事件，消息ID: {}", messageId);
         messageDistributionProcessor.handleMessagePoll(messageId, message.getPayload());
@@ -98,15 +98,15 @@ public class MessageRabbitConsumer implements MqMessageConsumer {
     
     @Override
     @RabbitListener(queues = MqMessageEventConstants.Queues.MESSAGE_BIZ_PULLED)
-    public void handleMessageBizPolled(MqMessage<Map<String, Object>> message) {
+    public void handleMessageBusinessPulled(MqMessage<Map<String, Object>> message) {
         String messageId = extractMessageId(message);
         log.info("RabbitMQ 接收到消息业务已拉取事件，消息ID: {}", messageId);
         messageDistributionProcessor.handleMessageBizPolled(messageId, message.getPayload());
     }
     
     @Override
-    @RabbitListener(queues = MqMessageEventConstants.Queues.MESSAGE_POLL_FAILED)
-    public void handleMessagePollFailed(MqMessage<Map<String, Object>> message) {
+    @RabbitListener(queues = MqMessageEventConstants.Queues.MESSAGE_PULL_FAILED)
+    public void handleMessagePullFailed(MqMessage<Map<String, Object>> message) {
         String messageId = extractMessageId(message);
         log.info("RabbitMQ 接收到消息拉取失败事件，消息ID: {}", messageId);
         messageDistributionProcessor.handleMessagePollFailed(messageId, message.getPayload());
@@ -130,47 +130,47 @@ public class MessageRabbitConsumer implements MqMessageConsumer {
 
     // ==================== 异步任务监听 ====================
 
-    /**
-     * 监听分发任务（DISTRIBUTE）
-     */
-    @RabbitListener(queues = MqMessageEventConstants.Queues.MESSAGE_DISTRIBUTE_TASK)
-    public void handleDistributeTask(MqMessage<Map<String, Object>> message) {
-        log.info("RabbitMQ 接收到分发任务");
-        messageDistributionProcessor.processDistributeTask(message.getPayload());
-    }
-
-    /**
-     * 监听推送任务（PUSH）
-     */
-    @RabbitListener(queues = MqMessageEventConstants.Queues.MESSAGE_PUSH_TASK)
-    public void handlePushTask(MqMessage<Map<String, Object>> message) {
-        log.info("RabbitMQ 接收到推送任务");
-        messageDistributionProcessor.processPushTask(message.getPayload());
-    }
-
-    /**
-     * 监听重试任务（RETRY）
-     */
-    @RabbitListener(queues = MqMessageEventConstants.Queues.MESSAGE_RETRY_TASK)
-    public void handleRetryTask(MqMessage<Map<String, Object>> message) {
-        log.info("RabbitMQ 接收到重试任务");
-        messageDistributionProcessor.processRetryTask(message.getPayload());
-    }
+//    /**
+//     * 监听分发任务（DISTRIBUTE）
+//     */
+//    @RabbitListener(queues = MqMessageEventConstants.Queues.MESSAGE_DISTRIBUTE_TASK)
+//    public void handleDistributeTask(MqMessage<Map<String, Object>> message) {
+//        log.info("RabbitMQ 接收到分发任务");
+//        messageDistributionProcessor.processDistributeTask(message.getPayload());
+//    }
+//
+//    /**
+//     * 监听推送任务（PUSH）
+//     */
+//    @RabbitListener(queues = MqMessageEventConstants.Queues.MESSAGE_PUSH_TASK)
+//    public void handlePushTask(MqMessage<Map<String, Object>> message) {
+//        log.info("RabbitMQ 接收到推送任务");
+//        messageDistributionProcessor.processPushTask(message.getPayload());
+//    }
+//
+//    /**
+//     * 监听重试任务（RETRY）
+//     */
+//    @RabbitListener(queues = MqMessageEventConstants.Queues.MESSAGE_RETRY_TASK)
+//    public void handleRetryTask(MqMessage<Map<String, Object>> message) {
+//        log.info("RabbitMQ 接收到重试任务");
+//        messageDistributionProcessor.processRetryTask(message.getPayload());
+//    }
 
     // ==================== 延迟队列监听 ====================
-    @Override
-    @RabbitListener(queues = MqMessageEventConstants.Queues.DELAYED_SEND)
-    public void handleDelayedSendTask(MqMessage<Map<String, Object>> MqMessage) {
-        log.info("RabbitMQ 接收到延迟发送任务，重试次数: {}", MqMessage.getRetryCount());
-        messageDistributionProcessor.processDelayedSend(MqMessage.getPayload());
-    }
-
-    @Override
-    @RabbitListener(queues = MqMessageEventConstants.Queues.DELAYED_EXPIRE)
-    public void handleDelayedExpireTask(MqMessage<Map<String, Object>> MqMessage) {
-        log.info("RabbitMQ 接收到延迟过期处理任务，重试次数: {}", MqMessage.getRetryCount());
-        messageDistributionProcessor.processDelayedExpire(MqMessage.getPayload());
-    }
+//    @Override
+//    @RabbitListener(queues = MqMessageEventConstants.Queues.MESSAGE_DELAYED_SEND)
+//    public void handleDelayedSendTask(MqMessage<Map<String, Object>> MqMessage) {
+//        log.info("RabbitMQ 接收到延迟发送任务，重试次数: {}", MqMessage.getRetryCount());
+//        messageDistributionProcessor.processDelayedSend(MqMessage.getPayload());
+//    }
+//
+//    @Override
+//    @RabbitListener(queues = MqMessageEventConstants.Queues.MESSAGE_DELAYED_EXPIRE)
+//    public void handleDelayedExpireTask(MqMessage<Map<String, Object>> MqMessage) {
+//        log.info("RabbitMQ 接收到延迟过期处理任务，重试次数: {}", MqMessage.getRetryCount());
+//        messageDistributionProcessor.processDelayedExpire(MqMessage.getPayload());
+//    }
 
     // ==================== 私有辅助方法 ====================
 

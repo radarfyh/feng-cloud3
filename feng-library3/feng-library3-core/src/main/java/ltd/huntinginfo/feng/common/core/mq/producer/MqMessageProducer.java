@@ -1,5 +1,6 @@
 package ltd.huntinginfo.feng.common.core.mq.producer;
 
+import ltd.huntinginfo.feng.common.core.mq.MqMessageEventConstants;
 import ltd.huntinginfo.feng.common.core.mq.dto.MqMessage;
 
 /**
@@ -35,89 +36,237 @@ public interface MqMessageProducer {
      */
     <T> void sendDelayed(String exchange, String routingKey, MqMessage<T> message, long delayMillis);
 
-	/**
-	 * 发送【消息已接收】(分发开始)事件（对应状态：RECEIVED）
-	 */
-	<T> void sendMessageDistributeStart(T payload, String eventType);
-	
-	/**
-	 * 发送【消息分发中】事件（对应状态：DISTRIBUTING）
-	 */
-	<T> void sendMessageDistributing(T payload, String eventType);
+    /**
+     * 发送【消息已接收】事件（对应状态：RECEIVED）
+     */
+    default <T> void sendMessageDistributeStart(T payload, String eventType) {
+        MqMessage<T> message = MqMessage.create(
+                MqMessageEventConstants.EventTypes.RECEIVED,
+                eventType,
+                payload
+        );
+        send(MqMessageEventConstants.Exchanges.MESSAGE,
+                MqMessageEventConstants.RoutingKeys.ROUTING_KEY_RECEIVED,
+                message);
+    }
 
-	/**
-	 * 发送【消息已分发】事件（对应状态：DISTRIBUTED）
-	 */
-	<T> void sendMessageDistributed(T payload, String eventType);
+    /**
+     * 发送【消息分发中】事件（对应状态：DISTRIBUTING）
+     */
+    default <T> void sendMessageDistributing(T payload, String eventType) {
+        MqMessage<T> message = MqMessage.create(
+                MqMessageEventConstants.EventTypes.DISTRIBUTING,
+                eventType,
+                payload
+        );
+        send(MqMessageEventConstants.Exchanges.MESSAGE,
+                MqMessageEventConstants.RoutingKeys.ROUTING_KEY_DISTRIBUTING,
+                message);
+    }
 
-	/**
-	 * 发送【消息分发失败】事件（对应状态：DIST_FAILED）
-	 */
-	<T> void sendMessageDistFailed(T payload, String eventType);
-	
-	/**
-	 * 发送【消息已推送】事件（对应状态：PUSHED）
-	 */
-	<T> void sendMessagePushed(T payload, String eventType);
-	
-	/**
-	 * 发送【消息推送失败】事件（对应状态：PUSH_FAILED）
-	 */
-	<T> void sendMessagePushFailed(T payload, String eventType);
-	
-	/**
-	 * 发送【消息业务已接收】事件（对应状态：BIZ_RECEIVED）
-	 */
-	<T> void sendMessageBusinessReceived(T payload, String eventType);
-	
-	/**
-	 * 发送【消息业务待拉取】（拉取准备好）事件（对应状态：PULL）
-	 */
-	<T> void sendMessagePullReady(T payload, String eventType);
-	
-	/**
-	 * 发送【消息业务已拉取】事件（对应状态：BIZ_PULLED）
-	 */
-	<T> void sendMessageBusinessPulled(T payload, String eventType);
-	
-	/**
-	 * 发送【消息业务已拉取】事件（对应状态：PULL_FAILED）
-	 */
-	<T> void sendMessagePullFailed(T payload, String eventType);
+    /**
+     * 发送【消息已分发】事件（对应状态：DISTRIBUTED）
+     */
+    default <T> void sendMessageDistributed(T payload, String eventType) {
+        MqMessage<T> message = MqMessage.create(
+                MqMessageEventConstants.EventTypes.DISTRIBUTED,
+                eventType,
+                payload
+        );
+        send(MqMessageEventConstants.Exchanges.MESSAGE,
+                MqMessageEventConstants.RoutingKeys.ROUTING_KEY_DISTRIBUTED,
+                message);
+    }
+    
+    /**
+     * 发送【消息分发失败】事件（对应状态：DIST_FAILED）
+     */
+    default <T> void sendMessageDistributeFailed(T payload, String eventType) {
+        MqMessage<T> message = MqMessage.create(
+                MqMessageEventConstants.EventTypes.DIST_FAILED,
+                eventType,
+                payload
+        );
+        send(MqMessageEventConstants.Exchanges.MESSAGE,
+                MqMessageEventConstants.RoutingKeys.ROUTING_KEY_DIST_FAILED,
+                message);
+    }
+    
+    /**
+     * 发送【消息已推送】事件（对应状态：PUSHED）
+     */
+    default <T> void sendMessagePushed(T payload, String eventType) {
+        MqMessage<T> message = MqMessage.create(
+                MqMessageEventConstants.EventTypes.PUSHED,
+                eventType,
+                payload
+        );
+        send(MqMessageEventConstants.Exchanges.MESSAGE,
+                MqMessageEventConstants.RoutingKeys.ROUTING_KEY_PUSHED,
+                message);
+    }
+    
+    /**
+     * 发送【消息推送失败】事件（对应状态：PUSH_FAILED）
+     */
+    default <T> void sendMessagePushFailed(T payload, String eventType) {
+        MqMessage<T> message = MqMessage.create(
+                MqMessageEventConstants.EventTypes.PUSH_FAILED,
+                eventType,
+                payload
+        );
+        send(MqMessageEventConstants.Exchanges.MESSAGE,
+                MqMessageEventConstants.RoutingKeys.ROUTING_KEY_PUSH_FAILED,
+                message);
+    }
 
-	/**
-	 * 发送【消息已读】事件（对应状态：READ）
-	 */
-	<T> void sendMessageRead(T payload, String eventType);
-	
-	/**
-	 * 发送【消息已过期】事件（对应状态：EXPIRED）
-	 */
-	<T> void sendMessageExpired(T payload, String businessType);
+    /**
+     * 发送【消息业务已接收】事件（对应状态：BIZ_RECEIVED）
+     */
+    default <T> void sendMessageBusinessReceived(T payload, String eventType) {
+        MqMessage<T> message = MqMessage.create(
+                MqMessageEventConstants.EventTypes.BIZ_RECEIVED,
+                eventType,
+                payload
+        );
+        send(MqMessageEventConstants.Exchanges.MESSAGE,
+                MqMessageEventConstants.RoutingKeys.ROUTING_KEY_BIZ_RECEIVED,
+                message);
+    }
+    
+    /**
+     * 发送【消息业务待拉取】事件（对应状态：PULL）
+     */
+    default <T> void sendMessagePullReady(T payload, String eventType) {
+        MqMessage<T> message = MqMessage.create(
+                MqMessageEventConstants.EventTypes.PULL,
+                eventType,
+                payload
+        );
+        send(MqMessageEventConstants.Exchanges.MESSAGE,
+                MqMessageEventConstants.RoutingKeys.ROUTING_KEY_PULL,
+                message);
+    }
+    
+    /**
+     * 发送【消息业务已拉取】事件（对应状态：BIZ_PULLED）
+     */
+    default <T> void sendMessageBusinessPulled(T payload, String eventType) {
+        MqMessage<T> message = MqMessage.create(
+                MqMessageEventConstants.EventTypes.BIZ_PULLED,
+                eventType,
+                payload
+        );
+        send(MqMessageEventConstants.Exchanges.MESSAGE,
+                MqMessageEventConstants.RoutingKeys.ROUTING_KEY_BIZ_PULLED,
+                message);
+    }
+    
+    /**
+     * 发送【消息业务拉取失败】事件（对应状态：PULL_FAILED）
+     */
+    default <T> void sendMessagePullFailed(T payload, String eventType) {
+        MqMessage<T> message = MqMessage.create(
+                MqMessageEventConstants.EventTypes.PULL_FAILED,
+                eventType,
+                payload
+        );
+        send(MqMessageEventConstants.Exchanges.MESSAGE,
+                MqMessageEventConstants.RoutingKeys.ROUTING_KEY_PULL_FAILED,
+                message);
+    }
 
-//	/**
-//	 * 异步发送“分发任务”
-//	 */
-//	<T> void sendDistributeTask(T payload);
+    /**
+     * 发送【消息已读】事件（对应状态：READ）
+     */
+    default <T> void sendMessageRead(T payload, String eventType) {
+        MqMessage<T> message = MqMessage.create(
+                MqMessageEventConstants.EventTypes.READ,
+                eventType,
+                payload
+        );
+        send(MqMessageEventConstants.Exchanges.MESSAGE,
+                MqMessageEventConstants.RoutingKeys.ROUTING_KEY_READ,
+                message);
+    }
+
+    /**
+     * 发送【消息已过期】事件（对应状态：EXPIRED）
+     */
+    default <T> void sendMessageExpired(T payload, String eventType) {
+        MqMessage<T> message = MqMessage.create(
+                MqMessageEventConstants.EventTypes.EXPIRED,
+                eventType,
+                payload
+        );
+        send(MqMessageEventConstants.Exchanges.MESSAGE,
+                MqMessageEventConstants.RoutingKeys.ROUTING_KEY_EXPIRED,
+                message);
+    }
+
+    // ---------- 异步任务发送方法 ----------
+    
+//    /**
+//     * 异步发送“发送任务”
+//     */
+//    default <T> void sendPushTask(T payload) {
+//        MqMessage<T> message = MqMessage.create("SEND_TASK", payload);
+//        send(MqMessageEventConstants.Exchanges.MESSAGE,
+//                MqMessageEventConstants.RoutingKeys.TASK_SEND,
+//                message);
+//    }
 //
-//	/**
-//	 * 异步发送“推送任务”
-//	 */
-//	<T> void sendPushTask(T payload);
+//    /**
+//     * 异步发送“回调任务”
+//     */
+//    default <T> void sendCallbackTask(T payload) {
+//        MqMessage<T> message = MqMessage.create("CALLBACK_TASK", payload);
+//        send(MqMessageEventConstants.Exchanges.MESSAGE,
+//                MqMessageEventConstants.RoutingKeys.TASK_CALLBACK,
+//                message);
+//    }
 //
-//	/**
-//	 * 异步发送“重试任务”
-//	 */
-//	<T> void sendRetryTask(T payload);
+//    /**
+//     * 异步发送“重试任务”
+//     */
+//    default <T> void sendRetryTask(T payload) {
+//        MqMessage<T> message = MqMessage.create("RETRY_TASK", payload);
+//        send(MqMessageEventConstants.Exchanges.MESSAGE,
+//                MqMessageEventConstants.RoutingKeys.TASK_RETRY,
+//                message);
+//    }
 //
-//	/**
-//	 * 发送延迟的【消息发送】任务
-//	 */
-//	<T> void sendDelayedSendTask(T payload, long delayMillis);
+//    /**
+//     * 异步发送“广播分发任务”
+//     */
+//    default <T> void sendBroadcastDispatchTask(T payload) {
+//        MqMessage<T> message = MqMessage.create("BROADCAST_DISPATCH_TASK", payload);
+//        send(MqMessageEventConstants.Exchanges.MESSAGE,
+//                MqMessageEventConstants.RoutingKeys.TASK_BROADCAST_DISPATCH,
+//                message);
+//    }
 //
-//	/**
-//	 * 发送延迟的【消息过期】处理任务
-//	 */
-//	<T> void sendDelayedExpireTask(T payload, long delayMillis);
+//    // ---------- 延迟消息业务方法 ----------
+//    /**
+//     * 发送延迟的【消息发送】任务
+//     */
+//    default <T> void sendDelayedSendTask(T payload, long delayMillis) {
+//        MqMessage<T> message = MqMessage.create("DELAYED_SEND_TASK", payload);
+//        sendDelayed(MqMessageEventConstants.Exchanges.MESSAGE,
+//                MqMessageEventConstants.RoutingKeys.DELAYED_SEND,
+//                message,
+//                delayMillis);
+//    }
+//
+//    /**
+//     * 发送延迟的【消息过期】处理任务
+//     */
+//    default <T> void sendDelayedExpireTask(T payload, long delayMillis) {
+//        MqMessage<T> message = MqMessage.create("DELAYED_EXPIRE_TASK", payload);
+//        sendDelayed(MqMessageEventConstants.Exchanges.MESSAGE,
+//                MqMessageEventConstants.RoutingKeys.DELAYED_EXPIRE,
+//                message,
+//                delayMillis);
+//    }
 
 }

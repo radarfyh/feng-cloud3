@@ -43,16 +43,16 @@ public class MessageStateMachine {
 
     /** DISTRIBUTED → PUSHED（发起推送请求） */
     @Transactional
-    public void onPushSent(String msgId) {
+    public void onPushed(String msgId) {
         msgMainService.updateMessageStatus(msgId, MqMessageEventConstants.EventTypes.PUSHED);
         log.debug("状态变更: 消息ID={} → PUSHED", msgId);
     }
 
-    /** DISTRIBUTED → POLL（转为待拉取） */
+    /** DISTRIBUTED → PULL（转为待拉取） */
     @Transactional
-    public void onPollReady(String msgId) {
-        msgMainService.updateMessageStatus(msgId, MqMessageEventConstants.EventTypes.POLL);
-        log.debug("状态变更: 消息ID={} → POLL", msgId);
+    public void onPullReady(String msgId) {
+        msgMainService.updateMessageStatus(msgId, MqMessageEventConstants.EventTypes.PULL);
+        log.debug("状态变更: 消息ID={} → PULL", msgId);
     }
 
     /** PUSHED → BIZ_RECEIVED（业务系统确认接收） */
@@ -66,7 +66,7 @@ public class MessageStateMachine {
         log.info("状态变更: 消息ID={} → BIZ_RECEIVED", msgId);
     }
 
-    /** POLL → BIZ_PULLED（业务系统拉取成功） */
+    /** PULL → BIZ_PULLED（业务系统拉取成功） */
     @Transactional
     public void onBusinessPulled(String msgId) {
         msgMainService.updateMessageStatus(msgId, MqMessageEventConstants.EventTypes.BIZ_PULLED);
@@ -112,15 +112,15 @@ public class MessageStateMachine {
         log.warn("状态变更: 消息ID={} → PUSH_FAILED（推送失败超限）", msgId);
     }
 
-    /** 拉取超时/过期 → POLL_FAILED */
+    /** 拉取超时/过期 → PULL_FAILED */
     @Transactional
-    public void onPollFailed(String msgId) {
-        msgMainService.updateMessageStatus(msgId, MqMessageEventConstants.EventTypes.POLL_FAILED);
+    public void onPullFailed(String msgId) {
+        msgMainService.updateMessageStatus(msgId, MqMessageEventConstants.EventTypes.PULL_FAILED);
         msgMainService.lambdaUpdate()
                 .eq(UmpMsgMain::getId, msgId)
                 .set(UmpMsgMain::getCompleteTime, LocalDateTime.now())
                 .update();
-        log.warn("状态变更: 消息ID={} → POLL_FAILED（拉取超时）", msgId);
+        log.warn("状态变更: 消息ID={} → PULL_FAILED（拉取超时）", msgId);
     }
 
     // ========== 重试回退（未超限） ==========

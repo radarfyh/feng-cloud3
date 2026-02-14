@@ -154,6 +154,72 @@ public class UmpMsgBroadcastServiceImpl extends ServiceImpl<UmpMsgBroadcastMappe
         
         return success;
     }
+    
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public boolean updateDistributedCount(String broadcastId, Integer distributedCount) {
+        UmpMsgBroadcast broadcast = getById(broadcastId);
+        if (broadcast == null) {
+            log.warn("广播记录不存在，ID: {}", broadcastId);
+            return false;
+        }
+
+        int updated = umpMsgBroadcastMapper.updateDistributedCount(
+                broadcastId, distributedCount, 
+                calculateStatus(broadcast), LocalDateTime.now());
+        
+        boolean success = updated > 0;
+        if (success) {
+            log.info("广播统计信息更新成功，广播ID: {}, 分发: {}", 
+                    broadcastId, distributedCount);
+        }
+        
+        return success;
+    }
+    
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public boolean updateReceivedCount(String broadcastId, Integer receivedCount) {
+        UmpMsgBroadcast broadcast = getById(broadcastId);
+        if (broadcast == null) {
+            log.warn("广播记录不存在，ID: {}", broadcastId);
+            return false;
+        }
+
+        int updated = umpMsgBroadcastMapper.updateReceivedCount(
+                broadcastId, receivedCount, 
+                calculateStatus(broadcast), LocalDateTime.now());
+        
+        boolean success = updated > 0;
+        if (success) {
+            log.info("广播统计信息更新成功，广播ID: {}, 接收: {}", 
+                    broadcastId, receivedCount);
+        }
+        
+        return success;
+    }
+    
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public boolean updateReadCount(String broadcastId, Integer readCount) {
+        UmpMsgBroadcast broadcast = getById(broadcastId);
+        if (broadcast == null) {
+            log.warn("广播记录不存在，ID: {}", broadcastId);
+            return false;
+        }
+
+        int updated = umpMsgBroadcastMapper.updateReadCount(
+                broadcastId, readCount, 
+                calculateStatus(broadcast), LocalDateTime.now());
+        
+        boolean success = updated > 0;
+        if (success) {
+            log.info("广播统计信息更新成功，广播ID: {}, 已读: {}", 
+                    broadcastId, readCount);
+        }
+        
+        return success;
+    }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -434,4 +500,9 @@ public class UmpMsgBroadcastServiceImpl extends ServiceImpl<UmpMsgBroadcastMappe
         
         return vo;
     }
+
+	@Override
+	public void incrementReadCount(String broadcastId) {
+		umpMsgBroadcastMapper.incrementReadCount(broadcastId);		
+	}
 }

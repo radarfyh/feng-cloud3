@@ -4,10 +4,13 @@ import ltd.huntinginfo.feng.admin.api.feign.RemoteAreaService;
 import ltd.huntinginfo.feng.admin.api.feign.RemoteDeptService;
 import ltd.huntinginfo.feng.admin.api.feign.RemoteOrgService;
 import ltd.huntinginfo.feng.admin.api.feign.RemoteUserService;
+import ltd.huntinginfo.feng.center.api.entity.UmpMsgBroadcast;
 import ltd.huntinginfo.feng.center.api.entity.UmpMsgInbox;
 import ltd.huntinginfo.feng.center.api.entity.UmpMsgMain;
 import ltd.huntinginfo.feng.center.api.entity.UmpMsgQueue;
+import ltd.huntinginfo.feng.center.api.vo.BroadcastDetailVO;
 import ltd.huntinginfo.feng.center.service.*;
+import ltd.huntinginfo.feng.center.service.state.MessageStateMachine;
 import ltd.huntinginfo.feng.common.core.mq.MqMessageEventConstants;
 import ltd.huntinginfo.feng.common.core.util.R;
 import lombok.RequiredArgsConstructor;
@@ -16,6 +19,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
+
+import cn.hutool.core.util.StrUtil;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -53,6 +58,11 @@ public class MessageDistributionProcessor {
     private final UmpMsgInboxService umpMsgInboxService;
     private final UmpMsgBroadcastService umpMsgBroadcastService;
     private final UmpMsgQueueService umpMsgQueueService;
+    private final UmpBroadcastReceiveRecordService umpBroadcastReceiveRecordService;
+    // 状态机
+    private final MessageStateMachine messageStateMachine;
+    // 推送处理器
+    private final MessagePushProcessor messagePushProcessor;
 
     // Feign客户端
     private final RemoteUserService remoteUserService;
@@ -64,44 +74,47 @@ public class MessageDistributionProcessor {
     
     /**
      * 处理【消息已接收】事件
-     * 业务逻辑：创建消息发送队列任务
+     * 业务逻辑：创建消息发送队列任务，存到ump_msg_queue表中
      */    
     @Transactional(rollbackFor = Exception.class)
     public void handleMessageReceived(String messageId, Map<String, Object> payload) {
-        log.info("处理消息已接收事件，创建发送队列任务，消息ID: {}", messageId);
+        log.info("处理消息已接收事件，创建分发任务，消息ID: {}", messageId);
 
-        UmpMsgMain message = umpMsgMainService.getById(messageId);
-        if (message == null) {
+        if (StrUtil.isBlank(messageId)) {
             log.error("消息不存在，消息ID: {}", messageId);
             return;
         }
-
-        if (!MqMessageEventConstants.EventTypes.RECEIVED.equals(message.getStatus())) {
-            log.warn("消息状态不是RECEIVED，跳过创建发送任务，消息ID: {}, 状态: {}",
-                    messageId, message.getStatus());
+        
+        String title = payload.get(MqMessageEventConstants.TaskDataKeys.TITLE).toString();
+        if (StrUtil.isBlank(title)) {
+            log.error("消息标题为空，消息ID: {}", messageId);
             return;
         }
 
-        // 创建消息分发队列任务
-        Map<String, Object> taskData = new HashMap<>();
-        taskData.put(MqMessageEventConstants.TaskDataKeys.MESSAGE_ID, messageId);
-        taskData.put(MqMessageEventConstants.TaskDataKeys.PUSH_MODE, message.getPushMode());
-        taskData.put(MqMessageEventConstants.TaskDataKeys.RECEIVER_TYPE, message.getReceiverType());
-        taskData.put(MqMessageEventConstants.TaskDataKeys.ESTIMATED_COUNT, 0);
-        // receiverScope 直接放入，后续解析
-        taskData.put("receiverScope", message.getReceiverScope());
+        String status = payload.get(MqMessageEventConstants.TaskDataKeys.STATUS).toString();
+        String oldStatus = payload.get(MqMessageEventConstants.TaskDataKeys.OLD_STATUS).toString();
+        if (!MqMessageEventConstants.EventTypes.RECEIVED.equals(status)) {
+            log.warn("消息状态不是RECEIVED，跳过创建分发任务，消息ID: {}, 状态: {}",
+                    messageId, status);
+            return;
+        }
 
-        String queueTaskId = umpMsgQueueService.createQueueTask(
-                MqMessageEventConstants.QueueTaskTypes.SEND,
-                MqMessageEventConstants.QueueNames.MESSAGE_SEND,
+        // 1. 状态机：进入分发中
+        messageStateMachine.onDistributeStart(messageId);
+
+        // 2. 创建分发队列任务（DISTRIBUTE）
+
+        umpMsgQueueService.createQueueTask(
+                MqMessageEventConstants.QueueTaskTypes.DISTRIBUTE,
+                MqMessageEventConstants.QueueNames.MESSAGE_DISTRIBUTE_QUEUE,
                 messageId,
-                taskData,
+                payload,
                 MqMessageEventConstants.TaskPriorities.DEFAULT,
                 LocalDateTime.now(),
                 MqMessageEventConstants.RetryDefaults.MAX_RETRY
         );
 
-        log.info("消息分发队列任务创建成功，消息ID: {}, 队列任务ID: {}", messageId, queueTaskId);
+        log.info("分发队列任务创建成功，消息ID: {}, 队列任务ID已生成", messageId);
     }
 
     /**
@@ -111,47 +124,10 @@ public class MessageDistributionProcessor {
     @Transactional(rollbackFor = Exception.class)
     public void handleMessageDistributed(String messageId, Map<String, Object> payload) {
         log.info("处理消息已分发事件，消息ID: {}", messageId);
-
-        // 1. 更新消息分发时间
-        umpMsgMainService.lambdaUpdate()
-                .eq(UmpMsgMain::getId, messageId)
-                .set(UmpMsgMain::getDistributeTime, LocalDateTime.now())
-                .update();
-
-        // 2. 获取消息详情，判断是否需要创建推送任务
-        UmpMsgMain message = umpMsgMainService.getById(messageId);
-        Map<String, Object> pushTaskData = new HashMap<>();
-        pushTaskData.put(MqMessageEventConstants.TaskDataKeys.MESSAGE_ID, messageId);
-        pushTaskData.put(MqMessageEventConstants.TaskDataKeys.PUSH_MODE, message.getPushMode());
-        pushTaskData.put(MqMessageEventConstants.TaskDataKeys.RECEIVER_TYPE, message.getReceiverType());
-        pushTaskData.put(MqMessageEventConstants.TaskDataKeys.ESTIMATED_COUNT, 0);
-
-        umpMsgQueueService.createQueueTask(
-                MqMessageEventConstants.QueueTaskTypes.DISTRIBUTE,
-                MqMessageEventConstants.QueueNames.MESSAGE_DISTRIBUTE,
-                messageId,
-                pushTaskData,
-                MqMessageEventConstants.TaskPriorities.LOW,
-                LocalDateTime.now(),
-                MqMessageEventConstants.RetryDefaults.MAX_RETRY
-        );
-        log.info("已触发推送任务创建，消息ID: {}", messageId);
+        // 状态已在 processDistributeTask 中设置为 DISTRIBUTED
+        // 此方法仅用于扩展（如统计、通知等）
     }
 
-    /**
-     * 处理【消息已发送】事件
-     * 业务逻辑：更新发送时间，记录发送成功
-     */
-    @Transactional(rollbackFor = Exception.class)
-    public void handleMessageSent(String messageId, Map<String, Object> payload) {
-        log.info("处理消息已发送事件，消息ID: {}", messageId);
-
-        umpMsgMainService.lambdaUpdate()
-                .eq(UmpMsgMain::getId, messageId)
-                .set(UmpMsgMain::getSendTime, LocalDateTime.now())
-                .set(UmpMsgMain::getStatus, MqMessageEventConstants.EventTypes.SENT)
-                .update();
-    }
 
     /**
      * 处理【消息已读】事件
@@ -162,21 +138,41 @@ public class MessageDistributionProcessor {
         log.info("处理消息已读事件，消息ID: {}", messageId);
 
         String receiverId = (String) payload.get(MqMessageEventConstants.TaskDataKeys.RECEIVER_ID);
+        String receiverType = (String) payload.getOrDefault(MqMessageEventConstants.TaskDataKeys.RECEIVER_TYPE,
+                MqMessageEventConstants.ReceiverTypes.USER);
         if (receiverId == null) {
             log.warn("消息已读事件缺少 receiverId，消息ID: {}", messageId);
             return;
         }
 
-        // 更新收件箱阅读状态
-        umpMsgInboxService.lambdaUpdate()
-                .eq(UmpMsgInbox::getMsgId, messageId)
-                .eq(UmpMsgInbox::getReceiverId, receiverId)
-                .set(UmpMsgInbox::getReadStatus, 1)
-                .set(UmpMsgInbox::getReadTime, LocalDateTime.now())
-                .update();
+        if (MqMessageEventConstants.ReceiverTypes.USER.equals(receiverType)) {
+            // 收件箱已读
+            umpMsgInboxService.lambdaUpdate()
+                    .eq(UmpMsgInbox::getMsgId, messageId)
+                    .eq(UmpMsgInbox::getReceiverId, receiverId)
+                    .set(UmpMsgInbox::getReadStatus, 1)
+                    .set(UmpMsgInbox::getReadTime, LocalDateTime.now())
+                    .update();
+            updateMessageReadCount(messageId);
+        } else {
+            // 广播已读，需从payload或关联查询获取broadcastId
+            String broadcastId = (String) payload.get(MqMessageEventConstants.TaskDataKeys.BROADCAST_ID);
+            if (broadcastId == null) {
+            	BroadcastDetailVO broadcast = umpMsgBroadcastService.getBroadcastByMsgId(messageId);
+                if (broadcast != null) {
+                    broadcastId = broadcast.getId();
+                    broadcast.setReadCount(broadcast.getReadCount() + 1);
+                    umpMsgBroadcastService.incrementReadCount(broadcastId);
+                }
+            }
+            if (broadcastId != null) {
+                umpBroadcastReceiveRecordService.markAsRead(broadcastId, receiverId, receiverType);
+                
+            }
+        }
 
-        // 重新统计已读数量并更新消息主表
-        updateMessageReadCount(messageId);
+        // 状态机：将消息主表状态置为 READ
+        messageStateMachine.onRead(messageId);
     }
 
     /**
@@ -186,30 +182,86 @@ public class MessageDistributionProcessor {
     @Transactional(rollbackFor = Exception.class)
     public void handleMessageExpired(String messageId, Map<String, Object> payload) {
         log.info("处理消息已过期事件，消息ID: {}", messageId);
+        // 根据状态图，过期时状态为PULL_FAILED
+        messageStateMachine.onPullFailed(messageId); 
+    }
 
-        umpMsgMainService.lambdaUpdate()
-                .eq(UmpMsgMain::getId, messageId)
-                .set(UmpMsgMain::getStatus, MqMessageEventConstants.EventTypes.EXPIRED)
-                .set(UmpMsgMain::getCompleteTime, LocalDateTime.now())
-                .update();
+
+    /**
+     * 处理【消息分发中】事件（DISTRIBUTING）
+     * 通常由分发任务创建后发出，用于记录状态开始
+     */
+    @Transactional
+    public void handleMessageDistributing(String messageId, Map<String, Object> payload) {
+        log.info("处理消息分发中事件，消息ID: {}", messageId);
+        // 状态已在创建分发任务时由状态机设置为 DISTRIBUTING，此方法仅用于日志或扩展
+        // 无需重复操作状态机
     }
 
     /**
-     * 处理【消息失败】事件
-     * 业务逻辑：标记失败状态，记录失败原因
+     * 处理【消息分发失败】事件（DIST_FAILED）
      */
-    @Transactional(rollbackFor = Exception.class)
-    public void handleMessageFailed(String messageId, Map<String, Object> payload) {
-        String reason = (String) payload.getOrDefault(MqMessageEventConstants.TaskDataKeys.REASON, "未知错误");
-        log.info("处理消息失败事件，消息ID: {}, 原因: {}", messageId, reason);
-
-        umpMsgMainService.lambdaUpdate()
-                .eq(UmpMsgMain::getId, messageId)
-                .set(UmpMsgMain::getStatus, MqMessageEventConstants.EventTypes.FAILED)
-                .set(UmpMsgMain::getCompleteTime, LocalDateTime.now())
-                .update();
+    @Transactional
+    public void handleMessageDistFailed(String messageId, Map<String, Object> payload) {
+        log.info("处理消息分发失败事件，消息ID: {}", messageId);
+        // 状态已由队列重试逻辑在超限时通过状态机设置，此处仅做补充处理（如告警）
+        // 状态机已在队列服务中调用 onDistributeFailed
     }
 
+    /**
+     * 处理【消息已推送】事件（PUSHED）
+     */
+    @Transactional
+    public void handleMessagePushed(String messageId, Map<String, Object> payload) {
+        log.info("处理消息已推送事件，消息ID: {}", messageId);
+        // 由推送任务执行时调用状态机 onPushed
+    }
+
+    /**
+     * 处理【消息推送失败】事件（PUSH_FAILED）
+     */
+    @Transactional
+    public void handleMessagePushFailed(String messageId, Map<String, Object> payload) {
+        log.info("处理消息推送失败事件，消息ID: {}", messageId);
+        // 状态已由队列重试逻辑设置，此处可记录失败原因
+    }
+
+    /**
+     * 处理【业务系统已接收】事件（BIZ_RECEIVED）
+     */
+    @Transactional
+    public void handleMessageBizReceived(String messageId, Map<String, Object> payload) {
+        log.info("处理业务系统已接收事件，消息ID: {}", messageId);
+        // 由推送处理器在收到业务成功响应时调用状态机 onBusinessReceived
+    }
+
+    /**
+     * 处理【待拉取】事件（POLL）
+     */
+    @Transactional
+    public void handleMessagePoll(String messageId, Map<String, Object> payload) {
+        log.info("处理消息待拉取事件，消息ID: {}", messageId);
+        // 由分发任务在写扩散后调用状态机 onPollReady
+    }
+
+    /**
+     * 处理【业务系统已拉取】事件（BIZ_PULLED）
+     */
+    @Transactional
+    public void handleMessageBizPolled(String messageId, Map<String, Object> payload) {
+        log.info("处理业务系统已拉取事件，消息ID: {}", messageId);
+        // 由拉取接口在业务系统成功拉取时调用状态机 onBusinessPulled
+    }
+
+    /**
+     * 处理【拉取失败】事件（POLL_FAILED）
+     */
+    @Transactional
+    public void handleMessagePollFailed(String messageId, Map<String, Object> payload) {
+        log.info("处理消息拉取失败事件，消息ID: {}", messageId);
+        // 由定时任务扫描超时消息时调用状态机 onPollFailed
+    }
+    
     // ==================== 队列任务处理 ====================
 
     /**
@@ -228,129 +280,133 @@ public class MessageDistributionProcessor {
             return;
         }
 
-        // 调用原处理逻辑
-        processDistributeTask(queueTask);
-    }
-
-    /**
-     * 处理分发队列任务（实体版本）
-     */
-    @Transactional(rollbackFor = Exception.class)
-    public void processDistributeTask(UmpMsgQueue queueTask) {
-        String taskId = queueTask.getId();
-        String messageId = queueTask.getMsgId();
         String workerId = WORKER_PREFIX + Thread.currentThread().getId();
 
         log.info("开始处理分发队列任务，任务ID: {}, 消息ID: {}", taskId, messageId);
 
         try {
-            // 1. 标记任务为处理中
             umpMsgQueueService.markAsProcessing(taskId, workerId);
 
-            // 2. 获取消息详情
             UmpMsgMain message = umpMsgMainService.getById(messageId);
             if (message == null) {
                 throw new RuntimeException("消息不存在: " + messageId);
             }
 
-            // 3. 解析接收者列表
             List<Map<String, Object>> receiverList = resolveReceivers(message);
-
-            // 4. 更新任务预估数量
             updateTaskEstimate(queueTask, receiverList.size());
 
-            // 5. 根据接收者数量选择分发策略
+            boolean isPushMode = MqMessageEventConstants.PushModes.PUSH.equals(message.getPushMode());
+            boolean isUserType = MqMessageEventConstants.ReceiverTypes.USER.equals(message.getReceiverType());
+
             if (receiverList.size() <= MqMessageEventConstants.Thresholds.BROADCAST_THRESHOLD) {
-                distributeToInbox(message, receiverList);
-                if (MqMessageEventConstants.PushModes.PUSH.equals(message.getPushMode())) {
+                // 写扩散 - 收件箱
+                umpMsgInboxService.batchCreateInboxRecords(messageId, receiverList,
+                        MqMessageEventConstants.DistributeModes.INBOX);
+                messageStateMachine.onDistributed(messageId, receiverList.size());
+
+                if (isPushMode && isUserType) {
+                    // 逐人推送 → 创建 PUSH 任务
                     createPushTasks(messageId, receiverList);
                 }
             } else {
-                distributeToBroadcast(message, receiverList);
-                createBroadcastDistributeTask(messageId, receiverList.size());
+                // 读扩散 - 广播筒
+                String broadcastType = determineBroadcastType(message.getReceiverType(), receiverList.size());
+                String broadcastId = umpMsgBroadcastService.createBroadcast(
+                        messageId,
+                        broadcastType,
+                        message.getReceiverScope(),
+                        generateTargetDescription(message.getReceiverType(), message.getReceiverScope())
+                );
+                umpBroadcastReceiveRecordService.batchUpsertReceiveRecords(broadcastId, receiverList);
+                umpMsgBroadcastService.updateReceivedCount(broadcastId, receiverList.size());
+                messageStateMachine.onDistributed(messageId, receiverList.size());
+
+                if (isPushMode && !isUserType) {
+                    // 单次回调 → 创建 PUSH 任务（类型仍为 PUSH，但任务数据中携带 broadcastId 和 callbackUrl）
+                	createCallbackPushTask(messageId, broadcastId, message.getCallbackUrl());
+                } else if (!isPushMode) {
+                    // POLL 模式：状态已为 DISTRIBUTED，无需额外动作
+                    // 但需将消息置为待拉取状态？状态图中 DISTRIBUTED -> POLL 需要显式触发
+                    messageStateMachine.onPollReady(messageId);
+                }
             }
 
-            // 6. 更新消息状态为已分发
-            umpMsgMainService.updateMessageStatus(messageId, MqMessageEventConstants.EventTypes.DISTRIBUTED);
-            // 7. 标记任务为成功
             umpMsgQueueService.markAsSuccess(taskId, workerId,
-                    String.format("成功分发消息，接收者数量: %d", receiverList.size()));
-
-            log.info("分发队列任务处理成功，任务ID: {}, 消息ID: {}, 接收者数量: {}",
-                    taskId, messageId, receiverList.size());
+                    String.format("分发成功，接收者数量: %d", receiverList.size()));
 
         } catch (Exception e) {
             log.error("处理分发队列任务失败，任务ID: {}, 消息ID: {}", taskId, messageId, e);
-            umpMsgQueueService.markAsFailed(taskId, workerId, e.getMessage(), e.toString());
-
-            // 重试判断
-            if (queueTask.getCurrentRetry() >= queueTask.getMaxRetry()) {
-                umpMsgMainService.updateMessageStatus(messageId, MqMessageEventConstants.EventTypes.FAILED);
-                log.error("分发任务达到最大重试次数，消息ID: {}", messageId);
-            }
+            // 重试逻辑由队列服务处理，这里只记录失败
+            umpMsgQueueService.markAsFailed(taskId, workerId, e.getMessage(), e.toString()); 
             throw e;
         }
     }
 
     /**
-     * 处理推送任务
-     */
-    @Transactional(rollbackFor = Exception.class)
-    public void processSendTask(Map<String, Object> payload) {
-        String taskId = (String) payload.get(MqMessageEventConstants.TaskDataKeys.TASK_ID);
-        log.info("处理推送任务，taskId: {}", taskId);
-        // TODO: 调用实际推送逻辑（HTTP/WebSocket等）
-        umpMsgQueueService.markAsSuccess(taskId, "push-worker", "推送成功");
-    }
-
-    /**
-     * 处理回调任务
-     */
-    @Transactional(rollbackFor = Exception.class)
-    public void processCallbackTask(Map<String, Object> payload) {
-        String taskId = (String) payload.get(MqMessageEventConstants.TaskDataKeys.TASK_ID);
-        log.info("处理回调任务，taskId: {}", taskId);
-        // TODO: 调用业务系统回调接口
-        umpMsgQueueService.markAsSuccess(taskId, "callback-worker", "回调成功");
-    }
-
-    /**
      * 处理重试任务
      */
-    @Transactional(rollbackFor = Exception.class)
+    @Transactional
     public void processRetryTask(Map<String, Object> payload) {
         String taskId = (String) payload.get(MqMessageEventConstants.TaskDataKeys.TASK_ID);
         log.info("处理重试任务，taskId: {}", taskId);
-        // TODO: 根据原任务类型重新入队
+        // 重试逻辑已由 umpMsgQueueService 在 markAsFailed 中实现延迟重试
+        // 此方法仅用于接收重试事件，无需额外操作
     }
-
+    
     /**
-     * 处理广播分发任务
+     * 处理推送任务（PUSH）
+     * 适用于：收件箱逐人推送 + 广播单次回调
      */
-    @Transactional(rollbackFor = Exception.class)
-    public void processBroadcastDispatchTask(Map<String, Object> payload) {
+    @Transactional
+    public void processPushTask(Map<String, Object> payload) {
         String taskId = (String) payload.get(MqMessageEventConstants.TaskDataKeys.TASK_ID);
-        log.info("处理广播分发任务，taskId: {}", taskId);
-        // TODO: 实现广播消息的分页拉取与推送
-        umpMsgQueueService.markAsSuccess(taskId, "broadcast-worker", "广播分发完成");
+        String messageId = (String) payload.get(MqMessageEventConstants.TaskDataKeys.MESSAGE_ID);
+        String inboxId = (String) payload.get(MqMessageEventConstants.TaskDataKeys.INBOX_ID);
+        String broadcastId = (String) payload.get(MqMessageEventConstants.TaskDataKeys.BROADCAST_ID);
+        String callbackUrl = (String) payload.get(MqMessageEventConstants.TaskDataKeys.CALLBACK_URL);
+
+        log.info("处理推送任务，taskId: {}, messageId: {}", taskId, messageId);
+
+        // 实际推送逻辑委托给 MessagePushProcessor
+
+        boolean success;
+        if (inboxId != null) {
+            UmpMsgInbox inbox = umpMsgInboxService.getById(inboxId);
+            success = messagePushProcessor.pushMessageToReceiver(inbox);
+        } else if (broadcastId != null) {
+            success = messagePushProcessor.callbackBusinessSystem(messageId, broadcastId, callbackUrl);
+        } else {
+            log.error("推送任务缺少 inboxId 或 broadcastId，taskId: {}", taskId);
+            umpMsgQueueService.markAsFailed(taskId, "push-worker", "无效的任务数据", "");
+            return;
+        }
+
+        if (success) {
+            umpMsgQueueService.markAsSuccess(taskId, "push-worker", "推送成功");
+        } else {
+            // 失败由队列服务重试，这里标记失败并抛异常触发重试
+            umpMsgQueueService.markAsFailed(taskId, "push-worker", "推送失败", "");
+            throw new RuntimeException("推送失败");
+        }
     }
 
     /**
      * 处理延迟发送任务
      */
-    @Transactional(rollbackFor = Exception.class)
+    @Transactional
     public void processDelayedSend(Map<String, Object> payload) {
         log.info("处理延迟发送任务，payload: {}", payload);
-        // 将延迟任务转为普通推送任务
         String messageId = (String) payload.get(MqMessageEventConstants.TaskDataKeys.MESSAGE_ID);
-        Map<String, Object> sendTaskData = new HashMap<>();
-        sendTaskData.put(MqMessageEventConstants.TaskDataKeys.MESSAGE_ID, messageId);
-        sendTaskData.put(MqMessageEventConstants.TaskDataKeys.DELAYED, true);
+        // 延迟发送本质是创建 PUSH 任务
+        Map<String, Object> pushTaskData = new HashMap<>();
+        pushTaskData.put(MqMessageEventConstants.TaskDataKeys.MESSAGE_ID, messageId);
+        pushTaskData.put(MqMessageEventConstants.TaskDataKeys.DELAYED, true);
+        // 需要根据原消息的接收者类型等补充任务数据，简化处理
         umpMsgQueueService.createQueueTask(
-                MqMessageEventConstants.QueueTaskTypes.SEND,
-                MqMessageEventConstants.QueueNames.MESSAGE_SEND,
+                MqMessageEventConstants.QueueTaskTypes.PUSH,
+                MqMessageEventConstants.QueueNames.MESSAGE_PUSH,
                 messageId,
-                sendTaskData,
+                pushTaskData,
                 MqMessageEventConstants.TaskPriorities.LOW,
                 LocalDateTime.now(),
                 MqMessageEventConstants.RetryDefaults.MAX_RETRY
@@ -360,14 +416,11 @@ public class MessageDistributionProcessor {
     /**
      * 处理延迟过期任务
      */
-    @Transactional(rollbackFor = Exception.class)
+    @Transactional
     public void processDelayedExpire(Map<String, Object> payload) {
         log.info("处理延迟过期任务，payload: {}", payload);
         String messageId = (String) payload.get(MqMessageEventConstants.TaskDataKeys.MESSAGE_ID);
-        umpMsgMainService.lambdaUpdate()
-                .eq(UmpMsgMain::getId, messageId)
-                .set(UmpMsgMain::getStatus, MqMessageEventConstants.EventTypes.EXPIRED)
-                .update();
+        messageStateMachine.onPollFailed(messageId);
     }
 
     // ==================== 接收者解析、分发逻辑 ====================
@@ -422,8 +475,8 @@ public class MessageDistributionProcessor {
 
         try {
             // 方式1：直接指定用户ID列表
-            if (receiverScope.containsKey("userIds") && receiverScope.get("userIds") instanceof List) {
-                List<String> userIds = (List<String>) receiverScope.get("userIds");
+            if (receiverScope.containsKey("loginIds") && receiverScope.get("loginIds") instanceof List) {
+                List<String> userIds = (List<String>) receiverScope.get("loginIds");
                 
                 // 批量获取用户信息
                 if (!CollectionUtils.isEmpty(userIds)) {
@@ -537,12 +590,12 @@ public class MessageDistributionProcessor {
 
         try {
             // 方式1：直接指定组织ID列表
-            if (receiverScope.containsKey("orgIds") && receiverScope.get("orgIds") instanceof List) {
-                List<String> orgIds = (List<String>) receiverScope.get("orgIds");
-                if (!CollectionUtils.isEmpty(orgIds)) {
-                    for (String orgId : orgIds) {
+            if (receiverScope.containsKey("orgCodes") && receiverScope.get("orgCodes") instanceof List) {
+                List<String> orgCodes = (List<String>) receiverScope.get("orgCodes");
+                if (!CollectionUtils.isEmpty(orgCodes)) {
+                    for (String orgCode : orgCodes) {
                         Map<String, Object> query = new HashMap<>();
-                        query.put("orgId", orgId);
+                        query.put("orgCode", orgCode);
                         R<List<Map<String, Object>>> userResult = remoteOrgService.listUsersByOrg(query);
                         if (userResult != null && userResult.getData() != null) {
                             userResult.getData().forEach(user -> {
@@ -571,12 +624,12 @@ public class MessageDistributionProcessor {
 
         try {
             // 方式1：指定行政区划代码
-            if (receiverScope.containsKey("areaCodes") && receiverScope.get("areaCodes") instanceof List) {
-                List<String> areaCodes = (List<String>) receiverScope.get("areaCodes");
+            if (receiverScope.containsKey("divisionCodes") && receiverScope.get("divisionCodes") instanceof List) {
+                List<String> areaCodes = (List<String>) receiverScope.get("divisionCodes");
                 if (!CollectionUtils.isEmpty(areaCodes)) {
                     for (String areaCode : areaCodes) {
                         Map<String, Object> query = new HashMap<>();
-                        query.put("areaCode", areaCode);
+                        query.put("divisionCode", areaCode);
                         query.put("includeSubAreas", true);
                         R<List<Map<String, Object>>> userResult = remoteAreaService.listUsersByArea(query);
                         if (userResult != null && userResult.getData() != null) {
@@ -688,16 +741,26 @@ public class MessageDistributionProcessor {
         for (Map<String, Object> receiver : receiverList) {
             String receiverId = (String) receiver.get(MqMessageEventConstants.TaskDataKeys.RECEIVER_ID);
             String receiverType = (String) receiver.get(MqMessageEventConstants.TaskDataKeys.RECEIVER_TYPE);
+            // 需要先创建收件箱记录才能获取 inboxId，但收件箱记录已在 distributeToInbox 中批量创建
+            // 此处需要查询对应收件箱ID，简化处理：假设可以通过消息ID和接收者ID查询
+            UmpMsgInbox inbox = umpMsgInboxService.getByMsgAndReceiver(msgId, receiverId, receiverType);
+            if (inbox == null) {
+                log.warn("收件箱记录不存在，无法创建推送任务，msgId: {}, receiverId: {}", msgId, receiverId);
+                continue;
+            }
 
             Map<String, Object> taskData = new HashMap<>();
             taskData.put(MqMessageEventConstants.TaskDataKeys.MESSAGE_ID, msgId);
+            taskData.put(MqMessageEventConstants.TaskDataKeys.INBOX_ID, inbox.getId());
             taskData.put(MqMessageEventConstants.TaskDataKeys.RECEIVER_ID, receiverId);
             taskData.put(MqMessageEventConstants.TaskDataKeys.RECEIVER_TYPE, receiverType);
             taskData.put(MqMessageEventConstants.TaskDataKeys.RECEIVER_NAME, receiver.get("receiverName"));
+            // 从应用凭证获取回调地址，此处简化
+            taskData.put(MqMessageEventConstants.TaskDataKeys.CALLBACK_URL, getCallbackUrl(msgId));
 
             umpMsgQueueService.createQueueTask(
-                    MqMessageEventConstants.QueueTaskTypes.SEND,
-                    MqMessageEventConstants.QueueNames.MESSAGE_SEND,
+                    MqMessageEventConstants.QueueTaskTypes.PUSH,
+                    MqMessageEventConstants.QueueNames.MESSAGE_PUSH,
                     msgId,
                     taskData,
                     MqMessageEventConstants.TaskPriorities.LOW,
@@ -705,30 +768,31 @@ public class MessageDistributionProcessor {
                     MqMessageEventConstants.RetryDefaults.MAX_RETRY
             );
         }
-
-        log.info("创建推送队列任务成功，消息ID: {}, 任务数量: {}", msgId, receiverList.size());
+        log.info("创建推送任务成功，消息ID: {}, 任务数量: {}", msgId, receiverList.size());
     }
     
-    /**
-     * 创建广播分发队列任务
-     */
-    private void createBroadcastDistributeTask(String msgId, int receiverCount) {
+    private String getCallbackUrl(String msgId) {
+        // TODO: 根据消息ID查询发送方应用的回调地址
+        // 可从 ump_msg_main.callback_url 或 ump_app_credential.callback_url 获取
+        return "";
+    }
+    
+    private void createCallbackPushTask(String msgId, String broadcastId, String callbackUrl) {
         Map<String, Object> taskData = new HashMap<>();
         taskData.put(MqMessageEventConstants.TaskDataKeys.MESSAGE_ID, msgId);
-        taskData.put(MqMessageEventConstants.TaskDataKeys.RECEIVER_COUNT, receiverCount);
-        taskData.put(MqMessageEventConstants.TaskDataKeys.STATUS, "PENDING");
+        taskData.put(MqMessageEventConstants.TaskDataKeys.BROADCAST_ID, broadcastId);
+        taskData.put(MqMessageEventConstants.TaskDataKeys.CALLBACK_URL, callbackUrl);
 
         umpMsgQueueService.createQueueTask(
-                MqMessageEventConstants.QueueTaskTypes.DISTRIBUTE,
-                MqMessageEventConstants.QueueNames.MESSAGE_DISTRIBUTE,
+                MqMessageEventConstants.QueueTaskTypes.PUSH,
+                MqMessageEventConstants.QueueNames.MESSAGE_PUSH,
                 msgId,
                 taskData,
-                MqMessageEventConstants.TaskPriorities.DEFAULT,
+                MqMessageEventConstants.TaskPriorities.LOW,
                 LocalDateTime.now(),
                 MqMessageEventConstants.RetryDefaults.MAX_RETRY
         );
-
-        log.info("创建广播分发队列任务成功，消息ID: {}, 接收者数量: {}", msgId, receiverCount);
+        log.info("创建回调推送任务成功，消息ID: {}, 广播ID: {}", msgId, broadcastId);
     }
     
     /**

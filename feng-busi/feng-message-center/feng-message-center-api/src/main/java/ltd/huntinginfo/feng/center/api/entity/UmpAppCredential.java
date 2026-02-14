@@ -11,6 +11,7 @@ import lombok.experimental.Accessors;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 应用认证凭证表实体类
@@ -65,6 +66,10 @@ public class UmpAppCredential implements Serializable {
     @Schema(description = "默认回调地址")
     @TableField("callback_url")
     private String callbackUrl;
+    
+    @Schema(description = "回调配置(JSON)")
+    @TableField(value = "callback_config")
+    private String callbackConfig;
 
     @Schema(description = "回调认证模式")
     @TableField("callback_auth_mode")

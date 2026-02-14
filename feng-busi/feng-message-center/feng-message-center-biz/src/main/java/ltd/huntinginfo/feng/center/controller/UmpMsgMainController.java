@@ -103,24 +103,6 @@ public class UmpMsgMainController {
         return R.ok(updatedCount, ret);
     }
 
-    @Operation(summary = "标记消息为已发送", description = "将消息状态标记为已发送")
-    @PutMapping("/sent/{msgId}")
-    public R<Boolean> markAsSent(
-            @Parameter(description = "消息ID", required = true) 
-            @PathVariable String msgId) {
-        boolean success = umpMsgMainService.markAsSent(msgId);
-        return success ? R.ok(true) : R.failed("标记失败");
-    }
-
-    @Operation(summary = "标记消息为已分发", description = "将消息状态标记为已分发")
-    @PutMapping("/distributed/{msgId}")
-    public R<Boolean> markAsDistributed(
-            @Parameter(description = "消息ID", required = true) 
-            @PathVariable String msgId) {
-        boolean success = umpMsgMainService.markAsDistributed(msgId);
-        return success ? R.ok(true) : R.failed("标记失败");
-    }
-
     @Operation(summary = "更新已读统计", description = "更新消息的已读人数统计")
     @PutMapping("/statistics/read/{msgId}")
     public R<Boolean> updateReadStatistics(

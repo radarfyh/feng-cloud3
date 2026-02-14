@@ -43,9 +43,25 @@ public class UmpMsgMain implements Serializable {
     @TableField("title")
     private String title;
 
-    @Schema(description = "消息内容(JSON格式)")
-    @TableField(value = "content", typeHandler = JacksonTypeHandler.class)
-    private Map<String, Object> content;
+    @Schema(description = "消息内容(JSON格式)", example = "{\r\n"
+    		+ "      \"header\": {\r\n"
+    		+ "        \"title\": \"关于2026年度预算申报的通知\",\r\n"
+    		+ "        \"sub_title\": \"财务处〔2026〕12号\"\r\n"
+    		+ "      },\r\n"
+    		+ "      \"body\": [\r\n"
+    		+ "        \"各单位：\",\r\n"
+    		+ "        \"为做好2026年度预算编制工作，现将有关事项通知如下。\",\r\n"
+    		+ "        \"一、预算申报截止时间为2026年3月31日。\",\r\n"
+    		+ "        \"二、请通过财政一体化平台完成申报。\",\r\n"
+    		+ "        \"特此通知。\"\r\n"
+    		+ "      ],\r\n"
+    		+ "      \"footer\": {\r\n"
+    		+ "        \"org\": \"财政处\",\r\n"
+    		+ "        \"date\": \"2026-01-10\"\r\n"
+    		+ "      }\r\n"
+    		+ "    }")
+    @TableField(value = "content")
+    private String content;
 
     @Schema(description = "优先级(1-5,数字越小优先级越高)", example = "3")
     @TableField("priority")
@@ -91,9 +107,24 @@ public class UmpMsgMain implements Serializable {
     @TableField("receiver_type")
     private String receiverType;
 
-    @Schema(description = "接收者范围配置(JSON)")
-    @TableField(value = "receiver_scope", typeHandler = JacksonTypeHandler.class)
-    private Map<String, Object> receiverScope;
+    @Schema(description = "接收者范围配置(JSON)", example = "{\r\n"
+    		+ "      \"include\": {\r\n"
+    		+ "        \"appKeys\": [\"app001\", \"app002\"],\r\n"
+    		+ "        \"loginIds\": [\"u001\", \"u002\"],\r\n"
+    		+ "        \"deptIds\": [\"D_FIN_001\"],\r\n"
+    		+ "        \"agencyCodes\": [\"AG_1001\"],\r\n"
+    		+ "        \"orgCodes\": [\"ORG_1001\"],\r\n"
+    		+ "        \"divisionCodes\": [\"110000\"],\r\n"
+    		+ "        \"roleCodes\": [\"FIN_MANAGER\"]\r\n"
+    		+ "      },\r\n"
+    		+ "      \"exclude\": {\r\n"
+    		+ "        \"loginIds\": [\"u003\", \"u004\"],\r\n"
+    		+ "        \"deptIds\": [\"D_FIN_002\"],\r\n"
+    		+ "        \"roleCodes\": [\"DEV_MANAGER\"]\r\n"
+    		+ "      }\r\n"
+    		+ "    }")
+    @TableField(value = "receiver_scope")
+    private String receiverScope;
 
     @Schema(description = "回调地址", example = "http://callback.example.com/api/message/status")
     @TableField("callback_url")
@@ -103,13 +134,43 @@ public class UmpMsgMain implements Serializable {
     @TableField("push_mode")
     private String pushMode;
 
-    @Schema(description = "回调配置(JSON)")
-    @TableField(value = "callback_config", typeHandler = JacksonTypeHandler.class)
-    private Map<String, Object> callbackConfig;
+    @Schema(description = "回调配置(JSON)", example = "{\r\n"
+    		+ "  \"method\": \"POST\",\r\n"
+    		+ "  \"timeout_ms\": 3000,\r\n"
+    		+ "\r\n"
+    		+ "  \"headers\": {\r\n"
+    		+ "    \"X-App-Key\": \"${sender_app_key}\",\r\n"
+    		+ "    \"X-Request-Id\": \"${msg_id}\"\r\n"
+    		+ "  },\r\n"
+    		+ "\r\n"
+    		+ "  \"body\": {\r\n"
+    		+ "    \"msg_id\": \"${msg_id}\",\r\n"
+    		+ "    \"msg_code\": \"${msg_code}\",\r\n"
+    		+ "    \"status\": \"${status}\"\r\n"
+    		+ "  },\r\n"
+    		+ "\r\n"
+    		+ "  \"success_condition\": {\r\n"
+    		+ "    \"http_status\": 200,\r\n"
+    		+ "    \"resp_code\": \"0\"\r\n"
+    		+ "  }\r\n"
+    		+ "}")
+    @TableField(value = "callback_config")
+    private String callbackConfig;
 
-    @Schema(description = "扩展参数(JSON)")
-    @TableField(value = "ext_params", typeHandler = JacksonTypeHandler.class)
-    private Map<String, Object> extParams;
+    @Schema(description = "扩展参数(JSON)", example = "{\r\n"
+    		+ "  \"trace\": {\r\n"
+    		+ "    \"trace_id\": \"bgt-20260110-001\"\r\n"
+    		+ "  },\r\n"
+    		+ "  \"flags\": {\r\n"
+    		+ "    \"test\": false\r\n"
+    		+ "  },\r\n"
+    		+ "  \"kv\": {\r\n"
+    		+ "    \"env\": \"prod\",\r\n"
+    		+ "    \"caller\": \"budget-system\"\r\n"
+    		+ "  }\r\n"
+    		+ "}")
+    @TableField(value = "ext_params")
+    private String extParams;
 
     @Schema(description = "过期时间")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
@@ -117,7 +178,8 @@ public class UmpMsgMain implements Serializable {
     private LocalDateTime expireTime;
 
     @Schema(description = "消息状态", example = "RECEIVED", 
-            allowableValues = {"RECEIVED", "DISTRIBUTING", "DISTRIBUTED", "SENDING", "SENT", "READ", "FAILED"})
+            allowableValues = {"RECEIVED", "DISTRIBUTING", "DISTRIBUTED", "DIST_FAILED", "PUSHED", "PUSH_FAILED", 
+            		"BIZ_RECEIVED", "POLL", "BIZ_PULLED", "POLL_FAILED", "READ"})
     @TableField("status")
     private String status;
 
@@ -126,17 +188,17 @@ public class UmpMsgMain implements Serializable {
     @TableField(value = "create_time", fill = FieldFill.INSERT)
     private LocalDateTime createTime;
 
-    @Schema(description = "发送时间")
+    @Schema(description = "发送时间（发送到队列）")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @TableField("send_time")
     private LocalDateTime sendTime;
 
-    @Schema(description = "分发时间")
+    @Schema(description = "分发时间（分发到收件箱或者广播信息筒）")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @TableField("distribute_time")
     private LocalDateTime distributeTime;
 
-    @Schema(description = "完成时间")
+    @Schema(description = "完成时间（消息生命周期终结，例如已读")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @TableField("complete_time")
     private LocalDateTime completeTime;
