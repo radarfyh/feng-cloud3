@@ -36,63 +36,88 @@ public interface MqMessageProducer {
     <T> void sendDelayed(String exchange, String routingKey, MqMessage<T> message, long delayMillis);
 
 	/**
-	 * 发送【消息已接收】事件（对应状态：RECEIVED）
+	 * 发送【消息已接收】(分发开始)事件（对应状态：RECEIVED）
 	 */
-	<T> void sendMessageReceived(T payload, String businessType);
+	<T> void sendMessageDistributeStart(T payload, String eventType);
+	
+	/**
+	 * 发送【消息分发中】事件（对应状态：DISTRIBUTING）
+	 */
+	<T> void sendMessageDistributing(T payload, String eventType);
 
 	/**
 	 * 发送【消息已分发】事件（对应状态：DISTRIBUTED）
 	 */
-	<T> void sendMessageDistributed(T payload, String businessType);
+	<T> void sendMessageDistributed(T payload, String eventType);
 
 	/**
-	 * 发送【消息已发送】事件（对应状态：SENT）
+	 * 发送【消息分发失败】事件（对应状态：DIST_FAILED）
 	 */
-	<T> void sendMessageSent(T payload, String businessType);
+	<T> void sendMessageDistFailed(T payload, String eventType);
+	
+	/**
+	 * 发送【消息已推送】事件（对应状态：PUSHED）
+	 */
+	<T> void sendMessagePushed(T payload, String eventType);
+	
+	/**
+	 * 发送【消息推送失败】事件（对应状态：PUSH_FAILED）
+	 */
+	<T> void sendMessagePushFailed(T payload, String eventType);
+	
+	/**
+	 * 发送【消息业务已接收】事件（对应状态：BIZ_RECEIVED）
+	 */
+	<T> void sendMessageBusinessReceived(T payload, String eventType);
+	
+	/**
+	 * 发送【消息业务待拉取】（拉取准备好）事件（对应状态：PULL）
+	 */
+	<T> void sendMessagePullReady(T payload, String eventType);
+	
+	/**
+	 * 发送【消息业务已拉取】事件（对应状态：BIZ_PULLED）
+	 */
+	<T> void sendMessageBusinessPulled(T payload, String eventType);
+	
+	/**
+	 * 发送【消息业务已拉取】事件（对应状态：PULL_FAILED）
+	 */
+	<T> void sendMessagePullFailed(T payload, String eventType);
 
 	/**
 	 * 发送【消息已读】事件（对应状态：READ）
 	 */
-	<T> void sendMessageRead(T payload, String businessType);
-
+	<T> void sendMessageRead(T payload, String eventType);
+	
 	/**
 	 * 发送【消息已过期】事件（对应状态：EXPIRED）
 	 */
 	<T> void sendMessageExpired(T payload, String businessType);
 
-	/**
-	 * 发送【消息失败】事件（对应状态：FAILED）
-	 */
-	<T> void sendMessageFailed(T payload, String businessType);
-
-	/**
-	 * 异步发送“发送任务”
-	 */
-	<T> void sendSendTask(T payload);
-
-	/**
-	 * 异步发送“回调任务”
-	 */
-	<T> void sendCallbackTask(T payload);
-
-	/**
-	 * 异步发送“重试任务”
-	 */
-	<T> void sendRetryTask(T payload);
-
-	/**
-	 * 异步发送“广播分发任务”
-	 */
-	<T> void sendBroadcastDispatchTask(T payload);
-
-	/**
-	 * 发送延迟的【消息发送】任务
-	 */
-	<T> void sendDelayedSendTask(T payload, long delayMillis);
-
-	/**
-	 * 发送延迟的【消息过期】处理任务
-	 */
-	<T> void sendDelayedExpireTask(T payload, long delayMillis);
+//	/**
+//	 * 异步发送“分发任务”
+//	 */
+//	<T> void sendDistributeTask(T payload);
+//
+//	/**
+//	 * 异步发送“推送任务”
+//	 */
+//	<T> void sendPushTask(T payload);
+//
+//	/**
+//	 * 异步发送“重试任务”
+//	 */
+//	<T> void sendRetryTask(T payload);
+//
+//	/**
+//	 * 发送延迟的【消息发送】任务
+//	 */
+//	<T> void sendDelayedSendTask(T payload, long delayMillis);
+//
+//	/**
+//	 * 发送延迟的【消息过期】处理任务
+//	 */
+//	<T> void sendDelayedExpireTask(T payload, long delayMillis);
 
 }
